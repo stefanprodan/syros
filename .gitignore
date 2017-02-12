@@ -4,7 +4,6 @@
 *.so
 
 # Folders
-.idea
 _obj
 _test
 
@@ -23,3 +22,5 @@ _testmain.go
 *.exe
 *.test
 *.prof
+/.idea/
+/vendor/
