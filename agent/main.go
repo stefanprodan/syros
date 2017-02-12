@@ -35,7 +35,7 @@ func main() {
 		}
 		collectors[i] = collector
 	}
-
+	payloads := make(map[string]*DockerPayload)
 	log.Infof("Starting %v collector(s), collect interval is set to %v second(s)", len(collectors), config.CollectInterval)
 	for _, c := range collectors {
 		go func(collector *DockerCollector) {
@@ -49,6 +49,7 @@ func main() {
 					if err != nil {
 						log.Error(err)
 					} else {
+						payloads[payload.Host.Name] = payload
 						fmt.Printf("Host %+v containers running %+v\n", payload.Host.Name, payload.Host.ContainersRunning)
 					}
 					time.Sleep(time.Duration(config.CollectInterval) * time.Second)
@@ -58,11 +59,19 @@ func main() {
 		}(c)
 	}
 
+	server := &HttpServer{
+		Config: config,
+		Payloads: payloads,
+	}
+	log.Infof("Starting HTTP server on port %v", config.Port)
+	go server.Start()
+
 	//wait for SIGINT (Ctrl+C) or SIGTERM (docker stop)
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	sig := <-sigChan
 	log.Infof("Shuting down %v signal received", sig)
+	server.Stop()
 	log.Infof("Stopping %v collector(s)", len(collectors))
 	for _, collector := range collectors {
 		collector.StopChan <- struct{}{}
