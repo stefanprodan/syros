@@ -1,59 +1,73 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"github.com/docker/docker/client"
-	"github.com/docker/docker/api/types"
 	"os"
 	"os/signal"
 	"syscall"
+	"strings"
+	"time"
 )
 
 func main() {
 	var config = &Config{}
-	flag.StringVar(&config.Environment, "Environment", "DEBUG", "environment: DEBUG, DEV, TEST, STG, PROD")
 	flag.StringVar(&config.LogLevel, "LogLevel", "debug", "logging threshold level: debug|info|warn|error|fatal|panic")
 	flag.IntVar(&config.Port, "Port", 8000, "HTTP port to listen on")
+	flag.IntVar(&config.CollectInterval, "CollectInterval", 10, "Collect interval in seconds")
+	flag.StringVar(&config.Hosts, "Hosts", "", "Docker hosts API addresses comma delimited")
 	flag.Parse()
 
 	setLogLevel(config.LogLevel)
 	log.Infof("Config: %+v", config)
 
-	defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
-	cli, err := client.NewClient(os.Getenv("DOCKER_HOST"), "", nil, defaultHeaders)
-	if err != nil {
-		log.Fatal(err)
+	hosts := strings.Split(config.Hosts, ",")
+	if len(hosts) < 1 {
+		log.Fatalf("no hosts supplied %s", config.Hosts)
 	}
 
-	options := types.ContainerListOptions{All: true}
-	containers, err := cli.ContainerList(context.Background(), options)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	host, err := cli.Info(context.Background())
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Host %s ContainersRunning %v\n", host.Name, host.ContainersRunning)
-
-	for _, container := range containers {
-		containerInfo, err := cli.ContainerInspect(context.Background(), container.ID)
+	collectors := make([]*DockerCollector, len(hosts))
+	for i, host := range hosts {
+		collector, err := NewDockerCollector(host)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%s %s %s\n", containerInfo.Name, container.State, container.Status)
+		collectors[i] = collector
+	}
+
+	log.Infof("Starting %v collector(s), collect interval is set to %v second(s)", len(collectors), config.CollectInterval)
+	for _, c := range collectors {
+		go func(collector *DockerCollector) {
+			stop := false
+			for !stop {
+				select {
+				case <-collector.StopChan:
+					stop = true
+				default:
+					payload, err := collector.Collect()
+					if err != nil {
+						log.Error(err)
+					} else {
+						fmt.Printf("Host %+v containers running %+v\n", payload.Host.Name, payload.Host.ContainersRunning)
+					}
+					time.Sleep(time.Duration(config.CollectInterval) * time.Second)
+				}
+			}
+			log.Infof("Collector exited %v", collector.Host)
+		}(c)
 	}
 
 	//wait for SIGINT (Ctrl+C) or SIGTERM (docker stop)
-	sigchan := make(chan os.Signal, 1)
-	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
-	<-sigchan
-
-	log.Info("Shutdown")
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	sig := <-sigChan
+	log.Infof("Shuting down %v signal received", sig)
+	log.Infof("Stopping %v collector(s)", len(collectors))
+	for _, collector := range collectors {
+		collector.StopChan <- struct{}{}
+	}
+	time.Sleep(10 * time.Second)
 }
 
 func setLogLevel(levelName string) {
