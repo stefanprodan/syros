@@ -2,16 +2,14 @@ package main
 
 import (
 	"fmt"
-	"net/http"
-
-	log "github.com/Sirupsen/logrus"
 	"github.com/braintree/manners"
 	unrender "github.com/unrolled/render"
+	"net/http"
 )
 
 type HttpServer struct {
-	Config   *Config
-	Payloads map[string]*DockerPayload
+	Config *Config
+	Status *AgentStatus
 }
 
 // Starts HTTP Server
@@ -23,7 +21,7 @@ func (s *HttpServer) Start() {
 	})
 
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		render.JSON(w, http.StatusOK, s.Payloads)
+		render.JSON(w, http.StatusOK, s.Status)
 	})
 	http.HandleFunc("/ping", func(w http.ResponseWriter, req *http.Request) {
 		render.Text(w, http.StatusOK, "pong")
@@ -31,12 +29,15 @@ func (s *HttpServer) Start() {
 	http.HandleFunc("/config", func(w http.ResponseWriter, req *http.Request) {
 		render.JSON(w, http.StatusOK, s.Config)
 	})
+	http.HandleFunc("/status", func(w http.ResponseWriter, req *http.Request) {
+		status, code := s.Status.GetStatus()
+		render.JSON(w, code, status)
+	})
 
-	log.Fatal(manners.ListenAndServe(fmt.Sprintf(":%v", s.Config.Port), http.DefaultServeMux))
+	manners.ListenAndServe(fmt.Sprintf(":%v", s.Config.Port), http.DefaultServeMux)
 }
 
 // Stop attempts to gracefully shutdown the HTTP server
 func (s *HttpServer) Stop() {
 	manners.Close()
 }
-

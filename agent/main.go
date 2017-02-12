@@ -2,12 +2,11 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"os"
 	"os/signal"
-	"syscall"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -20,7 +19,7 @@ func main() {
 	flag.Parse()
 
 	setLogLevel(config.LogLevel)
-	log.Infof("Config: %+v", config)
+	log.Infof("Starting with config: %+v", config)
 
 	hosts := strings.Split(config.Hosts, ",")
 	if len(hosts) < 1 {
@@ -35,7 +34,12 @@ func main() {
 		}
 		collectors[i] = collector
 	}
-	payloads := make(map[string]*DockerPayload)
+
+	status, err := NewAgentStatus(hosts)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	log.Infof("Starting %v collector(s), collect interval is set to %v second(s)", len(collectors), config.CollectInterval)
 	for _, c := range collectors {
 		go func(collector *DockerCollector) {
@@ -48,9 +52,9 @@ func main() {
 					payload, err := collector.Collect()
 					if err != nil {
 						log.Error(err)
+						status.SetCollectorStatus(collector.Host, false, nil)
 					} else {
-						payloads[payload.Host.Name] = payload
-						fmt.Printf("Host %+v containers running %+v\n", payload.Host.Name, payload.Host.ContainersRunning)
+						status.SetCollectorStatus(collector.Host, true, payload)
 					}
 					time.Sleep(time.Duration(config.CollectInterval) * time.Second)
 				}
@@ -61,7 +65,7 @@ func main() {
 
 	server := &HttpServer{
 		Config: config,
-		Payloads: payloads,
+		Status: status,
 	}
 	log.Infof("Starting HTTP server on port %v", config.Port)
 	go server.Start()
