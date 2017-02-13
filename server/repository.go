@@ -65,6 +65,22 @@ func (repo *Repository) Initialize() {
 			log.Fatalf("RethinkDB &v table creation failed %v", "hosts", err)
 		}
 	}
+
+	cursor, err = r.DB(repo.Config.Database).TableList().Contains("containers").Run(repo.Session)
+	if err != nil {
+		log.Fatalf("RethinkDB table init query failed %v", err)
+	}
+
+	cursor.One(&cnt)
+	cursor.Close()
+
+	if cnt < 1 {
+		log.Infof("No table found, creating %v", "containers")
+		_, err := r.DB(repo.Config.Database).TableCreate("containers").RunWrite(repo.Session)
+		if err != nil {
+			log.Fatalf("RethinkDB &v table creation failed %v", "containers", err)
+		}
+	}
 }
 
 func (repo *Repository) HostUpsert(host DockerHost) {
@@ -82,6 +98,25 @@ func (repo *Repository) HostUpsert(host DockerHost) {
 		_, err := r.Table("hosts").Get(host.Id).Update(host).Run(repo.Session)
 		if err != nil {
 			log.Errorf("Repository host update failed %v", err)
+		}
+	}
+}
+
+func (repo *Repository) ContainerUpsert(container DockerContainer) {
+	res, err := r.Table("containers").Get(container.Id).Run(repo.Session)
+	if err != nil {
+		log.Errorf("Repository containers upsert query after ID failed %v", err)
+	}
+
+	if res.IsNil() {
+		_, err := r.Table("containers").Insert(container).RunWrite(repo.Session)
+		if err != nil {
+			log.Errorf("Repository containers insert failed %v", err)
+		}
+	} else {
+		_, err := r.Table("containers").Get(container.Id).Update(container).Run(repo.Session)
+		if err != nil {
+			log.Errorf("Repository containers update failed %v", err)
 		}
 	}
 }

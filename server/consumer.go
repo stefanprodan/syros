@@ -19,16 +19,6 @@ type DockerPayload struct {
 	ContainerInfoList []types.ContainerJSON
 }
 
-type Host struct {
-	Id string `gorethink:"id,omitempty"`
-	types.Info
-}
-
-type Container struct {
-	Id string `gorethink:"id,omitempty"`
-	types.Container
-}
-
 func NewNatsConnection(servers string) (*nats.Conn, error) {
 	nc, err := nats.Connect(servers,
 		nats.DisconnectHandler(func(nc *nats.Conn) {
@@ -60,9 +50,22 @@ func (c *DockerConsumer) Consume() {
 		if err != nil {
 			log.Errorf("DockerPayload unmarshal error %v", err)
 		} else {
+
 			log.Infof("Host %v running containes %v", payload.Host.Name, payload.Host.ContainersRunning)
-			host, _ := MapDockerHost(payload.Host) //Host{payload.Host.ID, payload.Host}
+			host, _ := MapDockerHost(payload.Host)
 			c.Repository.HostUpsert(host)
+
+			for _, cj := range payload.ContainerInfoList {
+				if cj.ContainerJSONBase != nil {
+					for _, ct := range payload.ContainerList {
+						if ct.ID == cj.ContainerJSONBase.ID {
+							cont, _ := MapDockerContiner(payload.Host.ID, ct, cj)
+							c.Repository.ContainerUpsert(cont)
+							break
+						}
+					}
+				}
+			}
 		}
 	})
 }

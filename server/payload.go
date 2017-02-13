@@ -80,4 +80,68 @@ func MapDockerHost(info types.Info) (DockerHost, error) {
 }
 
 type DockerContainer struct {
+	Id            string `gorethink:"id,omitempty"`
+	HostId        string `gorethink:"host_id,omitempty"`
+	HostName      string
+	Image         string // Container
+	Command       string
+	Labels        map[string]string
+	State         string
+	Status        string
+	Created       string // ContainerJSON
+	Path          string
+	Args          []string
+	Name          string
+	RestartCount  int
+	Env           []string          // ContainerJSON -> Config
+	PortBindings  map[string]string // ContainerJSON -> HostConfig
+	NetworkMode   string
+	RestartPolicy string
+	StartedAt     string // ContainerJSON -> State
+	FinishedAt    string
+	ExitCode      int
+	Error         string
+}
+
+func MapDockerContiner(hostId string, c types.Container, cj types.ContainerJSON) (DockerContainer, error) {
+	container := DockerContainer{
+		Id:           c.ID,
+		HostId:       hostId,
+		Image:        c.Image,
+		Command:      c.Command,
+		Labels:       c.Labels,
+		State:        c.State,
+		Status:       c.Status,
+		Created:      cj.ContainerJSONBase.Created,
+		Path:         cj.ContainerJSONBase.Path,
+		Args:         cj.ContainerJSONBase.Args,
+		Name:         cj.ContainerJSONBase.Name,
+		RestartCount: cj.ContainerJSONBase.RestartCount,
+		PortBindings: make(map[string]string),
+	}
+
+	container.Name = container.Name[1:len(container.Name)]
+
+	if cj.Config != nil {
+		container.Env = cj.Config.Env
+	}
+
+	if cj.ContainerJSONBase.State != nil {
+		container.StartedAt = cj.ContainerJSONBase.State.StartedAt
+		container.FinishedAt = cj.ContainerJSONBase.State.FinishedAt
+		container.ExitCode = cj.ContainerJSONBase.State.ExitCode
+		container.Error = cj.ContainerJSONBase.State.Error
+	}
+
+	if cj.ContainerJSONBase.HostConfig != nil {
+		container.NetworkMode = string(cj.ContainerJSONBase.HostConfig.NetworkMode)
+		container.RestartPolicy = cj.ContainerJSONBase.HostConfig.RestartPolicy.Name
+		for key, val := range cj.ContainerJSONBase.HostConfig.PortBindings {
+			if len(val) > 0 {
+				container.PortBindings[string(key)] = val[0].HostPort
+			}
+		}
+	}
+
+	return container, nil
 }
