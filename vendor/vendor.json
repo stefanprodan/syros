@@ -21,6 +21,18 @@
 			"revisionTime": "2016-04-18T04:36:13Z"
 		},
 		{
+			"checksumSHA1": "SPQcWDUN+wcTThipcR9EzX4t3E8=",
+			"path": "github.com/cenkalti/backoff",
+			"revision": "b02f2bbce11d7ea6b97f282ef1771b0fe2f65ef3",
+			"revisionTime": "2016-10-20T19:44:10Z"
+		},
+		{
+			"checksumSHA1": "Vkc4f2ZfbxCPJrZqptggW2O94SQ=",
+			"path": "github.com/dancannon/gorethink",
+			"revision": "610fcc04c971a9fa42f1b6625c7c52b5bb472c51",
+			"revisionTime": "2017-01-30T21:28:06Z"
+		},
+		{
 			"checksumSHA1": "Gj+xR1VgFKKmFXYOJMnAczC3Znk=",
 			"path": "github.com/docker/distribution/digestset",
 			"revision": "b1993c95303df3d0214129d85382c3c573e4df20",
@@ -153,6 +165,18 @@
 			"revisionTime": "2017-01-27T09:51:30Z"
 		},
 		{
+			"checksumSHA1": "kBeNcaKk56FguvPSUCEaH6AxpRc=",
+			"path": "github.com/golang/protobuf/proto",
+			"revision": "8ee79997227bf9b34611aee7946ae64735e6fd93",
+			"revisionTime": "2016-11-17T03:31:26Z"
+		},
+		{
+			"checksumSHA1": "O0r0hj4YL+jSRNjnshkeH4GY+4s=",
+			"path": "github.com/hailocab/go-hostpool",
+			"revision": "e80d13ce29ede4452c43dea11e79b9bc8a15b478",
+			"revisionTime": "2016-01-25T11:53:50Z"
+		},
+		{
 			"checksumSHA1": "et+t9kv8mj3FJLUwK8HXalaCwCk=",
 			"path": "github.com/nats-io/go-nats",
 			"revision": "e6bb81b5a5f37ef7bf364bb6276e13813086c6ee",
@@ -195,6 +219,12 @@
 			"revisionTime": "2017-01-09T14:32:44Z"
 		},
 		{
+			"checksumSHA1": "1MGpGDQqnUoRpv7VEcQrXOBydXE=",
+			"path": "golang.org/x/crypto/pbkdf2",
+			"revision": "453249f01cfeb54c3d549ddb75ff152ca243f9d8",
+			"revisionTime": "2017-02-08T20:51:15Z"
+		},
+		{
 			"checksumSHA1": "Y+HGqEkYM15ir+J93MEaHdyFy0c=",
 			"path": "golang.org/x/net/context",
 			"revision": "61557ac0112b576429a0df080e1c2cef5dfbb642",
@@ -223,6 +253,30 @@
 			"path": "golang.org/x/sys/windows",
 			"revision": "aaabbdc969c3935a2a7f61efac801e7163c73a2a",
 			"revisionTime": "2017-02-10T14:16:29Z"
+		},
+		{
+			"checksumSHA1": "1xrcK4/LiP98awGcvqTL5CClTIc=",
+			"path": "gopkg.in/fatih/pool.v2",
+			"revision": "6e328e67893eb46323ad06f0e92cb9536babbabc",
+			"revisionTime": "2017-01-11T21:10:42Z"
+		},
+		{
+			"checksumSHA1": "yjQTriVMAzKdR8CKhDFQMbgrFvg=",
+			"path": "gopkg.in/gorethink/gorethink.v3/encoding",
+			"revision": "610fcc04c971a9fa42f1b6625c7c52b5bb472c51",
+			"revisionTime": "2017-01-30T21:28:06Z"
+		},
+		{
+			"checksumSHA1": "aWKVb1QHxeor0el0wybSLEd4pBc=",
+			"path": "gopkg.in/gorethink/gorethink.v3/ql2",
+			"revision": "610fcc04c971a9fa42f1b6625c7c52b5bb472c51",
+			"revisionTime": "2017-01-30T21:28:06Z"
+		},
+		{
+			"checksumSHA1": "E5k29XlUCWLvucxkOimNHtozB7g=",
+			"path": "gopkg.in/gorethink/gorethink.v3/types",
+			"revision": "610fcc04c971a9fa42f1b6625c7c52b5bb472c51",
+			"revisionTime": "2017-01-30T21:28:06Z"
 		}
 	],
 	"rootPath": "github.com/stefanprodan/syros"

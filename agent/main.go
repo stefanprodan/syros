@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"flag"
 	log "github.com/Sirupsen/logrus"
-	"github.com/nats-io/go-nats"
 	"os"
 	"os/signal"
 	"strings"

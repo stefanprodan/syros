@@ -10,12 +10,23 @@ import (
 type DockerConsumer struct {
 	Config         *Config
 	NatsConnection *nats.Conn
+	Repository     *Repository
 }
 
 type DockerPayload struct {
 	Host              types.Info
 	ContainerList     []types.Container
 	ContainerInfoList []types.ContainerJSON
+}
+
+type Host struct {
+	Id string `gorethink:"id,omitempty"`
+	types.Info
+}
+
+type Container struct {
+	Id string `gorethink:"id,omitempty"`
+	types.Container
 }
 
 func NewNatsConnection(servers string) (*nats.Conn, error) {
@@ -33,10 +44,11 @@ func NewNatsConnection(servers string) (*nats.Conn, error) {
 	return nc, err
 }
 
-func NewDockerConsumer(config *Config, nc *nats.Conn) (*DockerConsumer, error) {
+func NewDockerConsumer(config *Config, nc *nats.Conn, repo *Repository) (*DockerConsumer, error) {
 	consumer := &DockerConsumer{
 		Config:         config,
 		NatsConnection: nc,
+		Repository:     repo,
 	}
 	return consumer, nil
 }
@@ -49,6 +61,8 @@ func (c *DockerConsumer) Consume() {
 			log.Errorf("DockerPayload unmarshal error %v", err)
 		} else {
 			log.Infof("Host %v running containes %v", payload.Host.Name, payload.Host.ContainersRunning)
+			host, _ := MapDockerHost(payload.Host) //Host{payload.Host.ID, payload.Host}
+			c.Repository.HostUpsert(host)
 		}
 	})
 }

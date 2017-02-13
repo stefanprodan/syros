@@ -15,7 +15,17 @@ func main() {
 	flag.StringVar(&config.Nats, "Nats", "nats://localhost:4222", "Nats server addresses comma delimited")
 	flag.StringVar(&config.CollectorTopic, "CollectorTopic", "docker", "Nats collector topic name")
 	flag.StringVar(&config.CollectorQueue, "CollectorQueue", "syros", "Nats collector queue name")
+	flag.StringVar(&config.RethinkDB, "RethinkDB", "localhost:28015", "RethinkDB server addresses comma delimited")
+	flag.StringVar(&config.Database, "Database", "syros", "RethinkDB database name")
 	flag.Parse()
+
+	repo, err := NewRepository(config)
+	if err != nil {
+		log.Fatalf("RethinkDB connection error %v", err)
+	}
+
+	repo.Initialize()
+	log.Infof("Connected to RethinkDB cluster %v database initialization done", config.RethinkDB)
 
 	nc, err := NewNatsConnection(config.Nats)
 	if err != nil {
@@ -25,7 +35,7 @@ func main() {
 
 	log.Infof("Connected to NATS server %v status %v", nc.ConnectedUrl(), nc.Status())
 
-	consumer, err := NewDockerConsumer(config, nc)
+	consumer, err := NewDockerConsumer(config, nc, repo)
 	if err != nil {
 		log.Fatalf("Docker consumer init error %v", err)
 	}

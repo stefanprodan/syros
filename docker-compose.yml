@@ -3,9 +3,17 @@ services:
   nats:
     image: nats
     container_name: syro-nats
-    command: -m 8222 -DV
+    command: -m 8222
     ports:
     - 4222:4222
     - 8222:8222
     - 6222:6222
+    restart: unless-stopped
+  rethinkdb:
+    image: rethinkdb
+    container_name: syro-rethinkdb
+    command: rethinkdb --bind all --server-name syro
+    ports:
+    - 8080:8080
+    - 28015:28015
     restart: unless-stopped

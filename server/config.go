@@ -7,4 +7,6 @@ type Config struct {
 	Nats           string
 	CollectorTopic string
 	CollectorQueue string
+	RethinkDB      string
+	Database       string
 }
