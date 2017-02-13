@@ -5,6 +5,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/docker/docker/api/types"
 	docker "github.com/docker/docker/client"
+	"github.com/nats-io/go-nats"
 	"time"
 )
 
@@ -18,6 +19,21 @@ type DockerPayload struct {
 	Host              types.Info
 	ContainerList     []types.Container
 	ContainerInfoList []types.ContainerJSON
+}
+
+func NewNatsConnection(servers string) (*nats.Conn, error) {
+	nc, err := nats.Connect(servers,
+		nats.DisconnectHandler(func(nc *nats.Conn) {
+			log.Warnf("Got disconnected from NATS %v", servers)
+		}),
+		nats.ReconnectHandler(func(nc *nats.Conn) {
+			log.Infof("Got reconnected to NATS %v", nc.ConnectedUrl())
+		}),
+		nats.ClosedHandler(func(nc *nats.Conn) {
+			log.Errorf("NATS connection closed. Reason: %q", nc.LastError())
+		}),
+	)
+	return nc, err
 }
 
 func NewDockerCollector(host string) (*DockerCollector, error) {

@@ -18,23 +18,14 @@ func main() {
 	flag.IntVar(&config.Port, "Port", 8000, "HTTP port to listen on")
 	flag.IntVar(&config.CollectInterval, "CollectInterval", 10, "Collect interval in seconds")
 	flag.StringVar(&config.Hosts, "Hosts", "", "Docker hosts API addresses comma delimited")
-	flag.StringVar(&config.Nats, "Nats", "nc://localhost:4222", "Nats server addresses comma delimited")
+	flag.StringVar(&config.Nats, "Nats", "nats://localhost:4222", "Nats server addresses comma delimited")
+	flag.StringVar(&config.CollectorTopic, "CollectorTopic", "docker", "Nats collector topic name")
 	flag.Parse()
 
 	setLogLevel(config.LogLevel)
 	log.Infof("Starting with config: %+v", config)
 
-	nc, err := nats.Connect(config.Nats,
-		nats.DisconnectHandler(func(nc *nats.Conn) {
-			log.Warnf("Got disconnected from NATS %v", nc.ConnectedUrl())
-		}),
-		nats.ReconnectHandler(func(nc *nats.Conn) {
-			log.Infof("Got reconnected to NATS %v", nc.ConnectedUrl())
-		}),
-		nats.ClosedHandler(func(nc *nats.Conn) {
-			log.Errorf("NATS connection closed. Reason: %q", nc.LastError())
-		}),
-	)
+	nc, err := NewNatsConnection(config.Nats)
 	defer nc.Close()
 
 	if err != nil {
@@ -76,8 +67,12 @@ func main() {
 						status.SetCollectorStatus(collector.Host, false, nil)
 					} else {
 						status.SetCollectorStatus(collector.Host, true, payload)
-						jsonPayload, _ := json.Marshal(payload)
-						nc.Publish("docker", jsonPayload)
+						jsonPayload, err := json.Marshal(payload)
+						if err != nil {
+							log.Errorf("Collector %v DockerPayload marshal error %v", collector.Host, err)
+						} else {
+							nc.Publish(config.CollectorTopic, jsonPayload)
+						}
 					}
 					time.Sleep(time.Duration(config.CollectInterval) * time.Second)
 				}

@@ -8,4 +8,5 @@ type Config struct {
 	CollectInterval int
 	Hosts           string
 	Nats            string
+	CollectorTopic  string
 }
