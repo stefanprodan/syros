@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	//"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/docker/docker/api/types"
 	docker "github.com/docker/docker/client"

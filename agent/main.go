@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	log "github.com/Sirupsen/logrus"
+	"github.com/nats-io/go-nats"
 	"os"
 	"os/signal"
 	"strings"
@@ -16,10 +18,29 @@ func main() {
 	flag.IntVar(&config.Port, "Port", 8000, "HTTP port to listen on")
 	flag.IntVar(&config.CollectInterval, "CollectInterval", 10, "Collect interval in seconds")
 	flag.StringVar(&config.Hosts, "Hosts", "", "Docker hosts API addresses comma delimited")
+	flag.StringVar(&config.Nats, "Nats", "nc://localhost:4222", "Nats server addresses comma delimited")
 	flag.Parse()
 
 	setLogLevel(config.LogLevel)
 	log.Infof("Starting with config: %+v", config)
+
+	nc, err := nats.Connect(config.Nats,
+		nats.DisconnectHandler(func(nc *nats.Conn) {
+			log.Warnf("Got disconnected from NATS %v", nc.ConnectedUrl())
+		}),
+		nats.ReconnectHandler(func(nc *nats.Conn) {
+			log.Infof("Got reconnected to NATS %v", nc.ConnectedUrl())
+		}),
+		nats.ClosedHandler(func(nc *nats.Conn) {
+			log.Errorf("NATS connection closed. Reason: %q", nc.LastError())
+		}),
+	)
+	defer nc.Close()
+
+	if err != nil {
+		log.Fatalf("Nats connection error %v", err)
+	}
+	log.Infof("Connected to NATS server %v status %v", nc.ConnectedUrl(), nc.Status())
 
 	hosts := strings.Split(config.Hosts, ",")
 	if len(hosts) < 1 {
@@ -55,6 +76,8 @@ func main() {
 						status.SetCollectorStatus(collector.Host, false, nil)
 					} else {
 						status.SetCollectorStatus(collector.Host, true, payload)
+						jsonPayload, _ := json.Marshal(payload)
+						nc.Publish("docker", jsonPayload)
 					}
 					time.Sleep(time.Duration(config.CollectInterval) * time.Second)
 				}

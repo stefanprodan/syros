@@ -1,0 +1,11 @@
+version: '3'
+services:
+  nats:
+    image: nats
+    container_name: syro-nats
+    command: -m 8222 -DV
+    ports:
+    - 4222:4222
+    - 8222:8222
+    - 6222:6222
+    restart: unless-stopped

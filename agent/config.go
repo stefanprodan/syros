@@ -7,4 +7,5 @@ type Config struct {
 	Port            int
 	CollectInterval int
 	Hosts           string
+	Nats            string
 }
