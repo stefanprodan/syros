@@ -81,6 +81,22 @@ func (repo *Repository) Initialize() {
 			log.Fatalf("RethinkDB &v table creation failed %v", "containers", err)
 		}
 	}
+
+	cursor, err = r.DB(repo.Config.Database).Table("containers").IndexList().Contains("HostId").Run(repo.Session)
+	if err != nil {
+		log.Fatalf("RethinkDB index init query failed %v", err)
+	}
+
+	cursor.One(&cnt)
+	cursor.Close()
+
+	if cnt < 1 {
+		log.Infof("No index found on table %v, creating %v", "containers", "HostId")
+		_, err := r.DB(repo.Config.Database).Table("containers").IndexCreate("HostId").RunWrite(repo.Session)
+		if err != nil {
+			log.Fatalf("RethinkDB &v index creation failed %v", "containers", err)
+		}
+	}
 }
 
 func (repo *Repository) HostUpsert(host DockerHost) {
