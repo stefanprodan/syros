@@ -16,7 +16,7 @@ func main() {
 	flag.StringVar(&config.LogLevel, "LogLevel", "debug", "logging threshold level: debug|info|warn|error|fatal|panic")
 	flag.IntVar(&config.Port, "Port", 8000, "HTTP port to listen on")
 	flag.IntVar(&config.CollectInterval, "CollectInterval", 10, "Collect interval in seconds")
-	flag.StringVar(&config.Hosts, "Hosts", "", "Docker hosts API addresses comma delimited")
+	flag.StringVar(&config.DockerApiAddresses, "DockerApiAddresses", "", "Docker hosts API addresses comma delimited")
 	flag.StringVar(&config.Nats, "Nats", "nats://localhost:4222", "Nats server addresses comma delimited")
 	flag.StringVar(&config.CollectorTopic, "CollectorTopic", "docker", "Nats collector topic name")
 	flag.Parse()
@@ -32,9 +32,9 @@ func main() {
 	}
 	log.Infof("Connected to NATS server %v status %v", nc.ConnectedUrl(), nc.Status())
 
-	hosts := strings.Split(config.Hosts, ",")
+	hosts := strings.Split(config.DockerApiAddresses, ",")
 	if len(hosts) < 1 {
-		log.Fatalf("no hosts supplied %s", config.Hosts)
+		log.Fatalf("no hosts supplied %s", config.DockerApiAddresses)
 	}
 
 	collectors := make([]*DockerCollector, len(hosts))
@@ -63,20 +63,23 @@ func main() {
 					payload, err := collector.Collect()
 					if err != nil {
 						log.Error(err)
-						status.SetCollectorStatus(collector.Host, false, nil)
+						status.SetCollectorStatus(collector.ApiAddress, false, nil)
 					} else {
-						status.SetCollectorStatus(collector.Host, true, payload)
+						status.SetCollectorStatus(collector.ApiAddress, true, payload)
 						jsonPayload, err := json.Marshal(payload)
 						if err != nil {
-							log.Errorf("Collector %v DockerPayload marshal error %v", collector.Host, err)
+							log.Errorf("Docker collector %v payload marshal error %v", collector.ApiAddress, err)
 						} else {
-							nc.Publish(config.CollectorTopic, jsonPayload)
+							err := nc.Publish(config.CollectorTopic, jsonPayload)
+							if err != nil {
+								log.Errorf("Docker collector %v NATS publish failed %v", collector.ApiAddress, err)
+							}
 						}
 					}
 					time.Sleep(time.Duration(config.CollectInterval) * time.Second)
 				}
 			}
-			log.Infof("Collector exited %v", collector.Host)
+			log.Infof("Collector exited %v", collector.ApiAddress)
 		}(c)
 	}
 

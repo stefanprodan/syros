@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	log "github.com/Sirupsen/logrus"
 	r "github.com/dancannon/gorethink"
+	"github.com/stefanprodan/syros/models"
 )
 
 type Repository struct {
@@ -43,7 +44,7 @@ func (repo *Repository) Initialize() {
 	cursor.Close()
 
 	if cnt < 1 {
-		log.Infof("No database found, creating %v", repo.Config.Database)
+		log.Infof("RethinkDB no database found, creating %v", repo.Config.Database)
 		_, err := r.DBCreate(repo.Config.Database).RunWrite(repo.Session)
 		if err != nil {
 			log.Fatalf("RethinkDB database creation failed %v", err)
@@ -59,7 +60,7 @@ func (repo *Repository) Initialize() {
 	cursor.Close()
 
 	if cnt < 1 {
-		log.Infof("No table found, creating %v", "hosts")
+		log.Infof("RethinkDB no table found, creating %v", "hosts")
 		_, err := r.DB(repo.Config.Database).TableCreate("hosts").RunWrite(repo.Session)
 		if err != nil {
 			log.Fatalf("RethinkDB &v table creation failed %v", "hosts", err)
@@ -75,7 +76,7 @@ func (repo *Repository) Initialize() {
 	cursor.Close()
 
 	if cnt < 1 {
-		log.Infof("No table found, creating %v", "containers")
+		log.Infof("RethinkDB no table found, creating %v", "containers")
 		_, err := r.DB(repo.Config.Database).TableCreate("containers").RunWrite(repo.Session)
 		if err != nil {
 			log.Fatalf("RethinkDB &v table creation failed %v", "containers", err)
@@ -91,7 +92,7 @@ func (repo *Repository) Initialize() {
 	cursor.Close()
 
 	if cnt < 1 {
-		log.Infof("No index found on table %v, creating %v", "containers", "HostId")
+		log.Infof("RethinkDB no index found on table %v, creating %v", "containers", "HostId")
 		_, err := r.DB(repo.Config.Database).Table("containers").IndexCreate("HostId").RunWrite(repo.Session)
 		if err != nil {
 			log.Fatalf("RethinkDB &v index creation failed %v", "containers", err)
@@ -99,7 +100,7 @@ func (repo *Repository) Initialize() {
 	}
 }
 
-func (repo *Repository) HostUpsert(host DockerHost) {
+func (repo *Repository) HostUpsert(host models.DockerHost) {
 	res, err := r.Table("hosts").Get(host.Id).Run(repo.Session)
 	if err != nil {
 		log.Errorf("Repository host upsert query after ID failed %v", err)
@@ -118,7 +119,7 @@ func (repo *Repository) HostUpsert(host DockerHost) {
 	}
 }
 
-func (repo *Repository) ContainerUpsert(container DockerContainer) {
+func (repo *Repository) ContainerUpsert(container models.DockerContainer) {
 	res, err := r.Table("containers").Get(container.Id).Run(repo.Session)
 	if err != nil {
 		log.Errorf("Repository containers upsert query after ID failed %v", err)

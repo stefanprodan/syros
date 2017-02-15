@@ -1,46 +1,69 @@
 package main
 
 import (
-	//log "github.com/Sirupsen/logrus"
+	"context"
+	log "github.com/Sirupsen/logrus"
 	"github.com/docker/docker/api/types"
+	docker "github.com/docker/docker/client"
+	"github.com/stefanprodan/syros/models"
+	"time"
 )
 
-type DockerHost struct {
-	Id                 string `gorethink:"id,omitempty"`
-	Containers         int
-	ContainersRunning  int
-	ContainersPaused   int
-	ContainersStopped  int
-	Images             int
-	Driver             string
-	SystemTime         string
-	LoggingDriver      string
-	CgroupDriver       string
-	NEventsListener    int
-	KernelVersion      string
-	OperatingSystem    string
-	OSType             string
-	Architecture       string
-	IndexServerAddress string
-	NCPU               int
-	MemTotal           int64
-	DockerRootDir      string
-	HTTPProxy          string
-	HTTPSProxy         string
-	NoProxy            string
-	Name               string
-	Labels             []string
-	ExperimentalBuild  bool
-	ServerVersion      string
-	ClusterStore       string
-	ClusterAdvertise   string
-	DefaultRuntime     string
-	LiveRestoreEnabled bool
-	Registries         []string
+type DockerCollector struct {
+	ApiAddress string
+	Client     *docker.Client
+	StopChan   chan struct{}
 }
 
-func MapDockerHost(info types.Info) (DockerHost, error) {
-	host := DockerHost{
+func NewDockerCollector(apiAddress string) (*DockerCollector, error) {
+
+	defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
+	client, err := docker.NewClient(apiAddress, "", nil, defaultHeaders)
+	if err != nil {
+		return nil, err
+	}
+	collector := &DockerCollector{
+		ApiAddress: apiAddress,
+		Client:     client,
+		StopChan:   make(chan struct{}, 1),
+	}
+
+	return collector, nil
+}
+
+func (col *DockerCollector) Collect() (*models.DockerPayload, error) {
+	start := time.Now().UTC()
+	payload := &models.DockerPayload{}
+
+	host, err := col.Client.Info(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	payload.Host = MapDockerHost(host)
+
+	options := types.ContainerListOptions{All: true}
+	containers, err := col.Client.ContainerList(context.Background(), options)
+	if err != nil {
+		return nil, err
+	}
+
+	payload.Containers = make([]models.DockerContainer, 0)
+
+	for _, container := range containers {
+		containerInfo, err := col.Client.ContainerInspect(context.Background(), container.ID)
+		if err != nil {
+			log.Error(err)
+			continue
+		}
+		payload.Containers = append(payload.Containers, MapDockerContainer(host.ID, container, containerInfo))
+	}
+
+	log.Debugf("%v collect duration: %v containers %v", col.ApiAddress, time.Now().UTC().Sub(start), len(payload.Containers))
+	return payload, nil
+}
+
+func MapDockerHost(info types.Info) models.DockerHost {
+	host := models.DockerHost{
 		Id:                 info.ID,
 		Containers:         info.Containers,
 		ContainersRunning:  info.ContainersRunning,
@@ -76,35 +99,11 @@ func MapDockerHost(info types.Info) (DockerHost, error) {
 		host.Registries = append(host.Registries, reg.Name)
 	}
 
-	return host, nil
+	return host
 }
 
-type DockerContainer struct {
-	Id            string `gorethink:"id,omitempty"`
-	HostId        string `gorethink:"host_id,omitempty"`
-	HostName      string
-	Image         string // Container
-	Command       string
-	Labels        map[string]string
-	State         string
-	Status        string
-	Created       string // ContainerJSON
-	Path          string
-	Args          []string
-	Name          string
-	RestartCount  int
-	Env           []string          // ContainerJSON -> Config
-	PortBindings  map[string]string // ContainerJSON -> HostConfig
-	NetworkMode   string
-	RestartPolicy string
-	StartedAt     string // ContainerJSON -> State
-	FinishedAt    string
-	ExitCode      int
-	Error         string
-}
-
-func MapDockerContiner(hostId string, c types.Container, cj types.ContainerJSON) (DockerContainer, error) {
-	container := DockerContainer{
+func MapDockerContainer(hostId string, c types.Container, cj types.ContainerJSON) models.DockerContainer {
+	container := models.DockerContainer{
 		Id:           c.ID,
 		HostId:       hostId,
 		Image:        c.Image,
@@ -143,5 +142,5 @@ func MapDockerContiner(hostId string, c types.Container, cj types.ContainerJSON)
 		}
 	}
 
-	return container, nil
+	return container
 }

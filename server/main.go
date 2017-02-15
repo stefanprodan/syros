@@ -19,6 +19,9 @@ func main() {
 	flag.StringVar(&config.Database, "Database", "syros", "RethinkDB database name")
 	flag.Parse()
 
+	setLogLevel(config.LogLevel)
+	log.Infof("Starting with config: %+v", config)
+
 	repo, err := NewRepository(config)
 	if err != nil {
 		log.Fatalf("RethinkDB connection error %v", err)
@@ -35,15 +38,23 @@ func main() {
 
 	log.Infof("Connected to NATS server %v status %v", nc.ConnectedUrl(), nc.Status())
 
-	consumer, err := NewDockerConsumer(config, nc, repo)
+	dockerConsumer, err := NewDockerConsumer(config, nc, repo)
 	if err != nil {
 		log.Fatalf("Docker consumer init error %v", err)
 	}
-	consumer.Consume()
+	dockerConsumer.Consume()
 
 	//wait for SIGINT (Ctrl+C) or SIGTERM (docker stop)
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	sig := <-sigChan
 	log.Infof("Shuting down %v signal received", sig)
+}
+
+func setLogLevel(levelName string) {
+	level, err := log.ParseLevel(levelName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.SetLevel(level)
 }
