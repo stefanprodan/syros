@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type DockerPayload struct {
 	Host       DockerHost
 	Containers []DockerContainer
@@ -37,18 +39,20 @@ type DockerHost struct {
 	DefaultRuntime     string
 	LiveRestoreEnabled bool
 	Registries         []string
+	Collected          time.Time
 }
 
 type DockerContainer struct {
 	Id            string `gorethink:"id,omitempty"`
 	HostId        string `gorethink:"host_id,omitempty"`
 	HostName      string
+	Port          string
 	Image         string // Container
 	Command       string
 	Labels        map[string]string
 	State         string
 	Status        string
-	Created       string // ContainerJSON
+	Created       time.Time // ContainerJSON
 	Path          string
 	Args          []string
 	Name          string
@@ -57,8 +61,9 @@ type DockerContainer struct {
 	PortBindings  map[string]string // ContainerJSON -> HostConfig
 	NetworkMode   string
 	RestartPolicy string
-	StartedAt     string // ContainerJSON -> State
-	FinishedAt    string
+	StartedAt     time.Time // ContainerJSON -> State
+	FinishedAt    time.Time
 	ExitCode      int
 	Error         string
+	Collected     time.Time
 }

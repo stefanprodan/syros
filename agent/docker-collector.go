@@ -55,7 +55,7 @@ func (col *DockerCollector) Collect() (*models.DockerPayload, error) {
 			log.Error(err)
 			continue
 		}
-		payload.Containers = append(payload.Containers, MapDockerContainer(host.ID, container, containerInfo))
+		payload.Containers = append(payload.Containers, MapDockerContainer(host.ID, host.Name, container, containerInfo))
 	}
 
 	log.Debugf("%v collect duration: %v containers %v", col.ApiAddress, time.Now().UTC().Sub(start), len(payload.Containers))
@@ -94,6 +94,7 @@ func MapDockerHost(info types.Info) models.DockerHost {
 		ClusterAdvertise:   info.ClusterAdvertise,
 		DefaultRuntime:     info.DefaultRuntime,
 		LiveRestoreEnabled: info.LiveRestoreEnabled,
+		Collected:          time.Now().UTC(),
 	}
 	for _, reg := range info.RegistryConfig.IndexConfigs {
 		host.Registries = append(host.Registries, reg.Name)
@@ -102,32 +103,37 @@ func MapDockerHost(info types.Info) models.DockerHost {
 	return host
 }
 
-func MapDockerContainer(hostId string, c types.Container, cj types.ContainerJSON) models.DockerContainer {
+func MapDockerContainer(hostId string, hostName string, c types.Container, cj types.ContainerJSON) models.DockerContainer {
 	container := models.DockerContainer{
 		Id:           c.ID,
 		HostId:       hostId,
+		HostName:     hostName,
 		Image:        c.Image,
 		Command:      c.Command,
 		Labels:       c.Labels,
 		State:        c.State,
 		Status:       c.Status,
-		Created:      cj.ContainerJSONBase.Created,
 		Path:         cj.ContainerJSONBase.Path,
 		Args:         cj.ContainerJSONBase.Args,
 		Name:         cj.ContainerJSONBase.Name,
 		RestartCount: cj.ContainerJSONBase.RestartCount,
 		PortBindings: make(map[string]string),
+		Collected:    time.Now().UTC(),
 	}
 
-	container.Name = container.Name[1:len(container.Name)]
+	container.Created, _ = time.Parse(time.RFC3339, cj.ContainerJSONBase.Created)
+	if len(container.Name) > 1 {
+		container.Name = container.Name[1:len(container.Name)]
+	}
 
 	if cj.Config != nil {
 		container.Env = cj.Config.Env
 	}
 
 	if cj.ContainerJSONBase.State != nil {
-		container.StartedAt = cj.ContainerJSONBase.State.StartedAt
-		container.FinishedAt = cj.ContainerJSONBase.State.FinishedAt
+
+		container.StartedAt, _ = time.Parse(time.RFC3339, cj.ContainerJSONBase.State.StartedAt)
+		container.FinishedAt, _ = time.Parse(time.RFC3339, cj.ContainerJSONBase.State.FinishedAt)
 		container.ExitCode = cj.ContainerJSONBase.State.ExitCode
 		container.Error = cj.ContainerJSONBase.State.Error
 	}
@@ -138,6 +144,15 @@ func MapDockerContainer(hostId string, c types.Container, cj types.ContainerJSON
 		for key, val := range cj.ContainerJSONBase.HostConfig.PortBindings {
 			if len(val) > 0 {
 				container.PortBindings[string(key)] = val[0].HostPort
+			}
+		}
+	}
+
+	// use first Host port bind as container Port
+	if len(container.PortBindings) > 0 {
+		for _, val := range container.PortBindings {
+			if len(val) > 0 {
+				container.Port = val
 			}
 		}
 	}
