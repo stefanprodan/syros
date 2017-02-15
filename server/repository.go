@@ -5,6 +5,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	r "github.com/dancannon/gorethink"
 	"github.com/stefanprodan/syros/models"
+	"time"
 )
 
 type Repository struct {
@@ -105,6 +106,7 @@ func (repo *Repository) HostUpsert(host models.DockerHost) {
 	res, err := r.Table("hosts").Get(host.Id).Run(repo.Session)
 	if err != nil {
 		log.Errorf("Repository host upsert query after ID failed %v", err)
+		return
 	}
 
 	if res.IsNil() {
@@ -124,6 +126,7 @@ func (repo *Repository) ContainerUpsert(container models.DockerContainer) {
 	res, err := r.Table("containers").Get(container.Id).Run(repo.Session)
 	if err != nil {
 		log.Errorf("Repository containers upsert query after ID failed %v", err)
+		return
 	}
 
 	if res.IsNil() {
@@ -136,6 +139,30 @@ func (repo *Repository) ContainerUpsert(container models.DockerContainer) {
 		if err != nil {
 			log.Errorf("Repository containers update failed %v", err)
 		}
+	}
+}
+
+// Removes stale records that have not been updated for a while
+func (repo *Repository) RunGarbageCollector(tables []string) {
+	if repo.Config.DatabaseStale > 0 {
+		go func() {
+			for _, table := range tables {
+				res, err := r.Table(table).
+					Between(time.Now().Add(-12*time.Hour).UTC(),
+						time.Now().Add(-time.Duration(repo.Config.DatabaseStale)*time.Minute).UTC(),
+						r.BetweenOpts{Index: "Collected"}).
+					Delete().RunWrite(repo.Session)
+				if err != nil {
+					log.Errorf("Repository GC for table %v query failed %v", table, err)
+				} else {
+					if res.Deleted > 0 {
+						log.Infof("Repository GC removed %v from %v", res.Deleted, table)
+					}
+				}
+			}
+
+			time.Sleep(60 * time.Second)
+		}()
 	}
 }
 

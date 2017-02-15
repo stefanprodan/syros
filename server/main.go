@@ -17,6 +17,7 @@ func main() {
 	flag.StringVar(&config.CollectorQueue, "CollectorQueue", "syros", "Nats collector queue name")
 	flag.StringVar(&config.RethinkDB, "RethinkDB", "localhost:28015", "RethinkDB server addresses comma delimited")
 	flag.StringVar(&config.Database, "Database", "syros", "RethinkDB database name")
+	flag.IntVar(&config.DatabaseStale, "DatabaseStale", 5, "Deletes database records older than specified value in minutes, set 0 to disable")
 	flag.Parse()
 
 	setLogLevel(config.LogLevel)
@@ -29,6 +30,8 @@ func main() {
 
 	repo.Initialize()
 	log.Infof("Connected to RethinkDB cluster %v database initialization done", config.RethinkDB)
+
+	repo.RunGarbageCollector([]string{"containers", "hosts"})
 
 	nc, err := NewNatsConnection(config.Nats)
 	if err != nil {

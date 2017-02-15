@@ -9,4 +9,5 @@ type Config struct {
 	CollectorQueue string
 	RethinkDB      string
 	Database       string
+	DatabaseStale  int
 }
