@@ -53,9 +53,11 @@ func (repo *Repository) Initialize() {
 	}
 
 	repo.CreateTable("hosts")
+	repo.CreateIndex("hosts", "Environment")
 	repo.CreateIndex("hosts", "Collected")
 	repo.CreateTable("containers")
 	repo.CreateIndex("containers", "HostId")
+	repo.CreateIndex("containers", "Environment")
 	repo.CreateIndex("containers", "Collected")
 }
 

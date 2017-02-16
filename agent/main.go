@@ -17,6 +17,7 @@ import (
 
 func main() {
 	var config = &Config{}
+	flag.StringVar(&config.Environment, "Environment", "dev", "Environment dev|int|stg|test|prep|prod")
 	flag.StringVar(&config.LogLevel, "LogLevel", "debug", "logging threshold level: debug|info|warn|error|fatal|panic")
 	flag.IntVar(&config.Port, "Port", 8000, "HTTP port to listen on")
 	flag.IntVar(&config.CollectInterval, "CollectInterval", 10, "Collect interval in seconds")
@@ -44,7 +45,7 @@ func main() {
 
 	collectors := make([]*DockerCollector, len(hosts))
 	for i, host := range hosts {
-		collector, err := NewDockerCollector(host)
+		collector, err := NewDockerCollector(host, config)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -56,7 +57,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	agent := models.Agent{}
+	agent := models.Agent{
+		Environment: config.Environment,
+	}
 	agent.Hostname, _ = os.Hostname()
 	agent.Id, _ = newUUID()
 	log.Infof("Register service as %v", agent.Hostname)

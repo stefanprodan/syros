@@ -12,10 +12,11 @@ import (
 type DockerCollector struct {
 	ApiAddress string
 	Client     *docker.Client
+	Config     *Config
 	StopChan   chan struct{}
 }
 
-func NewDockerCollector(apiAddress string) (*DockerCollector, error) {
+func NewDockerCollector(apiAddress string, config *Config) (*DockerCollector, error) {
 
 	defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
 	client, err := docker.NewClient(apiAddress, "", nil, defaultHeaders)
@@ -25,6 +26,7 @@ func NewDockerCollector(apiAddress string) (*DockerCollector, error) {
 	collector := &DockerCollector{
 		ApiAddress: apiAddress,
 		Client:     client,
+		Config:     config,
 		StopChan:   make(chan struct{}, 1),
 	}
 
@@ -39,7 +41,7 @@ func (col *DockerCollector) Collect() (*models.DockerPayload, error) {
 	if err != nil {
 		return nil, err
 	}
-	payload.Host = MapDockerHost(host)
+	payload.Host = MapDockerHost(col.Config.Environment, host)
 
 	options := types.ContainerListOptions{All: true}
 	containers, err := col.Client.ContainerList(context.Background(), options)
@@ -55,14 +57,14 @@ func (col *DockerCollector) Collect() (*models.DockerPayload, error) {
 			log.Error(err)
 			continue
 		}
-		payload.Containers = append(payload.Containers, MapDockerContainer(host.ID, host.Name, container, containerInfo))
+		payload.Containers = append(payload.Containers, MapDockerContainer(col.Config.Environment, host.ID, host.Name, container, containerInfo))
 	}
 
 	log.Debugf("%v collect duration: %v containers %v", col.ApiAddress, time.Now().UTC().Sub(start), len(payload.Containers))
 	return payload, nil
 }
 
-func MapDockerHost(info types.Info) models.DockerHost {
+func MapDockerHost(environment string, info types.Info) models.DockerHost {
 	host := models.DockerHost{
 		Id:                 info.ID,
 		Containers:         info.Containers,
@@ -95,6 +97,7 @@ func MapDockerHost(info types.Info) models.DockerHost {
 		DefaultRuntime:     info.DefaultRuntime,
 		LiveRestoreEnabled: info.LiveRestoreEnabled,
 		Collected:          time.Now().UTC(),
+		Environment:        environment,
 	}
 	for _, reg := range info.RegistryConfig.IndexConfigs {
 		host.Registries = append(host.Registries, reg.Name)
@@ -103,7 +106,7 @@ func MapDockerHost(info types.Info) models.DockerHost {
 	return host
 }
 
-func MapDockerContainer(hostId string, hostName string, c types.Container, cj types.ContainerJSON) models.DockerContainer {
+func MapDockerContainer(environment string, hostId string, hostName string, c types.Container, cj types.ContainerJSON) models.DockerContainer {
 	container := models.DockerContainer{
 		Id:           c.ID,
 		HostId:       hostId,
@@ -119,6 +122,7 @@ func MapDockerContainer(hostId string, hostName string, c types.Container, cj ty
 		RestartCount: cj.ContainerJSONBase.RestartCount,
 		PortBindings: make(map[string]string),
 		Collected:    time.Now().UTC(),
+		Environment:  environment,
 	}
 
 	container.Created, _ = time.Parse(time.RFC3339, cj.ContainerJSONBase.Created)

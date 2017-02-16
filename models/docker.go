@@ -40,6 +40,7 @@ type DockerHost struct {
 	LiveRestoreEnabled bool
 	Registries         []string
 	Collected          time.Time
+	Environment        string
 }
 
 type DockerContainer struct {
@@ -66,4 +67,5 @@ type DockerContainer struct {
 	ExitCode      int
 	Error         string
 	Collected     time.Time
+	Environment   string
 }
