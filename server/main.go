@@ -11,10 +11,12 @@ import (
 func main() {
 	var config = &Config{}
 	flag.StringVar(&config.LogLevel, "LogLevel", "debug", "logging threshold level: debug|info|warn|error|fatal|panic")
-	flag.IntVar(&config.Port, "Port", 8000, "HTTP port to listen on")
+	flag.IntVar(&config.Port, "Port", 8008, "HTTP port to listen on")
 	flag.StringVar(&config.Nats, "Nats", "nats://localhost:4222", "Nats server addresses comma delimited")
 	flag.StringVar(&config.CollectorTopic, "CollectorTopic", "docker", "Nats collector topic name")
 	flag.StringVar(&config.CollectorQueue, "CollectorQueue", "syros", "Nats collector queue name")
+	flag.StringVar(&config.RegistryTopic, "RegistryTopic", "registry", "Nats registry topic name")
+	flag.StringVar(&config.RegistryQueue, "RegistryQueue", "syros", "Nats registry queue name")
 	flag.StringVar(&config.RethinkDB, "RethinkDB", "localhost:28015", "RethinkDB server addresses comma delimited")
 	flag.StringVar(&config.Database, "Database", "syros", "RethinkDB database name")
 	flag.IntVar(&config.DatabaseStale, "DatabaseStale", 5, "Deletes database records older than specified value in minutes, set 0 to disable")
@@ -41,11 +43,21 @@ func main() {
 
 	log.Infof("Connected to NATS server %v status %v", nc.ConnectedUrl(), nc.Status())
 
+	registry := NewRegistry(config, nc)
+	registry.WatchForAgents()
+
 	dockerConsumer, err := NewDockerConsumer(config, nc, repo)
 	if err != nil {
 		log.Fatalf("Docker consumer init error %v", err)
 	}
 	dockerConsumer.Consume()
+
+	server := &HttpServer{
+		Config:   config,
+		Registry: registry,
+	}
+	log.Infof("Starting HTTP server on port %v", config.Port)
+	go server.Start()
 
 	//wait for SIGINT (Ctrl+C) or SIGTERM (docker stop)
 	sigChan := make(chan os.Signal, 1)

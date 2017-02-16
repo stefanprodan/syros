@@ -1,9 +1,13 @@
 package main
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"flag"
+	"fmt"
 	log "github.com/Sirupsen/logrus"
+	"github.com/stefanprodan/syros/models"
+	"io"
 	"os"
 	"os/signal"
 	"strings"
@@ -19,6 +23,7 @@ func main() {
 	flag.StringVar(&config.DockerApiAddresses, "DockerApiAddresses", "", "Docker hosts API addresses comma delimited")
 	flag.StringVar(&config.Nats, "Nats", "nats://localhost:4222", "Nats server addresses comma delimited")
 	flag.StringVar(&config.CollectorTopic, "CollectorTopic", "docker", "Nats collector topic name")
+	flag.StringVar(&config.RegistryTopic, "RegistryTopic", "registry", "Nats registry topic name")
 	flag.Parse()
 
 	setLogLevel(config.LogLevel)
@@ -51,6 +56,26 @@ func main() {
 		log.Fatal(err)
 	}
 
+	agent := models.Agent{}
+	agent.Hostname, _ = os.Hostname()
+	agent.Id, _ = newUUID()
+	log.Infof("Register service as %v", agent.Hostname)
+	go func(a models.Agent) {
+		for true {
+			agent.LastSeen = time.Now().UTC()
+			jsonPayload, err := json.Marshal(agent)
+			if err != nil {
+				log.Errorf("Agent payload marshal error %v", err)
+			} else {
+				err := nc.Publish(config.RegistryTopic, jsonPayload)
+				if err != nil {
+					log.Errorf("Registry NATS publish failed %v", err)
+				}
+			}
+			time.Sleep(5 * time.Second)
+		}
+	}(agent)
+
 	log.Infof("Starting %v collector(s), collect interval is set to %v second(s)", len(collectors), config.CollectInterval)
 	for _, c := range collectors {
 		go func(collector *DockerCollector) {
@@ -62,7 +87,7 @@ func main() {
 				default:
 					payload, err := collector.Collect()
 					if err != nil {
-						log.Error(err)
+						log.Errorf("Docker collector % error %v", collector.ApiAddress, err)
 						status.SetCollectorStatus(collector.ApiAddress, false, nil)
 					} else {
 						status.SetCollectorStatus(collector.ApiAddress, true, payload)
@@ -109,4 +134,17 @@ func setLogLevel(levelName string) {
 		log.Fatal(err)
 	}
 	log.SetLevel(level)
+}
+
+func newUUID() (string, error) {
+	uuid := make([]byte, 16)
+	n, err := io.ReadFull(rand.Reader, uuid)
+	if n != len(uuid) || err != nil {
+		return "", err
+	}
+	// variant bits; see section 4.1.1
+	uuid[8] = uuid[8]&^0xc0 | 0x80
+	// version 4 (pseudo-random); see section 4.1.3
+	uuid[6] = uuid[6]&^0xf0 | 0x40
+	return fmt.Sprintf("%x-%x-%x-%x-%x", uuid[0:4], uuid[4:6], uuid[6:8], uuid[8:10], uuid[10:]), nil
 }

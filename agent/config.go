@@ -9,4 +9,5 @@ type Config struct {
 	DockerApiAddresses string
 	Nats               string
 	CollectorTopic     string
+	RegistryTopic      string
 }
