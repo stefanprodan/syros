@@ -22,5 +22,11 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+.DS_Store
+node_modules/
+dist/
+npm-debug.log
+
 /.idea/
 /vendor/
