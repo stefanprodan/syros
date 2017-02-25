@@ -32,6 +32,9 @@ Vue.$http = Axios
 import jQuery from 'jquery'
 window.$ = window.jQuery = jQuery
 
+import moment from 'moment'
+window.moment = moment
+
 require('bootstrap')
 require('bootstrap/less/bootstrap.less')
 require('font-awesome/less/font-awesome.less')
@@ -39,7 +42,7 @@ require('./assets/app.scss')
 
 import {ClientTable} from 'vue-tables-2'
 Vue.use(ClientTable, {
-  compileTemplates: false,
+  compileTemplates: true,
   highlightMatches: false,
   pagination: {
     dropdown: false,
@@ -47,7 +50,7 @@ Vue.use(ClientTable, {
   },
   filterByColumn: false,
   texts: {
-    filter: 'Search:'
+    filter: ''
   },
   datepickerOptions: {
     showDropdowns: false

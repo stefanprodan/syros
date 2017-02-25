@@ -5,7 +5,7 @@
       <div class="row">
         <div class="col-sm-3 col-lg-2">
           <nav class="navbar navbar-default navbar-fixed-side navbar-inverse">
-            <div class="container">
+            
               <div class="navbar-header">
                 <button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse">
                   <span class="sr-only">Toggle navigation</span>
@@ -34,18 +34,16 @@
                   <a>
                     Hosts
                   </a>
-                </router-link>
-                  <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Dropdown <b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                      <li><a href="#">Sub-page 1</a></li>
-                      <li><a href="#">Sub-page 2</a></li>
-                      <li class="divider"></li>
-                      <li class="dropdown-header">Dropdown Header</li>
-                      <li><a href="#">Sub-page 3</a></li>
-                    </ul>
-                  </li>
+                </router-link>                
                 </ul>
-                <ul class="nav navbar-nav navbar-right">
+                <ul class="nav navbar-nav navbar-indent">
+                  <li class="dropdown-header">Environments</li>
+                  <li><a href="#">INT</a></li>
+                  <li><a href="#">STG</a></li>
+                  <li><a href="#">PREP</a></li>
+                  <li><a href="#">PROD</a></li>
+                </ul>
+                <ul class="nav navbar-nav">
                   <li><a href="#"><i class="fa fa-sign-out"></i> Logout</a></li>
                 </ul>
                 <p class="navbar-text">
@@ -53,7 +51,7 @@
                   <a href="http://www.stefanprodan.com">Stefan</a>
                 </p>
               </div>
-            </div>
+            
           </nav>
         </div>
         <div class="col-sm-9 col-lg-10">
@@ -99,11 +97,3 @@
     }
   }
 </script>
-
-<style>
-  #app {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-</style>

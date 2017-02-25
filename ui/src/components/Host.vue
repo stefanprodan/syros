@@ -18,25 +18,3 @@
 
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-  #vue-tables-options {
-    text-align: center;
-  }
-  
-  table {
-    text-align: left;
-  }
-  
-  h2 {
-    margin-bottom: 10px;
-  }
-  
-  thead tr:nth-child(2) th {
-    font-weight: normal;
-  }
-  
-  .VueTables__sortable {
-    cursor: pointer;
-  }
-</style>
