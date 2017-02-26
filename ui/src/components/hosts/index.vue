@@ -21,14 +21,12 @@
   </div>
 
   <v-client-table ref="hostsTabel" :data="tableData" :columns="columns" :options="options"></v-client-table>
-
-   <v-client-table ref="hostsTabel" :data="tableData" :columns="columns" :options="options"></v-client-table>
-
   
 </div>
 </template>
 
 <script>
+  import Vue from 'vue'
   import rowTemplate from 'components/hosts/row.template.jsx'
   import rowChild from 'components/hosts/row-child.template.jsx'
 
@@ -36,35 +34,18 @@
     name: 'hosts',
     data () {
       return {
-        columns: ['name', 'status', 'age', 'date', 'edit'],
-        stats: {hosts: '12', containers: '34', cpus: '24', ram: '12064 MB'},
-        tableData: [
-            {id: '1', name: 'John', status: 'up', age: '33', date: '21/02/2015'},
-            {id: '2', name: 'Jane', status: 'up', age: '24', date: '18/02/2015'},
-            {id: '3', name: 'Susan', status: 'up', age: '16', date: '21/03/2016'},
-            {id: '4', name: 'Chris', status: 'up', age: '55', date: '11/05/2017'},
-            {id: '5', name: 'John', status: 'down', age: '20', date: '11/02/2015'},
-            {id: '6', name: 'Jane', status: 'up', age: '24', date: '12/02/2015'},
-            {id: '7', name: 'Susan', status: 'up', age: '16', date: '13/02/2015'},
-            {id: '8', name: 'Chris', status: 'up', age: '55', date: '14/02/2015'},
-            {id: '9', name: 'John', status: 'up', age: '20', date: '15/02/2015'},
-            {id: '10', name: 'Jane', status: 'up', age: '24', date: '16/02/2015'},
-            {id: '11', name: 'Susan', status: 'up', age: '16', date: '17/02/2015'},
-            {id: '12', name: 'Chris', status: 'up', age: '55', date: '18/02/2015'},
-            {id: '13', name: 'John', status: 'up', age: '20', date: '19/02/2015'},
-            {id: '14', name: 'Jane', status: 'up', age: '24', date: '20/02/2015'},
-            {id: '15', name: 'Susan', status: 'up', age: '16', date: '23/02/2015'},
-            {id: '16', name: 'Chris', status: 'up', age: '55', date: '24/02/2015'},
-            {id: '17', name: 'Dan', status: 'up', age: '40', date: '26/02/2018'}
-        ],
+        timer: null,
+        stats: {hosts: '0', containers: '0', cpus: '0', ram: '0 MB'},
+        columns: ['name', 'status', 'containers_running', 'ncpu', 'mem_total', 'system_time'],
+        tableData: [],
         options: {
           skin: 'table-hover',
-          sortable: ['name', 'status', 'age', 'date'],
-          dateColumns: ['date'],
-          toMomentFormat: 'DD/MM/YYYY', // YYYY-MM-DDTHH:mm:ssZ
+          sortable: ['name', 'status', 'containers_running', 'ncpu', 'mem_total', 'system_time'],
+          dateColumns: ['system_time'],
+          toMomentFormat: 'YYYY-MM-DDTHH:mm:ssZ',
           uniqueKey: 'id',
-          orderBy: {column: 'date', ascending: true},
-          perPage: 3,
+          orderBy: {column: 'name', ascending: true},
+          perPage: 10,
           perPageValues: [10, 20, 30, 50],
           childRow: rowChild,
           templates: rowTemplate
@@ -72,11 +53,44 @@
       }
     },
     methods: {
-      toggleChildRow (id) {
-        this.$refs.hostsTabel.toggleChildRow(id)
+      loadData () {
+        this.$Progress.start()
+        Vue.$http.get('/hosts')
+          .then((response) => {
+            if (response != null) {
+              this.tableData = response.data
+              var statsHosts = 0
+              var statsContainers = 0
+              var statsCpus = 0
+              var statsRam = 0
+              for (var i = 0, len = response.data.length; i < len; i++) {
+                statsHosts += 1
+                statsContainers += response.data[i].containers_running
+                statsCpus += response.data[i].ncpu
+                statsRam += parseInt(parseFloat((response.data[i].mem_total / Math.pow(1024, 3))).toFixed(0))
+              }
+              this.stats = {
+                hosts: statsHosts.toString(),
+                containers: statsContainers.toString(),
+                cpus: statsCpus.toString(),
+                ram: statsRam.toString() + 'GB'
+              }
+              this.$Progress.finish()
+            } else {
+              this.$Progress.fail()
+            }
+          })
+          .catch((error) => {
+            console.log(error)
+            this.$Progress.fail()
+          })
       },
-      hello () {
-        alert('This is the message.')
+      refreshData () {
+        this.loadData()
+        console.log('Refresh data: ' + this.$options.name)
+        // enqueue new call after 30 seconds
+        if (this.timer) clearTimeout(this.timer)
+        this.timer = setTimeout(this.refreshData, 30000)
       }
     },
     created: function () {
@@ -90,33 +104,20 @@
         this.$refs.hostsTabel.toggleChildRow(id)
       })
 
-      // setTimeout(
-      //   () => {
-      //     this.tableData = [
-      //       {id: '1', name: 'John', status: 'up', age: '33', date: '21/02/2015'},
-      //       {id: '2', name: 'Jane', status: 'up', age: '24', date: '18/02/2015'},
-      //       {id: '3', name: 'Susan', status: 'up', age: '16', date: '21/03/2016'},
-      //       {id: '4', name: 'Chris', status: 'up', age: '55', date: '11/05/2017'},
-      //       {id: '5', name: 'John', status: 'down', age: '20', date: '11/02/2015'},
-      //       {id: '6', name: 'Jane', status: 'up', age: '24', date: '12/02/2015'},
-      //       {id: '7', name: 'Susan', status: 'up', age: '16', date: '13/02/2015'},
-      //       {id: '8', name: 'Chris', status: 'up', age: '55', date: '14/02/2015'},
-      //       {id: '9', name: 'John', status: 'up', age: '20', date: '15/02/2015'},
-      //       {id: '10', name: 'Jane', status: 'up', age: '24', date: '16/02/2015'},
-      //       {id: '11', name: 'Susan', status: 'up', age: '16', date: '17/02/2015'},
-      //       {id: '12', name: 'Chris', status: 'up', age: '55', date: '18/02/2015'},
-      //       {id: '13', name: 'John', status: 'up', age: '20', date: '19/02/2015'},
-      //       {id: '14', name: 'Jane', status: 'up', age: '24', date: '20/02/2015'},
-      //       {id: '15', name: 'Susan', status: 'up', age: '16', date: '23/02/2015'},
-      //       {id: '16', name: 'Chris', status: 'up', age: '55', date: '24/02/2015'},
-      //       {id: '17', name: 'Dan', status: 'up', age: '40', date: '26/02/2018'}
-      //     ]
-      //   },
-      //   500
-      // )
+      this.refreshData()
+
+      setTimeout(
+        () => {
+          // delay run
+        },
+        2500
+      )
     },
     destroyed: function () {
-      console.log('Destroyed: ' + this.$options.name)
+      if (this.timer) {
+        clearTimeout(this.timer)
+        console.log('Destroyed: ' + this.$options.name)
+      }
     }
 }
 

@@ -3,18 +3,94 @@ export default function(h, row) {
     <div class="row">
         <div class="col-md-6">
             <dl>
-                <dt>Git version</dt>
-                <dd>dhshsdfysd6f8tdfgsdfuyer87ft8rfgsdgjsgduys9r7ftrcuygsdcsuydf97dhshsdfysd6f8tdfgsdfuyer87ft8rfgsdgjsgduys9r7ftrcuygsdcsuydf97dhshsdfysd6f8tdfgsdfuyer87ft8rfgsdgjsgduys9r7ftrcuygsdcsuydf97dhshsdfysd6f8tdfgsdfuyer87ft8rfgsdgjsgduys9r7ftrcuygsdcsuydf97dhshsdfysd6f8tdfgsdfuyer87ft8rfgsdgjsgduys9r7ftrcuygsdcsuydf97dhshsdfysd6f8tdfgsdfuyer87ft8rfgsdgjsgduys9r7ftrcuygsdcsuydf97</dd>
+                <dt>environment</dt>
+                <dd>{row.environment}</dd>
             </dl>
             <dl>
-                <dt>Other title</dt>
-                <dd>blaaalla</dd>
+                <dt>containers</dt>
+                <dd>{row.containers}</dd>
+            </dl>
+            <dl>
+                <dt>containers_running</dt>
+                <dd>{row.containers_running}</dd>
+            </dl>
+            <dl>
+                <dt>containers_paused</dt>
+                <dd>{row.containers_paused}</dd>
+            </dl>
+            <dl>
+                <dt>containers_stopped</dt>
+                <dd>{row.containers_stopped}</dd>
+            </dl>
+            <dl>
+                <dt>images</dt>
+                <dd>{row.images}</dd>
+            </dl>
+            <dl>
+                <dt>ncpu</dt>
+                <dd>{row.ncpu}</dd>
+            </dl>
+            <dl>
+                <dt>mem_total</dt>
+                <dd>{ parseFloat((row.mem_total / Math.pow(1024, 3))).toFixed(0) }GB</dd>
+            </dl>
+            <dl>
+                <dt>docker_root_dir</dt>
+                <dd>{row.docker_root_dir}</dd>
+            </dl>
+            <dl>
+                <dt>experimental_build</dt>
+                <dd>{row.experimental_build.toString()}</dd>
+            </dl>
+            <dl>
+                <dt>live_restore_enabled</dt>
+                <dd>{row.live_restore_enabled.toString()}</dd>
             </dl>
         </div>
         <div class="col-md-6">
             <dl>
-                <dt>Git version</dt>
-                <dd>dhshsdfysd6f8tdfgsdfuyer87ft8rfgsdgjsgduys9r7ftrcuygsdcsuydf97dhshsdfysd6f8tdfgsdfuyer87ft8rfgsdgjsgduys9r7ftrcuygsdcsuydf97dhshsdfysd6f8tdfgsdfuyer87ft8rfgsdgjsgduys9r7ftrcuygsdcsuydf97dhshsdfysd6f8tdfgsdfuyer87ft8rfgsdgjsgduys9r7ftrcuygsdcsuydf97dhshsdfysd6f8tdfgsdfuyer87ft8rfgsdgjsgduys9r7ftrcuygsdcsuydf97dhshsdfysd6f8tdfgsdfuyer87ft8rfgsdgjsgduys9r7ftrcuygsdcsuydf97</dd>
+                <dt>system_time</dt>
+                <dd>{row.system_time}</dd>
+            </dl>
+            <dl>
+                <dt>driver</dt>
+                <dd>{row.driver}</dd>
+            </dl>
+            <dl>
+                <dt>logging_driver</dt>
+                <dd>{row.logging_driver}</dd>
+            </dl>
+            <dl>
+                <dt>cgroup_driver</dt>
+                <dd>{row.cgroup_driver}</dd>
+            </dl>
+            <dl>
+                <dt>n_events_listener</dt>
+                <dd>{row.n_events_listener}</dd>
+            </dl>
+            <dl>
+                <dt>kernel_version</dt>
+                <dd>{row.kernel_version}</dd>
+            </dl>
+            <dl>
+                <dt>operating_system</dt>
+                <dd>{row.operating_system}</dd>
+            </dl>
+            <dl>
+                <dt>os_type</dt>
+                <dd>{row.os_type}</dd>
+            </dl>
+            <dl>
+                <dt>architecture</dt>
+                <dd>{row.architecture}</dd>
+            </dl>
+            <dl>
+                <dt>registries</dt>
+                <dd>{row.registries.join(', ')}</dd>
+            </dl>
+            <dl>
+                <dt>index_server_address</dt>
+                <dd>{row.index_server_address}</dd>
             </dl>
         </div>
     </div>

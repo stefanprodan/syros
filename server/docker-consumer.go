@@ -29,7 +29,7 @@ func (c *DockerConsumer) Consume() {
 		if err != nil {
 			log.Errorf("Docker payload unmarshal error %v", err)
 		} else {
-			log.Debugf("Docker payload received from host %v running containes %v", payload.Host.Name, payload.Host.ContainersRunning)
+			log.Debugf("Docker payload received from host %v ID %v running containes %v", payload.Host.Name, payload.Host.Id, payload.Host.ContainersRunning)
 			c.Repository.HostUpsert(payload.Host)
 
 			for _, container := range payload.Containers {

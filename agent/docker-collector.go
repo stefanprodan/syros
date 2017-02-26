@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/docker/docker/api/types"
 	docker "github.com/docker/docker/client"
 	"github.com/stefanprodan/syros/models"
-	"strings"
+	"hash/fnv"
 	"time"
 )
 
@@ -67,7 +68,7 @@ func (col *DockerCollector) Collect() (*models.DockerPayload, error) {
 
 func MapDockerHost(environment string, info types.Info) models.DockerHost {
 	host := models.DockerHost{
-		Id:                 strings.ToLower(strings.Replace(info.ID, ":", "-", -1)),
+		Id:                 Hash(info.Name),
 		Containers:         info.Containers,
 		ContainersRunning:  info.ContainersRunning,
 		ContainersPaused:   info.ContainersPaused,
@@ -110,7 +111,7 @@ func MapDockerHost(environment string, info types.Info) models.DockerHost {
 func MapDockerContainer(environment string, hostId string, hostName string, c types.Container, cj types.ContainerJSON) models.DockerContainer {
 	container := models.DockerContainer{
 		Id:           c.ID,
-		HostId:       strings.ToLower(strings.Replace(hostId, ":", "-", -1)),
+		HostId:       Hash(hostName),
 		HostName:     hostName,
 		Image:        c.Image,
 		Command:      c.Command,
@@ -163,4 +164,10 @@ func MapDockerContainer(environment string, hostId string, hostName string, c ty
 	}
 
 	return container
+}
+
+func Hash(val string) string {
+	h := fnv.New32a()
+	h.Write([]byte(val))
+	return fmt.Sprint(h.Sum32())
 }

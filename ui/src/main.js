@@ -17,13 +17,9 @@ import Axios from 'axios'
 Axios.defaults.baseURL = process.env.API_LOCATION
 Axios.defaults.headers.common.Accept = 'application/json'
 Axios.interceptors.response.use(
-  response => {
-    this.$Progress.finish()
-    response
-  },
+  response => response,
   (error) => {
-    this.$Progress.fail()
-    if (error.response.status === 401) {
+    if (error.response != null && error.response.status === 401) {
       // logout
     }
   })
