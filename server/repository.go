@@ -124,6 +124,24 @@ func (repo *Repository) HostUpsert(host models.DockerHost) {
 	}
 }
 
+func (repo *Repository) AllHosts() ([]models.DockerHost, error) {
+	cursor, err := r.Table("hosts").OrderBy(r.Asc("Collected"), r.OrderByOpts{Index: "Collected"}).Run(repo.Session)
+	if err != nil {
+		log.Errorf("Repository AllHosts query failed %v", err)
+		return nil, err
+	}
+
+	hosts := []models.DockerHost{}
+	err = cursor.All(&hosts)
+	if err != nil {
+		log.Errorf("Repository AllHosts cursor failed %v", err)
+		return nil, err
+	}
+	cursor.Close()
+
+	return hosts, nil
+}
+
 func (repo *Repository) ContainerUpsert(container models.DockerContainer) {
 	res, err := r.Table("containers").Get(container.Id).Run(repo.Session)
 	if err != nil {
@@ -142,6 +160,24 @@ func (repo *Repository) ContainerUpsert(container models.DockerContainer) {
 			log.Errorf("Repository containers update failed %v", err)
 		}
 	}
+}
+
+func (repo *Repository) AllContainers() ([]models.DockerContainer, error) {
+	cursor, err := r.Table("containers").OrderBy(r.Asc("Collected"), r.OrderByOpts{Index: "Collected"}).Run(repo.Session)
+	if err != nil {
+		log.Errorf("Repository AllContainers query failed %v", err)
+		return nil, err
+	}
+
+	containers := []models.DockerContainer{}
+	err = cursor.All(&containers)
+	if err != nil {
+		log.Errorf("Repository AllContainers cursor failed %v", err)
+		return nil, err
+	}
+	cursor.Close()
+
+	return containers, nil
 }
 
 // Removes stale records that have not been updated for a while

@@ -6,6 +6,7 @@ import (
 	"github.com/docker/docker/api/types"
 	docker "github.com/docker/docker/client"
 	"github.com/stefanprodan/syros/models"
+	"strings"
 	"time"
 )
 
@@ -66,7 +67,7 @@ func (col *DockerCollector) Collect() (*models.DockerPayload, error) {
 
 func MapDockerHost(environment string, info types.Info) models.DockerHost {
 	host := models.DockerHost{
-		Id:                 info.ID,
+		Id:                 strings.ToLower(strings.Replace(info.ID, ":", "-", -1)),
 		Containers:         info.Containers,
 		ContainersRunning:  info.ContainersRunning,
 		ContainersPaused:   info.ContainersPaused,
@@ -109,7 +110,7 @@ func MapDockerHost(environment string, info types.Info) models.DockerHost {
 func MapDockerContainer(environment string, hostId string, hostName string, c types.Container, cj types.ContainerJSON) models.DockerContainer {
 	container := models.DockerContainer{
 		Id:           c.ID,
-		HostId:       hostId,
+		HostId:       strings.ToLower(strings.Replace(hostId, ":", "-", -1)),
 		HostName:     hostName,
 		Image:        c.Image,
 		Command:      c.Command,

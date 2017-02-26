@@ -53,8 +53,9 @@ func main() {
 	dockerConsumer.Consume()
 
 	server := &HttpServer{
-		Config:   config,
-		Registry: registry,
+		Config:     config,
+		Registry:   registry,
+		Repository: repo,
 	}
 	log.Infof("Starting HTTP server on port %v", config.Port)
 	go server.Start()

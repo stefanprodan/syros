@@ -8,8 +8,9 @@ import (
 )
 
 type HttpServer struct {
-	Config   *Config
-	Registry *Registry
+	Config     *Config
+	Registry   *Registry
+	Repository *Repository
 }
 
 // Starts HTTP Server
@@ -32,7 +33,24 @@ func (s *HttpServer) Start() {
 	http.HandleFunc("/status", func(w http.ResponseWriter, req *http.Request) {
 		render.JSON(w, http.StatusOK, s.Registry.GetActiveAgents())
 	})
+	http.HandleFunc("/api/hosts", func(w http.ResponseWriter, req *http.Request) {
+		hosts, err := s.Repository.AllHosts()
+		if err != nil {
+			render.JSON(w, http.StatusInternalServerError, err.Error())
+			return
+		}
 
+		render.JSON(w, http.StatusOK, hosts)
+	})
+	http.HandleFunc("/api/containers", func(w http.ResponseWriter, req *http.Request) {
+		containers, err := s.Repository.AllContainers()
+		if err != nil {
+			render.JSON(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		render.JSON(w, http.StatusOK, containers)
+	})
 	manners.ListenAndServe(fmt.Sprintf(":%v", s.Config.Port), http.DefaultServeMux)
 }
 
