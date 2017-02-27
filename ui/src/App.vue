@@ -56,6 +56,7 @@
         </div>
         <div class="col-sm-9 col-lg-10">
           <div id="content">
+            <flash></flash>
             <router-view></router-view>
           </div>
         </div>
@@ -67,8 +68,11 @@
 </template>
 
 <script>
+  import flash from 'components/flash.vue'
+
   export default {
     name: 'app',
+    components: { flash },
     mounted () {
       //  [App.vue specific] When App.vue is finish loading finish the progress bar
       this.$Progress.finish()

@@ -27,6 +27,7 @@
 
 <script>
   import Vue from 'vue'
+  import bus from 'components/bus.vue'
   import rowTemplate from 'components/hosts/row.template.jsx'
   import rowChild from 'components/hosts/row-child.template.jsx'
 
@@ -81,7 +82,17 @@
             }
           })
           .catch((error) => {
-            console.log(error)
+            if (!error.response.status) {
+              bus.$emit('flashMessage', {
+                type: 'warning',
+                message: 'Network error! Could not connect to the server'
+              })
+            } else {
+              bus.$emit('flashMessage', {
+                type: 'warning',
+                message: `${error.response.statusText}! ${error.response.data}`
+              })
+            }
             this.$Progress.fail()
           })
       },
@@ -98,17 +109,14 @@
     },
     mounted: function () {
       console.log('Mounted: ' + this.$options.name)
-
-      this.$on('toggle', function (id) {
-        console.log(id)
-        this.$refs.hostsTabel.toggleChildRow(id)
-      })
-
       this.refreshData()
 
       setTimeout(
         () => {
-          // delay run
+          // bus.$emit('flashMessage', {
+          //   type: 'warning',
+          //   message: 'testing'
+          // })
         },
         2500
       )

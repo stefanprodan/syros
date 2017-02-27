@@ -22,6 +22,7 @@ Axios.interceptors.response.use(
     if (error.response != null && error.response.status === 401) {
       // logout
     }
+    return Promise.reject(error)
   })
 Vue.$http = Axios
 
