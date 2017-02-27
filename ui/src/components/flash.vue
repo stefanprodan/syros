@@ -32,7 +32,6 @@ export default {
     }
   },
   created () {
-    console.log('flashMessage created')
     bus.$on('flashMessage', data => this.setData(data))
   },
   methods: {

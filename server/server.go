@@ -35,6 +35,8 @@ func (s *HttpServer) Start() {
 		render.JSON(w, http.StatusOK, s.Registry.GetActiveAgents())
 	})
 	http.HandleFunc("/api/hosts", func(w http.ResponseWriter, req *http.Request) {
+		w.Header().Set("Access-Control-Allow-Headers", "Authorization")
+		w.Header().Set("Access-Control-Allow-Methods", "*")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		hosts, err := s.Repository.AllHosts()
 		if err != nil {

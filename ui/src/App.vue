@@ -3,7 +3,7 @@
     <vue-progress-bar></vue-progress-bar>
     <div class="container-fluid">
       <div class="row">
-        <div class="col-sm-3 col-lg-2">
+        <div v-if="user.authenticated" class="col-sm-3 col-lg-2">
           <nav class="navbar navbar-default navbar-fixed-side navbar-inverse">
             
               <div class="navbar-header">
@@ -13,12 +13,12 @@
                   <span class="icon-bar"></span>
                   <span class="icon-bar"></span>
                 </button>
-                <router-link class="navbar-brand" :to="{ name: 'Hello' }">Syros</router-link>
+                <router-link class="navbar-brand" :to="{ name: 'home' }">Syros</router-link>
               </div>
               <div class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
                 <router-link
-                  :to="{ name: 'Hello' }"
+                  :to="{ name: 'home' }"
                   active-class="active"
                   tag="li"
                 >
@@ -27,7 +27,7 @@
                   </a>
                 </router-link>
                 <router-link
-                  :to="{ name: 'hosts.index' }"
+                  :to="{ name: 'hosts' }"
                   active-class="active"
                   tag="li"
                 >
@@ -44,7 +44,7 @@
                   <li><a href="#">PROD</a></li>
                 </ul>
                 <ul class="nav navbar-nav">
-                  <li><a href="#"><i class="fa fa-sign-out"></i> Logout</a></li>
+                  <li><a href="#" v-if="user.authenticated" @click="logout()"><i class="fa fa-sign-out"></i> Logout</a></li>
                 </ul>
                 <p class="navbar-text">
                   Made by
@@ -62,16 +62,28 @@
         </div>
       </div>
     </div>
-
-
   </div>
 </template>
 
 <script>
   import flash from 'components/flash.vue'
+  import auth from 'components/auth.vue'
 
   export default {
     name: 'app',
+    data () {
+      return {
+        user: auth.user
+      }
+    },
+    methods: {
+      logout () {
+        auth.logout()
+        this.$router.push({
+          name: 'login'
+        })
+      }
+    },
     components: { flash },
     mounted () {
       //  [App.vue specific] When App.vue is finish loading finish the progress bar

@@ -3,6 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import auth from 'components/auth.vue'
 
 import VueProgressBar from 'vue-progressbar'
 Vue.use(VueProgressBar, {
@@ -20,7 +21,8 @@ Axios.interceptors.response.use(
   response => response,
   (error) => {
     if (error.response != null && error.response.status === 401) {
-      // logout
+      auth.logout()
+      router.push('/login')
     }
     return Promise.reject(error)
   })
@@ -51,6 +53,16 @@ Vue.use(ClientTable, {
   },
   datepickerOptions: {
     showDropdowns: false
+  }
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.meta.auth && !auth.check()) {
+    next({name: 'login'})
+  } else if (!to.meta.auth && auth.check()) {
+    next({name: 'home'})
+  } else {
+    next()
   }
 })
 

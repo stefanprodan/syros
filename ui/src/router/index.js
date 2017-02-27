@@ -1,7 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Hello from 'components/Hello'
-import Host from 'components/Host'
 
 Vue.use(Router)
 
@@ -9,18 +7,35 @@ export default new Router({
   routes: [
     {
       path: '/home',
-      name: 'Hello',
-      component: Hello
+      name: 'home',
+      component: require('components/home/index.vue'),
+      meta: {
+        auth: true
+      }
     },
     {
       path: '/hosts',
-      name: 'hosts.index',
-      component: require('components/hosts/index.vue')
+      name: 'hosts',
+      component: require('components/hosts/index.vue'),
+      meta: {
+        auth: true
+      }
     },
     {
-      path: '/host',
-      name: 'Host',
-      component: Host
+      path: '/login',
+      name: 'login',
+      component: require('components/login/index.vue'),
+      meta: {
+        auth: false
+      }
+    },
+    {
+      path: '/',
+      redirect: '/home'
+    },
+    {
+      path: '/*',
+      redirect: '/home'
     }
   ]
 })
