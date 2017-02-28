@@ -36,7 +36,7 @@ export default {
   },
   methods: {
     setData (data) {
-      this.type = `alert alert-${data.type}`
+      this.type = `flash-alert alert alert-${data.type}`
       this.message = data.message
       this.visible = true
     },

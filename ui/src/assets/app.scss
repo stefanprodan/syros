@@ -23,6 +23,61 @@ a {
 }
 
 
+//Login----------------------------------------------------------------------
+
+.login {
+    width: 100%;
+    background: $nav-color;
+    position: fixed;
+    z-index: 1;
+    height: 100%;
+    top: 0;
+    left: 0;
+    color: #fff;
+    .login-container {
+        width: 300px;
+        margin: 50px auto 20px;
+    }
+    h1 {
+        padding: 0 0 30px;
+        text-align: center;
+    }
+    .form-group {
+        margin-bottom: 20px;
+        .form-control {
+            border-color: #fff;
+            box-shadow: none;
+            border-radius: 0 30px 30px 0;
+        }
+        .input-group-addon {
+            border-color: lighten($nav-color, 10%);
+            background: lighten($nav-color, 10%);
+            color: #fff;
+            border-radius: 30px 0 0 30px;
+        }
+    }
+    .alert, .btn {
+        border-radius: 30px;
+    }
+    .btn {
+        background: darken($nav-color, 10%);
+        border-color: darken($nav-color, 10%);
+        color: #fff;
+        width: 100%;
+        text-transform: uppercase;
+        &:hover {
+            background: darken($nav-color, 15%);
+        }
+        &:focus {
+            outline: none;
+            background: darken($nav-color, 15%);
+            border-color: darken($nav-color, 15%);
+            color: #fff;
+        }
+    }
+
+}
+
 //Navbar---------------------------------------------------------------------
 
 .navbar-inverse {
@@ -127,7 +182,9 @@ a {
         }
         &.navbar-indent {
             li:not(.dropdown-header) {
-                padding: 0 10px;
+                a {
+                    padding: 10px 25px;
+                }
             }
         }
     }
@@ -175,6 +232,7 @@ a {
         margin: 10px 0;
         color: lighten($nav-color, 20%);
         font-size: 12px;
+        text-transform: none;
     }
     .navbar-left,
     .navbar-right {
@@ -365,4 +423,14 @@ dl {
         padding: 5px 0 0;
         margin: 0;
     }
+}
+
+//Alert fading---------------------------------------------------------------
+
+.flash-alert {
+    position: fixed;
+    z-index: 1;
+    right: 20px;
+    top: 20px;
+    width: 300px;
 }

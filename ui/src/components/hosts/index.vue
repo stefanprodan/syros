@@ -111,15 +111,15 @@
       console.log('Mounted: ' + this.$options.name)
       this.refreshData()
 
-      setTimeout(
-        () => {
-          bus.$emit('flashMessage', {
-            type: 'warning',
-            message: 'testing a very loooooooong warning message'
-          })
-        },
-        2500
-      )
+      // setTimeout(
+      //   () => {
+      //     bus.$emit('flashMessage', {
+      //       type: 'warning',
+      //       message: 'testing a very loooooooong warning message'
+      //     })
+      //   },
+      //   2500
+      // )
     },
     destroyed: function () {
       if (this.timer) {

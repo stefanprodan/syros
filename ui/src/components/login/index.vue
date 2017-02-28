@@ -1,12 +1,12 @@
 <template>
-  <div class="row login">
-    <div class="col-md-6 col-md-offset-3">
+  <div class="login">
+    <div class="login-container">
       <h1>Syros</h1>
       <div class="alert alert-danger" v-if="error">
         <p>{{ error }}</p>
       </div>
       <form @submit.prevent="login(user)">
-        <div class="form-group">
+        <div class="form-group form-group-lg">
           <div class="input-group">
             <div class="input-group-addon">
               <i class="fa fa-envelope fa-fw"></i>
@@ -19,7 +19,7 @@
             >
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group form-group-lg">
           <div class="input-group">
             <div class="input-group-addon">
               <i class="fa fa-lock fa-fw"></i>
@@ -33,7 +33,7 @@
           </div>
         </div>
         <div class="form-group">
-          <button class="btn btn-primary">
+          <button class="btn btn-default btn-lg">
             Login
           </button>
         </div>
