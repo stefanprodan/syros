@@ -16,6 +16,7 @@ func main() {
 	flag.StringVar(&config.RethinkDB, "RethinkDB", "localhost:28015", "RethinkDB server addresses comma delimited")
 	flag.StringVar(&config.Database, "Database", "syros", "RethinkDB database name")
 	flag.StringVar(&config.JwtSecret, "JwtSecret", "syros", "JWT secret")
+	flag.StringVar(&config.Credentials, "Credentials", "admin@admin", "Credentials format user@password")
 	flag.Parse()
 
 	setLogLevel(config.LogLevel)

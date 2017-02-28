@@ -64,7 +64,7 @@
           this.error = 'Invalid Username or Password'
         } else {
           this.$Progress.start()
-          Vue.$http.post('/login', user)
+          Vue.$http.post('/auth/login', user)
             .then((response) => {
               if (response != null) {
                 this.$Progress.finish()

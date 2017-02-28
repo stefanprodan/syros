@@ -56,7 +56,7 @@
     methods: {
       loadData () {
         this.$Progress.start()
-        Vue.$http.get('/hosts')
+        Vue.$http.get('/docker/hosts')
           .then((response) => {
             if (response != null) {
               this.tableData = response.data
@@ -113,10 +113,10 @@
 
       setTimeout(
         () => {
-          // bus.$emit('flashMessage', {
-          //   type: 'warning',
-          //   message: 'testing'
-          // })
+          bus.$emit('flashMessage', {
+            type: 'warning',
+            message: 'testing a very loooooooong warning message'
+          })
         },
         2500
       )
