@@ -3,6 +3,10 @@
 	"ignore": "test",
 	"package": [
 		{
+			"path": "@=v2.7.0",
+			"revision": ""
+		},
+		{
 			"checksumSHA1": "L9njXCkN30+qHaLayiiA2Q9jDlY=",
 			"path": "github.com/Microsoft/go-winio",
 			"revision": "fff283ad5116362ca252298cfc9b95828956d85d",
@@ -31,6 +35,14 @@
 			"path": "github.com/dancannon/gorethink",
 			"revision": "610fcc04c971a9fa42f1b6625c7c52b5bb472c51",
 			"revisionTime": "2017-01-30T21:28:06Z"
+		},
+		{
+			"checksumSHA1": "CMfwCFcZRDJeIVVbIHa6t4Aewl8=",
+			"path": "github.com/dgrijalva/jwt-go",
+			"revision": "268038b363c7a8d7306b8e35bf77a1fde4b0c402",
+			"revisionTime": "2016-06-16T19:14:24Z",
+			"version": "=v2.7.0",
+			"versionExact": "v2.7.0"
 		},
 		{
 			"checksumSHA1": "Gj+xR1VgFKKmFXYOJMnAczC3Znk=",
@@ -171,6 +183,18 @@
 			"revisionTime": "2016-11-17T03:31:26Z"
 		},
 		{
+			"checksumSHA1": "ndyRNX0Tl4+70A17zSt3isuuAhI=",
+			"path": "github.com/goware/cors",
+			"revision": "6ad15f4e1489e41776ee8b008597eafea9a67fd9",
+			"revisionTime": "2016-10-25T15:14:09Z"
+		},
+		{
+			"checksumSHA1": "3Tr5vY8q6riEe9DKkktm2fEidVU=",
+			"path": "github.com/goware/jwtauth",
+			"revision": "d5f87ca5c3b52eaf56cc8c70c545d8aadd7cbb0a",
+			"revisionTime": "2016-09-13T15:58:18Z"
+		},
+		{
 			"checksumSHA1": "O0r0hj4YL+jSRNjnshkeH4GY+4s=",
 			"path": "github.com/hailocab/go-hostpool",
 			"revision": "e80d13ce29ede4452c43dea11e79b9bc8a15b478",
@@ -211,6 +235,24 @@
 			"path": "github.com/pkg/errors",
 			"revision": "248dadf4e9068a0b3e79f02ed0a610d935de5302",
 			"revisionTime": "2016-10-29T09:36:37Z"
+		},
+		{
+			"checksumSHA1": "BvfT3pAC+s5qn5nEDf0N7lxpBNg=",
+			"path": "github.com/pressly/chi",
+			"revision": "57ee7612d4405274628c71d1dc9455a12646f056",
+			"revisionTime": "2017-02-19T07:36:56Z"
+		},
+		{
+			"checksumSHA1": "9HdWzw76EiC7Hwn+Y2QgNST1Lqc=",
+			"path": "github.com/pressly/chi/middleware",
+			"revision": "57ee7612d4405274628c71d1dc9455a12646f056",
+			"revisionTime": "2017-02-19T07:36:56Z"
+		},
+		{
+			"checksumSHA1": "5AiTC+FkwbriZG4uemAy8Y0/OOI=",
+			"path": "github.com/pressly/chi/render",
+			"revision": "57ee7612d4405274628c71d1dc9455a12646f056",
+			"revisionTime": "2017-02-19T07:36:56Z"
 		},
 		{
 			"checksumSHA1": "XQ2GsdTmZgUO2xycRg02vxBYi50=",

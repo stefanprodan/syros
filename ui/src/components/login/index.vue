@@ -12,9 +12,9 @@
               <i class="fa fa-envelope fa-fw"></i>
             </div>
             <input
-              v-model="user.email"
+              v-model="user.name"
               type="input"
-              placeholder="Email"
+              placeholder="Username"
               class="form-control"
             >
           </div>
@@ -43,6 +43,8 @@
 </template>
 
 <script>
+  import Vue from 'vue'
+  import bus from 'components/bus.vue'
   import auth from 'components/auth.vue'
 
   export default {
@@ -51,18 +53,38 @@
       return {
         error: null,
         user: {
-          email: null,
+          name: null,
           password: null
         }
       }
     },
     methods: {
       login (user) {
-        if (!user.email || !user.password) {
+        if (!user.name || !user.password) {
           this.error = 'Invalid Username or Password'
         } else {
-          auth.login(user.email)
-          this.$router.push('/')
+          this.$Progress.start()
+          Vue.$http.post('/login', user)
+            .then((response) => {
+              if (response != null) {
+                this.$Progress.finish()
+                auth.login(response.data)
+                this.$router.push('/')
+              } else {
+                this.$Progress.fail()
+              }
+            })
+            .catch((error) => {
+              if (!error.response.status) {
+                bus.$emit('flashMessage', {
+                  type: 'warning',
+                  message: 'Network error! Could not connect to the server'
+                })
+              } else {
+                this.error = error.response.data
+              }
+              this.$Progress.fail()
+            })
         }
       }
     }
