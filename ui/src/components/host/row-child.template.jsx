@@ -3,10 +3,6 @@ export default function(h, row) {
     <div class="row">
         <div class="col-md-6">
             <dl>
-                <dt>environment</dt>
-                <dd>{row.environment}</dd>
-            </dl>
-            <dl>
                 <dt>image</dt>
                 <dd>{row.image}</dd>
             </dl>
@@ -15,16 +11,20 @@ export default function(h, row) {
                 <dd>{row.command}</dd>
             </dl>
             <dl>
-                <dt>path</dt>
-                <dd>{row.path}</dd>
-            </dl>
-            <dl>
-                <dt>args</dt>
-                <dd>{row.args}</dd>
-            </dl>
-            <dl>
                 <dt>labels</dt>
-                <dd>{row.labels}</dd>
+                <dd>  
+                    {Object.keys(row.labels).map(function(key){
+                        return <p>{key}: {row.labels[key]}</p>              
+                    })}
+                </dd> 
+            </dl>
+            <dl>
+                <dt>env</dt>
+                <dd>  
+                    {row.env.map(function(name){
+                        return <p>{name}</p>              
+                    })}
+                </dd> 
             </dl>
         </div>
         <div class="col-md-6">
@@ -53,12 +53,12 @@ export default function(h, row) {
                 <dd>{row.error}</dd>
             </dl>
             <dl>
-                <dt>env</dt>
-                <dd>{row.env}</dd>
-            </dl>
-            <dl>
                 <dt>port_bindings</dt>
-                <dd>{row.port_bindings}</dd>
+                <dd>  
+                    {Object.keys(row.port_bindings).map(function(key){
+                        return <p>{key}: {row.port_bindings[key]}</p>              
+                    })}
+                </dd> 
             </dl>
             <dl>
                 <dt>collected</dt>

@@ -3,6 +3,9 @@ export default {
         return <a class='' href={'#/container/' + row.id}>{row.name}</a>
     },
     state: function (h, row) {
+        if (moment().diff(row.collected, 'minutes') > 1){
+            return <span class="alert alert-warning text-uppercase" title="No signal received for more than one minute ago">removed</span>
+        }
         if (row.state == 'running'){
             return <span class="alert alert-success text-uppercase">{row.state}</span>
         }

@@ -19,7 +19,7 @@
     "vue-progressbar": "^0.7.1",
     "vue-router": "^2.2.0",
     "vue-select": "github:sagalbot/vue-select",
-    "vue-tables-2": "^0.4.33"
+    "vue-tables-2": "^0.4.53"
   },
   "devDependencies": {
     "autoprefixer": "^6.7.2",
