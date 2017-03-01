@@ -22,6 +22,14 @@ export default new Router({
       }
     },
     {
+      path: '/host/:id',
+      name: 'host',
+      component: require('components/host/index.vue'),
+      meta: {
+        auth: true
+      }
+    },
+    {
       path: '/login',
       name: 'login',
       component: require('components/login/index.vue'),

@@ -46,6 +46,42 @@ func (repo *Repository) AllHosts() ([]models.DockerHost, error) {
 	return hosts, nil
 }
 
+func (repo *Repository) HostContainers(hostID string) (*models.DockerPayload, error) {
+	cursor, err := r.Table("hosts").Get(hostID).Run(repo.Session)
+	if err != nil {
+		log.Errorf("Repository HostContainers query failed %v", err)
+		return nil, err
+	}
+	host := models.DockerHost{}
+	err = cursor.One(&host)
+	if err != nil {
+		log.Errorf("Repository HostContainers cursor failed %v", err)
+		return nil, err
+	}
+	cursor.Close()
+
+	cursor, err = r.Table("containers").GetAllByIndex("host_id", hostID).Run(repo.Session)
+	if err != nil {
+		log.Errorf("Repository HostContainers query failed %v", err)
+		return nil, err
+	}
+
+	containers := []models.DockerContainer{}
+	err = cursor.All(&containers)
+	if err != nil {
+		log.Errorf("Repository HostContainers cursor failed %v", err)
+		return nil, err
+	}
+	cursor.Close()
+
+	payload := &models.DockerPayload{
+		Host:       host,
+		Containers: containers,
+	}
+
+	return payload, nil
+}
+
 func (repo *Repository) AllContainers() ([]models.DockerContainer, error) {
 	cursor, err := r.Table("containers").OrderBy(r.Asc("Collected"), r.OrderByOpts{Index: "Collected"}).Run(repo.Session)
 	if err != nil {

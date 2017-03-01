@@ -3,15 +3,16 @@
   <div id="main-breadcrumb">
     <ol class="breadcrumb">
       <li><a class="text-uppercase" href="/#/home">Home</a></li>
-      <li>hosts</li>
+      <li><a class="text-uppercase" href="/#/hosts">hosts</a></li>
+      <li>{{ stats.name }}</li>
     </ol>
   </div>
   <div class="stats">
     <div class="row">
       <div class="col-md-3 text-center">
-        <h2>{{ stats.hosts }}</h2><small class="text-uppercase">Hosts</small></div>
-      <div class="col-md-3 text-center">
         <h2>{{ stats.containers }}</h2><small class="text-uppercase">Containers</small></div>
+      <div class="col-md-3 text-center">
+        <h2>{{ stats.images }}</h2><small class="text-uppercase">Images</small></div>
       <div class="col-md-3 text-center">
         <h2>{{ stats.cpus }}</h2><small class="text-uppercase">vCPUs</small></div>
       <div class="col-md-3 text-center">
@@ -19,7 +20,7 @@
     </div>
   </div>
 
-  <v-client-table ref="hostsTabel" :data="tableData" :columns="columns" :options="options"></v-client-table>
+  <v-client-table ref="containersTabel" :data="tableData" :columns="columns" :options="options"></v-client-table>
   
 </div>
 </template>
@@ -27,21 +28,22 @@
 <script>
   import Vue from 'vue'
   import bus from 'components/bus.vue'
-  import rowTemplate from 'components/hosts/row.template.jsx'
-  import rowChild from 'components/hosts/row-child.template.jsx'
+  import rowTemplate from 'components/host/row.template.jsx'
+  import rowChild from 'components/host/row-child.template.jsx'
 
   export default {
-    name: 'hosts',
+    name: 'host',
     data () {
       return {
         timer: null,
-        stats: {hosts: '0', containers: '0', cpus: '0', ram: '0 MB'},
-        columns: ['name', 'status', 'containers_running', 'ncpu', 'mem_total', 'system_time'],
+        id: null,
+        stats: {name: '', containers: '0', images: '0', cpus: '0', ram: '0 MB'},
+        columns: ['name', 'state', 'status', 'network_mode', 'port', 'created'],
         tableData: [],
         options: {
           skin: 'table-hover',
-          sortable: ['name', 'status', 'containers_running', 'ncpu', 'mem_total', 'system_time'],
-          dateColumns: ['system_time'],
+          sortable: ['name', 'state', 'status', 'network_mode', 'port', 'created'],
+          dateColumns: ['created'],
           toMomentFormat: 'YYYY-MM-DDTHH:mm:ssZ',
           uniqueKey: 'id',
           orderBy: {column: 'name', ascending: true},
@@ -55,25 +57,16 @@
     methods: {
       loadData () {
         this.$Progress.start()
-        Vue.$http.get('/docker/hosts')
+        Vue.$http.get(`/docker/hosts/${this.id}`)
           .then((response) => {
             if (response != null) {
-              this.tableData = response.data
-              var statsHosts = 0
-              var statsContainers = 0
-              var statsCpus = 0
-              var statsRam = 0
-              for (var i = 0, len = response.data.length; i < len; i++) {
-                statsHosts += 1
-                statsContainers += response.data[i].containers_running
-                statsCpus += response.data[i].ncpu
-                statsRam += parseInt(parseFloat((response.data[i].mem_total / Math.pow(1024, 3))).toFixed(0))
-              }
+              this.tableData = response.data.Containers
               this.stats = {
-                hosts: statsHosts.toString(),
-                containers: statsContainers.toString(),
-                cpus: statsCpus.toString(),
-                ram: statsRam.toString() + 'GB'
+                name: response.data.Host.name,
+                containers: response.data.Host.containers_running.toString(),
+                images: response.data.Host.images.toString(),
+                cpus: response.data.Host.ncpu.toString(),
+                ram: parseInt(parseFloat((response.data.Host.mem_total / Math.pow(1024, 3))).toFixed(0)).toString() + 'GB'
               }
               this.$Progress.finish()
             } else {
@@ -105,20 +98,11 @@
     },
     created: function () {
       console.log('Created: ' + this.$options.name)
+      this.id = this.$route.params.id
     },
     mounted: function () {
       console.log('Mounted: ' + this.$options.name)
       this.refreshData()
-
-      // setTimeout(
-      //   () => {
-      //     bus.$emit('flashMessage', {
-      //       type: 'warning',
-      //       message: 'testing a very loooooooong warning message'
-      //     })
-      //   },
-      //   2500
-      // )
     },
     destroyed: function () {
       if (this.timer) {

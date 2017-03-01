@@ -32,6 +32,7 @@ func (s *HttpServer) Start() {
 	r.Use(corsWare.Handler)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
+	r.Use(middleware.DefaultCompress)
 	if s.Config.LogLevel == "debug" {
 		r.Use(middleware.DefaultLogger)
 	}
