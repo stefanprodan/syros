@@ -6,6 +6,7 @@ import (
 	"github.com/goware/jwtauth"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 )
 
@@ -17,10 +18,16 @@ func main() {
 	flag.StringVar(&config.Database, "Database", "syros", "RethinkDB database name")
 	flag.StringVar(&config.JwtSecret, "JwtSecret", "syros", "JWT secret")
 	flag.StringVar(&config.Credentials, "Credentials", "admin@admin", "Credentials format user@password")
+	flag.StringVar(&config.AppPath, "AppPath", "", "Path to dist dir")
 	flag.Parse()
 
 	setLogLevel(config.LogLevel)
 	log.Infof("Starting with config: %+v", config)
+
+	if config.AppPath == "" {
+		workDir, _ := os.Getwd()
+		config.AppPath = filepath.Join(workDir, "dist")
+	}
 
 	repo, err := NewRepository(config)
 	if err != nil {

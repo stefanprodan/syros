@@ -9,6 +9,7 @@ import (
 	"github.com/pressly/chi/middleware"
 	"github.com/pressly/chi/render"
 	"net/http"
+	"path/filepath"
 )
 
 type HttpServer struct {
@@ -45,6 +46,18 @@ func (s *HttpServer) Start() {
 
 	r.Mount("/api/auth", s.authRoutes())
 	r.Mount("/api/docker", s.dockerRoutes())
+
+	// ui paths
+	indexPath := filepath.Join(s.Config.AppPath, "index.html")
+	staticPath := filepath.Join(s.Config.AppPath, "static")
+
+	// set index.html as entry point
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, indexPath)
+	})
+
+	// static files (js, css, fonts)
+	r.FileServer("/static", http.Dir(staticPath))
 
 	http.ListenAndServe(fmt.Sprintf(":%v", s.Config.Port), r)
 }

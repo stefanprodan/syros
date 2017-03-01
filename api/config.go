@@ -8,4 +8,5 @@ type Config struct {
 	Database    string
 	JwtSecret   string
 	Credentials string
+	AppPath     string
 }

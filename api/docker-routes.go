@@ -25,6 +25,18 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 			render.JSON(w, r, hosts)
 		})
 
+		r.Get("/hosts/:hostID", func(w http.ResponseWriter, r *http.Request) {
+			hostID := chi.URLParam(r, "hostID")
+
+			payload, err := s.Repository.HostContainers(hostID)
+			if err != nil {
+				render.Status(r, http.StatusInternalServerError)
+				render.PlainText(w, r, err.Error())
+				return
+			}
+			render.JSON(w, r, payload)
+		})
+
 		r.Get("/containers", func(w http.ResponseWriter, r *http.Request) {
 			containers, err := s.Repository.AllContainers()
 			if err != nil {
@@ -34,17 +46,6 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 			}
 			render.JSON(w, r, containers)
 		})
-	})
-	r.Get("/hosts/:hostID", func(w http.ResponseWriter, r *http.Request) {
-		hostID := chi.URLParam(r, "hostID")
-
-		payload, err := s.Repository.HostContainers(hostID)
-		if err != nil {
-			render.Status(r, http.StatusInternalServerError)
-			render.PlainText(w, r, err.Error())
-			return
-		}
-		render.JSON(w, r, payload)
 	})
 	return r
 }
