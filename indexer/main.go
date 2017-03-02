@@ -11,7 +11,7 @@ import (
 func main() {
 	var config = &Config{}
 	flag.StringVar(&config.LogLevel, "LogLevel", "debug", "logging threshold level: debug|info|warn|error|fatal|panic")
-	flag.IntVar(&config.Port, "Port", 8008, "HTTP port to listen on")
+	flag.IntVar(&config.Port, "Port", 8887, "HTTP port to listen on")
 	flag.StringVar(&config.Nats, "Nats", "nats://localhost:4222", "Nats server addresses comma delimited")
 	flag.StringVar(&config.CollectorTopic, "CollectorTopic", "docker", "Nats collector topic name")
 	flag.StringVar(&config.CollectorQueue, "CollectorQueue", "syros", "Nats collector queue name")

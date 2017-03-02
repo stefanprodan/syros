@@ -8,6 +8,7 @@ import (
 	"github.com/pressly/chi"
 	"github.com/pressly/chi/middleware"
 	"github.com/pressly/chi/render"
+	"log"
 	"net/http"
 	"path/filepath"
 )
@@ -59,5 +60,8 @@ func (s *HttpServer) Start() {
 	// static files (js, css, fonts)
 	r.FileServer("/static", http.Dir(staticPath))
 
-	http.ListenAndServe(fmt.Sprintf(":%v", s.Config.Port), r)
+	err := http.ListenAndServe(fmt.Sprintf(":%v", s.Config.Port), r)
+	if err != nil {
+		log.Fatalf("HTTP Server crashed! %v", err.Error())
+	}
 }

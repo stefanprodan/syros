@@ -10,12 +10,11 @@ ARG BUILD_DATE=unkown
 LABEL syros.build=BUILD_DATE
 LABEL syros.maintainer "Stefan Prodan"
 
-EXPOSE 8888
+EXPOSE 8886
 
-COPY /dist/ui /syros/dist
-COPY /dist/api /syros/api
-RUN chmod 777 /syros/api
+COPY /dist/agent /syros/agent
+RUN chmod 777 /syros/agent
 
 WORKDIR /syros
-ENTRYPOINT ["/syros/api"]
+ENTRYPOINT ["/syros/agent"]
 
