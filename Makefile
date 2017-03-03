@@ -117,7 +117,29 @@ run: pack
 	@docker logs syros-agent-$(APP_VERSION)
 	$(DURATION)
 
-deploy:
+test:
+	@echo ">>> Checking syros-app status"
+	@curl --fail http://localhost:8888/status
+
+	@echo ">>> Checking syros-app JWT auth"
+	$(eval TOKEN := $(shell curl --fail -X POST http://localhost:8888/api/auth/login \
+	  -d '{"name":"admin","password":"admin"}' \
+	  -H "Content-type: application/json"))
+	@echo ">>> acquired JWT token: $(TOKEN)"
+
+	@echo ">>> Checking syros-app hosts endpoint"
+	@curl --fail http://localhost:8888/api/docker/hosts \
+	  -H "Authorization: Bearer $(TOKEN)" \
+	  -H "Content-type: application/json"
+
+	@echo ">>> Checking syros-indexer status"
+	@curl --fail http://localhost:8887/status
+
+	@echo ">>> Checking syros-agent status"
+	@curl --fail http://localhost:8886/status
+	$(DURATION)
+
+push:
 	@echo ">>> Pushing syros-app to $(REGISTRY)/$(REPOSITORY)"
 	@docker tag syros-app:$(APP_VERSION) $(REGISTRY)/$(REPOSITORY)/syros-app:$(APP_VERSION)
 	@docker tag syros-app:$(APP_VERSION) $(REGISTRY)/$(REPOSITORY)/syros-app:latest
@@ -168,5 +190,3 @@ purge: clean
 	$(DURATION)
 
 .PHONY: build
-
-

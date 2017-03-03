@@ -39,6 +39,18 @@ func (s *HttpServer) Start() {
 		r.Use(middleware.DefaultLogger)
 	}
 
+	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
+		render.PlainText(w, r, "pong")
+	})
+
+	r.Get("/config", func(w http.ResponseWriter, r *http.Request) {
+		render.JSON(w, r, s.Config)
+	})
+
+	r.Get("/status", func(w http.ResponseWriter, r *http.Request) {
+		render.JSON(w, r, s.Config)
+	})
+
 	r.Get("/api/error", func(w http.ResponseWriter, r *http.Request) {
 		err := errors.New("This is just a test")
 		render.Status(r, http.StatusInternalServerError)
