@@ -12,7 +12,7 @@ LABEL syros.maintainer "Stefan Prodan"
 
 EXPOSE 8887
 
-COPY /dist/agent /syros/indexer
+COPY /dist/indexer /syros/indexer
 RUN chmod 777 /syros/indexer
 
 WORKDIR /syros

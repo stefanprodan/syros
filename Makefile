@@ -2,6 +2,7 @@ SHELL:=/bin/bash
 
 APP_VERSION?="0.0.1"
 
+# build vars
 DIST:=$$(pwd)/dist
 BUILD_DATE:=$(shell date -u +%Y-%m-%d_%H.%M.%S)
 GIT_COMMIT:=$(shell git rev-parse HEAD)
@@ -9,14 +10,18 @@ GIT_BRANCH:=$(shell git symbolic-ref --short HEAD)
 PACKAGES:=$(shell go list ./... | grep -v '/vendor/')
 VETARGS:=-asmdecl -atomic -bool -buildtags -copylocks -methods -nilfunc -rangeloops -shift -structtags -unsafeptr
 
+# run vars
+RethinkDB?=192.168.1.135:28015
+Nats?=nats://192.168.1.135:4222
+
 TIME_START:=$(shell date +%s)
 define DURATION
 @time_end=`date +%s` ; time_exec=`awk -v "TS=${TIME_START}" -v "TE=$$time_end" 'BEGIN{TD=TE-TS;printf "%02dm:%02ds\n",TD/(60)%60,TD%60}'` ; echo "$@ duration $${time_exec} "
 endef
 
-build:
+build: purge
 	@echo ">>> Building syros-ui-build image"
-	@docker build -t syros-ui-build:$(BUILD_DATE) -f build.deps.node.dockerfile .
+	@docker build -t syros-ui-build:$(BUILD_DATE) -f build.node.dockerfile .
 
 	@echo ">>> Building syros-ui"
 	@docker run --rm  -v "$(DIST)/ui:/usr/src/app/dist" syros-ui-build:$(BUILD_DATE) \
@@ -24,7 +29,7 @@ build:
 	@docker rmi syros-ui-build:$(BUILD_DATE)
 
 	@echo ">>> Building syros-services-build image"
-	@docker build -t syros-services-build:$(BUILD_DATE) -f build.deps.golang.dockerfile .
+	@docker build -t syros-services-build:$(BUILD_DATE) -f build.golang.dockerfile .
 
 	@echo ">>> building syros-agent"
 	@docker run --rm  -v "$(DIST):/go/dist" syros-services-build:$(BUILD_DATE) \
@@ -70,7 +75,39 @@ pack: build
 		-f deploy.agent.dockerfile .
 
 	@echo ">>> Images ready for deploy:"
-	@echo $(shell docker images | grep syros)
+	@docker images | grep syros
+	$(DURATION)
+
+run: pack
+	@echo ">>> Starting syros-app container"
+	@docker run -dp 8888:8888 --name syros-app-$(APP_VERSION) \
+		syros-app:$(APP_VERSION) \
+		-RethinkDB=$(RethinkDB) \
+		-LogLevel=info
+
+	@echo ">>> Starting syros-indexer container"
+	@docker run -dp 8887:8887 --name syros-indexer-$(APP_VERSION) \
+		syros-indexer:$(APP_VERSION) \
+		-RethinkDB=$(RethinkDB) \
+		-DatabaseStale=0 \
+		-Nats=$(Nats) \
+		-LogLevel=info
+
+	@echo ">>> Starting syros-agent container"
+	@docker run -dp 8886:8886 --name syros-agent-$(APP_VERSION) \
+	    -v /var/run/docker.sock:/var/run/docker.sock:ro \
+	    syros-agent:$(APP_VERSION) \
+		-DockerApiAddresses=unix:///var/run/docker.sock \
+		-Environment=dev \
+		-Nats=$(Nats) \
+		-LogLevel=info
+
+	@echo ">>> syros-app logs:"
+	@docker logs syros-app-$(APP_VERSION)
+	@echo ">>> syros-indexer logs:"
+	@docker logs syros-indexer-$(APP_VERSION)
+	@echo ">>> syros-agent logs:"
+	@docker logs syros-agent-$(APP_VERSION)
 	$(DURATION)
 
 fmt:
@@ -98,10 +135,11 @@ clean:
 	fi
 	$(DURATION)
 
-purge:
+purge: clean
+	@docker rm -f syros-app-$(APP_VERSION) syros-agent-$(APP_VERSION) syros-indexer-$(APP_VERSION) || true
 	@docker rmi $$(docker images | awk '$$1 ~ /syros/ { print $$3 }') || true
 	$(DURATION)
 
-.PHONY: clean pack
+.PHONY: build
 
 
