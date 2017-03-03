@@ -27,12 +27,13 @@ func main() {
 	if config.AppPath == "" {
 		workDir, _ := os.Getwd()
 		config.AppPath = filepath.Join(workDir, "dist")
-
-		if _, err := os.Stat(filepath.Join(config.AppPath, "index.html")); err != nil {
-			if os.IsNotExist(err) {
-				log.Fatalf("index.html not found in %v", config.AppPath)
-			} else {
-				log.Fatalf("Path to dist dir %v error %v", config.AppPath, err.Error())
+		if config.LogLevel != "debug" {
+			if _, err := os.Stat(filepath.Join(config.AppPath, "index.html")); err != nil {
+				if os.IsNotExist(err) {
+					log.Fatalf("index.html not found in %v", config.AppPath)
+				} else {
+					log.Fatalf("Path to dist dir %v error %v", config.AppPath, err.Error())
+				}
 			}
 		}
 	}

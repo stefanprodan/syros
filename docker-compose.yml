@@ -2,18 +2,33 @@ version: '3'
 services:
   nats:
     image: nats
-    container_name: syro-nats
+    container_name: syros-nats
     command: -m 8222
     ports:
-    - 4222:4222
-    - 8222:8222
-    - 6222:6222
+      - 4222:4222
+      - 8222:8222
+      - 6222:6222
     restart: unless-stopped
+    networks:
+      - local
+
   rethinkdb:
     image: rethinkdb
-    container_name: syro-rethinkdb
-    command: rethinkdb --bind all --server-name syro
+    container_name: syros-rethinkdb
+    command: rethinkdb --bind all --server-name syros
     ports:
-    - 8080:8080
-    - 28015:28015
+      - 8080:8080
+      - 28015:28015
+      - 29015:29015
+    volumes:
+      - data:/data
     restart: unless-stopped
+    networks:
+      - local
+
+networks:
+  local:
+    driver: bridge
+
+volumes:
+  data: {}
