@@ -11,8 +11,12 @@ PACKAGES:=$(shell go list ./... | grep -v '/vendor/')
 VETARGS:=-asmdecl -atomic -bool -buildtags -copylocks -methods -nilfunc -rangeloops -shift -structtags -unsafeptr
 
 # run vars
-RethinkDB?=192.168.1.135:28015
-Nats?=nats://192.168.1.135:4222
+RDB?=192.168.1.135:28015
+NATS?=nats://192.168.1.135:4222
+
+#deploy vars
+REGISTRY?=index.docker.io
+REPOSITORY?=stefanprodan
 
 TIME_START:=$(shell date +%s)
 define DURATION
@@ -45,13 +49,13 @@ build: purge
 
 	@docker rmi syros-services-build:$(BUILD_DATE)
 
-	@echo ">>> Build artifact:"
+	@echo ">>> Build artifacts:"
 	@find dist -type f -print0 | xargs -0 ls -t
 	$(DURATION)
 
 pack: build
 	@echo ">>> Building syros-app image for deploy"
-	docker build -t syros-app:$(APP_VERSION) \
+	@docker build -t syros-app:$(APP_VERSION) \
 		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
 		--build-arg GIT_BRANCH=$(GIT_BRANCH) \
 		--build-arg APP_VERSION=$(APP_VERSION) \
@@ -59,7 +63,7 @@ pack: build
 		-f deploy.app.dockerfile .
 
 	@echo ">>> Building syros-indexer image for deploy"
-	docker build -t syros-indexer:$(APP_VERSION) \
+	@docker build -t syros-indexer:$(APP_VERSION) \
 		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
 		--build-arg GIT_BRANCH=$(GIT_BRANCH) \
 		--build-arg APP_VERSION=$(APP_VERSION) \
@@ -67,7 +71,7 @@ pack: build
 		-f deploy.indexer.dockerfile .
 
 	@echo ">>> Building syros-agent image for deploy"
-	docker build -t syros-agent:$(APP_VERSION) \
+	@docker build -t syros-agent:$(APP_VERSION) \
 		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
 		--build-arg GIT_BRANCH=$(GIT_BRANCH) \
 		--build-arg APP_VERSION=$(APP_VERSION) \
@@ -81,25 +85,28 @@ pack: build
 run: pack
 	@echo ">>> Starting syros-app container"
 	@docker run -dp 8888:8888 --name syros-app-$(APP_VERSION) \
+	    --restart unless-stopped \
 		syros-app:$(APP_VERSION) \
-		-RethinkDB=$(RethinkDB) \
+		-RethinkDB=$(RDB) \
 		-LogLevel=info
 
 	@echo ">>> Starting syros-indexer container"
 	@docker run -dp 8887:8887 --name syros-indexer-$(APP_VERSION) \
+	    --restart unless-stopped \
 		syros-indexer:$(APP_VERSION) \
-		-RethinkDB=$(RethinkDB) \
+		-RethinkDB=$(RDB) \
 		-DatabaseStale=0 \
-		-Nats=$(Nats) \
+		-Nats=$(NATS) \
 		-LogLevel=info
 
 	@echo ">>> Starting syros-agent container"
 	@docker run -dp 8886:8886 --name syros-agent-$(APP_VERSION) \
+	    --restart unless-stopped \
 	    -v /var/run/docker.sock:/var/run/docker.sock:ro \
 	    syros-agent:$(APP_VERSION) \
 		-DockerApiAddresses=unix:///var/run/docker.sock \
 		-Environment=dev \
-		-Nats=$(Nats) \
+		-Nats=$(NATS) \
 		-LogLevel=info
 
 	@echo ">>> syros-app logs:"
@@ -108,6 +115,26 @@ run: pack
 	@docker logs syros-indexer-$(APP_VERSION)
 	@echo ">>> syros-agent logs:"
 	@docker logs syros-agent-$(APP_VERSION)
+	$(DURATION)
+
+deploy:
+	@echo ">>> Pushing syros-app to $(REGISTRY)/$(REPOSITORY)"
+	@docker tag syros-app:$(APP_VERSION) $(REGISTRY)/$(REPOSITORY)/syros-app:$(APP_VERSION)
+	@docker tag syros-app:$(APP_VERSION) $(REGISTRY)/$(REPOSITORY)/syros-app:latest
+	@docker push $(REGISTRY)/$(REPOSITORY)/syros-app:$(APP_VERSION)
+	@docker push $(REGISTRY)/$(REPOSITORY)/syros-app:latest
+
+	@echo ">>> Pushing syros-indexer to $(REGISTRY)/$(REPOSITORY)"
+	@docker tag syros-indexer:$(APP_VERSION) $(REGISTRY)/$(REPOSITORY)/syros-indexer:$(APP_VERSION)
+	@docker tag syros-indexer:$(APP_VERSION) $(REGISTRY)/$(REPOSITORY)/syros-indexer:latest
+	@docker push $(REGISTRY)/$(REPOSITORY)/syros-indexer:$(APP_VERSION)
+	@docker push $(REGISTRY)/$(REPOSITORY)/syros-indexer:latest
+
+	@echo ">>> Pushing syros-agent to $(REGISTRY)/$(REPOSITORY)"
+	@docker tag syros-agent:$(APP_VERSION) $(REGISTRY)/$(REPOSITORY)/syros-agent:$(APP_VERSION)
+	@docker tag syros-agent:$(APP_VERSION) $(REGISTRY)/$(REPOSITORY)/syros-agent:latest
+	@docker push $(REGISTRY)/$(REPOSITORY)/syros-agent:$(APP_VERSION)
+	@docker push $(REGISTRY)/$(REPOSITORY)/syros-agent:latest
 	$(DURATION)
 
 fmt:

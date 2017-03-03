@@ -21,7 +21,7 @@ func main() {
 	flag.StringVar(&config.LogLevel, "LogLevel", "debug", "logging threshold level: debug|info|warn|error|fatal|panic")
 	flag.IntVar(&config.Port, "Port", 8886, "HTTP port to listen on")
 	flag.IntVar(&config.CollectInterval, "CollectInterval", 10, "Collect interval in seconds")
-	flag.StringVar(&config.DockerApiAddresses, "DockerApiAddresses", "", "Docker hosts API addresses comma delimited")
+	flag.StringVar(&config.DockerApiAddresses, "DockerApiAddresses", "unix:///var/run/docker.sock", "Docker hosts API addresses comma delimited")
 	flag.StringVar(&config.Nats, "Nats", "nats://localhost:4222", "Nats server addresses comma delimited")
 	flag.StringVar(&config.CollectorTopic, "CollectorTopic", "docker", "Nats collector topic name")
 	flag.StringVar(&config.RegistryTopic, "RegistryTopic", "registry", "Nats registry topic name")
