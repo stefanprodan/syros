@@ -52,7 +52,7 @@ $ make build APP_VERSION=0.0.1
 # run services on local containers
 $ make run APP_VERSION=0.0.1
 # run integration tests localy
-$ make test APP_VERSION=0.0.1 RDB=192.168.1.135:28015 NATS=nats://192.168.1.135:4222
+$ make run test APP_VERSION=0.0.1 RDB=192.168.1.135:28015 NATS=nats://192.168.1.135:4222
 # push Docker images to registry
 $ make build pack push APP_VERSION=0.0.1 REGISTRY=index.docker.io REPOSITORY=stefanprodan
 # remove containers, images and build artifacs 
