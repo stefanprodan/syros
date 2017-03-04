@@ -36,7 +36,7 @@ $ cd syros
 $ go get -u github.com/kardianos/govendor
 $ govendor sync
 # run NATS and RethinkDB localy 
-# docker-compose up -d
+$ docker-compose up -d
 # install node dependencies
 $ cd ui
 $ npm install
@@ -47,14 +47,14 @@ Build, pack, test and deploy:
 The build system is done with Make and uses Docker containers. 
 
 ```sh
-# build the golang binaries for Alpine and VueJs UI
+# build the UI with webpack and the golang binaries for Alpine
 $ make build APP_VERSION=0.0.1
 # run services on local containers
 $ make run APP_VERSION=0.0.1
 # run integration tests localy
 $ make test APP_VERSION=0.0.1 RDB=192.168.1.135:28015 NATS=nats://192.168.1.135:4222
-# deploy Docker images to registry
-$ make run APP_VERSION=0.0.1 REGISTRY=index.docker.io REPOSITORY=stefanprodan
+# push Docker images to registry
+$ make build pack push APP_VERSION=0.0.1 REGISTRY=index.docker.io REPOSITORY=stefanprodan
 # remove containers, images and build artifacs 
 $ make purge APP_VERSION=0.0.1
 # run go fmt and go vet
