@@ -121,11 +121,11 @@ test:
 	@echo ">>> Checking syros-app status"
 	@curl --fail http://localhost:8888/status
 
-	@echo ">>> Checking syros-app JWT auth"
+	@echo ">>> Checking syros-app auth endpoint"
 	$(eval TOKEN := $(shell curl --fail -X POST http://localhost:8888/api/auth/login \
 	  -d '{"name":"admin","password":"admin"}' \
 	  -H "Content-type: application/json"))
-	@echo ">>> acquired JWT token: $(TOKEN)"
+	@echo ">>> JWT token acquired: $(TOKEN)"
 
 	@echo ">>> Checking syros-app hosts endpoint"
 	@curl --fail http://localhost:8888/api/docker/hosts \
