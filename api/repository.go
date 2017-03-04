@@ -28,8 +28,26 @@ func NewRepository(config *Config) (*Repository, error) {
 	return repo, nil
 }
 
+func (repo *Repository) AllEnvironments() ([]string, error) {
+	cursor, err := r.Table("hosts").Distinct(r.DistinctOpts{Index: "environment"}).Run(repo.Session)
+	if err != nil {
+		log.Errorf("Repository AllEnvironments query failed %v", err)
+		return nil, err
+	}
+
+	environments := []string{}
+	err = cursor.All(&environments)
+	if err != nil {
+		log.Errorf("Repository AllEnvironments cursor failed %v", err)
+		return nil, err
+	}
+	cursor.Close()
+
+	return environments, nil
+}
+
 func (repo *Repository) AllHosts() ([]models.DockerHost, error) {
-	cursor, err := r.Table("hosts").OrderBy(r.Asc("Collected"), r.OrderByOpts{Index: "Collected"}).Run(repo.Session)
+	cursor, err := r.Table("hosts").OrderBy(r.Asc("collected"), r.OrderByOpts{Index: "collected"}).Run(repo.Session)
 	if err != nil {
 		log.Errorf("Repository AllHosts query failed %v", err)
 		return nil, err
@@ -49,27 +67,27 @@ func (repo *Repository) AllHosts() ([]models.DockerHost, error) {
 func (repo *Repository) HostContainers(hostID string) (*models.DockerPayload, error) {
 	cursor, err := r.Table("hosts").Get(hostID).Run(repo.Session)
 	if err != nil {
-		log.Errorf("Repository HostContainers query failed %v", err)
+		log.Errorf("Repository HostContainers query failed for hostID %v %v", hostID, err)
 		return nil, err
 	}
 	host := models.DockerHost{}
 	err = cursor.One(&host)
 	if err != nil {
-		log.Errorf("Repository HostContainers cursor failed %v", err)
+		log.Errorf("Repository HostContainers cursor failed for hostID %v %v", hostID, err)
 		return nil, err
 	}
 	cursor.Close()
 
 	cursor, err = r.Table("containers").GetAllByIndex("host_id", hostID).Run(repo.Session)
 	if err != nil {
-		log.Errorf("Repository HostContainers query failed %v", err)
+		log.Errorf("Repository HostContainers query containers GetAllByIndex for hostID %v failed %v", hostID, err)
 		return nil, err
 	}
 
 	containers := []models.DockerContainer{}
 	err = cursor.All(&containers)
 	if err != nil {
-		log.Errorf("Repository HostContainers cursor failed %v", err)
+		log.Errorf("Repository HostContainers cursor containers GetAllByIndex for hostID %v failed %v", hostID, err)
 		return nil, err
 	}
 	cursor.Close()
@@ -82,8 +100,54 @@ func (repo *Repository) HostContainers(hostID string) (*models.DockerPayload, er
 	return payload, nil
 }
 
+func (repo *Repository) EnvironmentContainers(env string) (*models.DockerPayload, error) {
+	cursor, err := r.Table("hosts").GetAllByIndex("environment", env).Run(repo.Session)
+	if err != nil {
+		log.Errorf("Repository EnvironmentContainers query containers GetAllByIndex for env %v failed %v", env, err)
+		return nil, err
+	}
+
+	hosts := []models.DockerHost{}
+	err = cursor.All(&hosts)
+	if err != nil {
+		log.Errorf("Repository EnvironmentContainers cursor containers GetAllByIndex for env %v failed %v", env, err)
+		return nil, err
+	}
+	cursor.Close()
+
+	envStats := models.DockerHost{}
+
+	for _, host := range hosts {
+		envStats.ContainersRunning += host.ContainersRunning
+		envStats.Containers++
+		envStats.NCPU += host.NCPU
+		envStats.MemTotal += host.MemTotal
+	}
+
+	cursor, err = r.Table("containers").GetAllByIndex("environment", env).Run(repo.Session)
+	if err != nil {
+		log.Errorf("Repository EnvironmentContainers query containers GetAllByIndex for env %v failed %v", env, err)
+		return nil, err
+	}
+
+	containers := []models.DockerContainer{}
+	err = cursor.All(&containers)
+	if err != nil {
+		log.Errorf("Repository EnvironmentContainers cursor containers GetAllByIndex for env %v failed %v", env, err)
+		return nil, err
+	}
+	cursor.Close()
+
+	payload := &models.DockerPayload{
+		Host:       envStats,
+		Containers: containers,
+	}
+
+	return payload, nil
+}
+
 func (repo *Repository) AllContainers() ([]models.DockerContainer, error) {
-	cursor, err := r.Table("containers").OrderBy(r.Asc("Collected"), r.OrderByOpts{Index: "Collected"}).Run(repo.Session)
+	cursor, err := r.Table("containers").OrderBy(r.Asc("collected"), r.OrderByOpts{Index: "collected"}).Run(repo.Session)
 	if err != nil {
 		log.Errorf("Repository AllContainers query failed %v", err)
 		return nil, err

@@ -49,6 +49,7 @@ func main() {
 		TokenAuth:  jwtauth.New("HS256", []byte(config.JwtSecret), nil),
 	}
 
+	log.Infof("Starting HTTP server on port %v", config.Port)
 	go server.Start()
 
 	//wait for SIGINT (Ctrl+C) or SIGTERM (docker stop)

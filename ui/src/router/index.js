@@ -30,6 +30,14 @@ export default new Router({
       }
     },
     {
+      path: '/environment/:id',
+      name: 'environment',
+      component: require('components/environment/index.vue'),
+      meta: {
+        auth: true
+      }
+    },
+    {
       path: '/login',
       name: 'login',
       component: require('components/login/index.vue'),

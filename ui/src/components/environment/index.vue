@@ -3,16 +3,15 @@
   <div id="main-breadcrumb">
     <ol class="breadcrumb">
       <li><a class="text-uppercase" href="/#/home">Home</a></li>
-      <li><a class="text-uppercase" href="/#/hosts">hosts</a></li>
-      <li>{{ stats.name }}</li>
+      <li>{{ this.$route.params.id }}</li>
     </ol>
   </div>
   <div class="stats">
     <div class="row">
       <div class="col-md-3 text-center">
-        <h2>{{ stats.containers }}</h2><small class="text-uppercase">Containers</small></div>
+        <h2>{{ stats.hosts }}</h2><small class="text-uppercase">Hosts</small></div>
       <div class="col-md-3 text-center">
-        <h2>{{ stats.images }}</h2><small class="text-uppercase">Images</small></div>
+        <h2>{{ stats.containers }}</h2><small class="text-uppercase">Containers</small></div>
       <div class="col-md-3 text-center">
         <h2>{{ stats.cpus }}</h2><small class="text-uppercase">vCPUs</small></div>
       <div class="col-md-3 text-center">
@@ -28,21 +27,21 @@
 <script>
   import Vue from 'vue'
   import bus from 'components/bus.vue'
-  import rowTemplate from 'components/host/row.template.jsx'
-  import rowChild from 'components/host/row-child.template.jsx'
+  import rowTemplate from 'components/environment/row.template.jsx'
+  import rowChild from 'components/environment/row-child.template.jsx'
 
   export default {
-    name: 'host',
+    name: 'environment',
     data () {
       return {
         timer: null,
-        id: null,
-        stats: {name: '', containers: '0', images: '0', cpus: '0', ram: '0 MB'},
-        columns: ['name', 'state', 'status', 'network_mode', 'port', 'created'],
+        id: this.$route.params.id,
+        stats: {hosts: '', containers: '0', cpus: '0', ram: '0 MB'},
+        columns: ['name', 'state', 'status', 'host_name', 'network_mode', 'port', 'created'],
         tableData: [],
         options: {
           skin: 'table-hover',
-          sortable: ['name', 'state', 'status', 'network_mode', 'port', 'created'],
+          sortable: ['name', 'state', 'status', 'host_name', 'network_mode', 'port', 'created'],
           dateColumns: ['created'],
           toMomentFormat: 'YYYY-MM-DDTHH:mm:ssZ',
           uniqueKey: 'id',
@@ -57,14 +56,13 @@
     methods: {
       loadData () {
         this.$Progress.start()
-        Vue.$http.get(`/docker/hosts/${this.id}`)
+        Vue.$http.get(`/docker/environment/${this.id}`)
           .then((response) => {
             if (response != null) {
               this.tableData = response.data.containers
               this.stats = {
-                name: response.data.host.name,
+                hosts: response.data.host.containers.toString(),
                 containers: response.data.host.containers_running.toString(),
-                images: response.data.host.images.toString(),
                 cpus: response.data.host.ncpu.toString(),
                 ram: parseInt(parseFloat((response.data.host.mem_total / Math.pow(1024, 3))).toFixed(0)).toString() + 'GB'
               }
@@ -98,7 +96,6 @@
     },
     created: function () {
       console.log('Created: ' + this.$options.name)
-      this.id = this.$route.params.id
     },
     mounted: function () {
       console.log('Mounted: ' + this.$options.name)

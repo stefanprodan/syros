@@ -17,31 +17,18 @@
               </div>
               <div class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
-                <router-link
-                  :to="{ name: 'home' }"
-                  active-class="active"
-                  tag="li"
-                >
-                  <a>
-                    Home
-                  </a>
+                <router-link :to="{ name: 'home' }" active-class="active" tag="li">
+                  <a>Home</a>
                 </router-link>
-                <router-link
-                  :to="{ name: 'hosts' }"
-                  active-class="active"
-                  tag="li"
-                >
-                  <a>
-                    Hosts
-                  </a>
+                <router-link :to="{ name: 'hosts' }" active-class="active" tag="li">
+                  <a>Hosts</a>
                 </router-link>                
                 </ul>
-                <ul class="nav navbar-nav navbar-indent">
+                <ul v-if="environments" class="nav navbar-nav navbar-indent">
                   <li class="dropdown-header">Environments</li>
-                  <li><a href="#">INT</a></li>
-                  <li><a href="#">STG</a></li>
-                  <li><a href="#">PREP</a></li>
-                  <li><a href="#">PROD</a></li>
+                  <router-link v-for="env in environments" active-class="active" tag="li" :to="{ name: 'environment', params: { id: env }}">
+                    <a>{{ env }}</a>
+                  </router-link>
                 </ul>
                 <ul class="nav navbar-nav">
                   <li><a href="#" v-if="user.authenticated" @click="logout()"><i class="fa fa-sign-out"></i> Logout</a></li>
@@ -66,6 +53,8 @@
 </template>
 
 <script>
+  import Vue from 'vue'
+  import bus from 'components/bus.vue'
   import flash from 'components/flash.vue'
   import auth from 'components/auth.vue'
 
@@ -73,10 +62,39 @@
     name: 'app',
     data () {
       return {
-        user: auth.user
+        user: auth.user,
+        environments: []
       }
     },
     methods: {
+      loadData () {
+        Vue.$http.get('/docker/environments')
+          .then((response) => {
+            if (response != null) {
+              this.environments = response.data
+            }
+          })
+          .catch((error) => {
+            if (!error.response.status) {
+              bus.$emit('flashMessage', {
+                type: 'warning',
+                message: 'Network error! Could not connect to the server'
+              })
+            } else {
+              bus.$emit('flashMessage', {
+                type: 'warning',
+                message: `${error.response.statusText}! ${error.response.data}`
+              })
+            }
+          })
+      },
+      refreshData () {
+        this.loadData()
+        console.log('Refresh data: ' + this.$options.name)
+        // enqueue new call after 30 seconds
+        if (this.timer) clearTimeout(this.timer)
+        this.timer = setTimeout(this.refreshData, 30000)
+      },
       logout () {
         auth.logout()
         this.$router.push({
@@ -86,6 +104,7 @@
     },
     components: { flash },
     mounted () {
+      this.refreshData()
       //  [App.vue specific] When App.vue is finish loading finish the progress bar
       this.$Progress.finish()
     },

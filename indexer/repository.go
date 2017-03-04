@@ -53,12 +53,12 @@ func (repo *Repository) Initialize() {
 	}
 
 	repo.CreateTable("hosts")
-	repo.CreateIndex("hosts", "Environment")
-	repo.CreateIndex("hosts", "Collected")
+	repo.CreateIndex("hosts", "environment")
+	repo.CreateIndex("hosts", "collected")
 	repo.CreateTable("containers")
 	repo.CreateIndex("containers", "host_id")
-	repo.CreateIndex("containers", "Environment")
-	repo.CreateIndex("containers", "Collected")
+	repo.CreateIndex("containers", "environment")
+	repo.CreateIndex("containers", "collected")
 }
 
 func (repo *Repository) CreateTable(table string) {
@@ -125,7 +125,7 @@ func (repo *Repository) HostUpsert(host models.DockerHost) {
 }
 
 func (repo *Repository) AllHosts() ([]models.DockerHost, error) {
-	cursor, err := r.Table("hosts").OrderBy(r.Asc("Collected"), r.OrderByOpts{Index: "Collected"}).Run(repo.Session)
+	cursor, err := r.Table("hosts").OrderBy(r.Asc("collected"), r.OrderByOpts{Index: "collected"}).Run(repo.Session)
 	if err != nil {
 		log.Errorf("Repository AllHosts query failed %v", err)
 		return nil, err
@@ -162,24 +162,6 @@ func (repo *Repository) ContainerUpsert(container models.DockerContainer) {
 	}
 }
 
-func (repo *Repository) AllContainers() ([]models.DockerContainer, error) {
-	cursor, err := r.Table("containers").OrderBy(r.Asc("Collected"), r.OrderByOpts{Index: "Collected"}).Run(repo.Session)
-	if err != nil {
-		log.Errorf("Repository AllContainers query failed %v", err)
-		return nil, err
-	}
-
-	containers := []models.DockerContainer{}
-	err = cursor.All(&containers)
-	if err != nil {
-		log.Errorf("Repository AllContainers cursor failed %v", err)
-		return nil, err
-	}
-	cursor.Close()
-
-	return containers, nil
-}
-
 // Removes stale records that have not been updated for a while
 func (repo *Repository) RunGarbageCollector(tables []string) {
 	if repo.Config.DatabaseStale > 0 {
@@ -188,7 +170,7 @@ func (repo *Repository) RunGarbageCollector(tables []string) {
 				res, err := r.Table(table).
 					Between(time.Now().Add(-12*time.Hour).UTC(),
 						time.Now().Add(-time.Duration(repo.Config.DatabaseStale)*time.Minute).UTC(),
-						r.BetweenOpts{Index: "Collected"}).
+						r.BetweenOpts{Index: "collected"}).
 					Delete().RunWrite(repo.Session)
 				if err != nil {
 					log.Errorf("Repository GC for table %v query failed %v", table, err)
