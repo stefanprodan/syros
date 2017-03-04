@@ -35,30 +35,38 @@ $ cd syros
 # install go dependencies
 $ go get -u github.com/kardianos/govendor
 $ govendor sync
-# run NATS and RethinkDB localy 
-$ docker-compose up -d
 # install node dependencies
 $ cd ui
 $ npm install
 ```
 
-Build, pack, test and deploy:
-
-The build system is done with Make and uses Docker containers. 
+Run locally:
 
 ```sh
-# build the UI with webpack and the golang binaries for Alpine
-$ make build APP_VERSION=0.0.1
-# run services on local containers
-$ make run APP_VERSION=0.0.1
-# run integration tests localy
-$ make run test APP_VERSION=0.0.1 RDB=192.168.1.135:28015 NATS=nats://192.168.1.135:4222
-# push Docker images to registry
-$ make build pack push APP_VERSION=0.0.1 REGISTRY=index.docker.io REPOSITORY=stefanprodan
-# remove containers, images and build artifacs 
+# start NATS and RethinkDB
+$ docker-compose up -d
+# build and run all services
+$ make build run APP_VERSION=0.0.1 RDB=192.168.1.135:28015 NATS=nats://192.168.1.135:4222
+# remove build artifacs 
+$ make clean
+# remove containers and images
 $ make purge APP_VERSION=0.0.1
 # run go fmt and go vet
 $ make fmt vet
 ```
 
+### Continuous Integration
 
+The CI pipeline is written in Make and uses Docker containers, 
+no external dependencies like go or nodejs are required to build, test and deploy the services.
+
+```sh
+# build the UI with webpack and the golang binaries for Alpine
+$ make build APP_VERSION=0.0.1
+# run integration tests
+$ make build test APP_VERSION=0.0.1 RDB=192.168.1.135:28015 NATS=nats://192.168.1.135:4222
+# push Docker images to registry
+$ make build pack push APP_VERSION=0.0.1 REGISTRY=index.docker.io REPOSITORY=stefanprodan
+# remove test containers and local images
+$ make purge APP_VERSION=0.0.1
+```

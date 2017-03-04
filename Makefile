@@ -1,12 +1,16 @@
 SHELL:=/bin/bash
 
-APP_VERSION?="0.0.1"
+APP_VERSION?=0.0.1
 
 # build vars
 DIST:=$$(pwd)/dist
 BUILD_DATE:=$(shell date -u +%Y-%m-%d_%H.%M.%S)
+GIT_REPOSITORY:=github.com/stefanprodan/syros
 GIT_COMMIT:=$(shell git rev-parse HEAD)
 GIT_BRANCH:=$(shell git symbolic-ref --short HEAD)
+MAINTAINER:="Stefan Prodan"
+
+# go tools
 PACKAGES:=$(shell go list ./... | grep -v '/vendor/')
 VETARGS:=-asmdecl -atomic -bool -buildtags -copylocks -methods -nilfunc -rangeloops -shift -structtags -unsafeptr
 
@@ -23,7 +27,7 @@ define DURATION
 @time_end=`date +%s` ; time_exec=`awk -v "TS=${TIME_START}" -v "TE=$$time_end" 'BEGIN{TD=TE-TS;printf "%02dm:%02ds\n",TD/(60)%60,TD%60}'` ; echo "$@ duration $${time_exec} "
 endef
 
-build: purge
+build: clean
 	@echo ">>> Building syros-ui-build image"
 	@docker build -t syros-ui-build:$(BUILD_DATE) -f build.node.dockerfile .
 
@@ -53,29 +57,35 @@ build: purge
 	@find dist -type f -print0 | xargs -0 ls -t
 	$(DURATION)
 
-pack: build
+pack:
 	@echo ">>> Building syros-app image for deploy"
 	@docker build -t syros-app:$(APP_VERSION) \
+	    --build-arg APP_VERSION=$(APP_VERSION) \
+	    --build-arg BUILD_DATE=$(BUILD_DATE) \
+	    --build-arg GIT_REPOSITORY=$(GIT_REPOSITORY) \
+	    --build-arg GIT_BRANCH=$(GIT_BRANCH) \
 		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
-		--build-arg GIT_BRANCH=$(GIT_BRANCH) \
-		--build-arg APP_VERSION=$(APP_VERSION) \
-		--build-arg BUILD_DATE=$(BUILD_DATE) \
+        --build-arg MAINTAINER=$(MAINTAINER) \
 		-f deploy.app.dockerfile .
 
 	@echo ">>> Building syros-indexer image for deploy"
 	@docker build -t syros-indexer:$(APP_VERSION) \
+	    --build-arg APP_VERSION=$(APP_VERSION) \
+	    --build-arg BUILD_DATE=$(BUILD_DATE) \
+	    --build-arg GIT_REPOSITORY=$(GIT_REPOSITORY) \
+	    --build-arg GIT_BRANCH=$(GIT_BRANCH) \
 		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
-		--build-arg GIT_BRANCH=$(GIT_BRANCH) \
-		--build-arg APP_VERSION=$(APP_VERSION) \
-		--build-arg BUILD_DATE=$(BUILD_DATE) \
+        --build-arg MAINTAINER=$(MAINTAINER) \
 		-f deploy.indexer.dockerfile .
 
 	@echo ">>> Building syros-agent image for deploy"
 	@docker build -t syros-agent:$(APP_VERSION) \
+	    --build-arg APP_VERSION=$(APP_VERSION) \
+	    --build-arg BUILD_DATE=$(BUILD_DATE) \
+	    --build-arg GIT_REPOSITORY=$(GIT_REPOSITORY) \
+	    --build-arg GIT_BRANCH=$(GIT_BRANCH) \
 		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
-		--build-arg GIT_BRANCH=$(GIT_BRANCH) \
-		--build-arg APP_VERSION=$(APP_VERSION) \
-		--build-arg BUILD_DATE=$(BUILD_DATE) \
+        --build-arg MAINTAINER=$(MAINTAINER) \
 		-f deploy.agent.dockerfile .
 
 	@echo ">>> Images ready for deploy:"
@@ -117,7 +127,7 @@ run: pack
 	@docker logs syros-agent-$(APP_VERSION)
 	$(DURATION)
 
-test:
+test: run
 	@echo ">>> Checking syros-app status"
 	@curl --fail http://localhost:8888/status
 
@@ -184,7 +194,7 @@ clean:
 	fi
 	$(DURATION)
 
-purge: clean
+purge:
 	@docker rm -f syros-app-$(APP_VERSION) syros-agent-$(APP_VERSION) syros-indexer-$(APP_VERSION) || true
 	@docker rmi $$(docker images | awk '$$1 ~ /syros/ { print $$3 }') || true
 	$(DURATION)
