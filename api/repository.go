@@ -46,6 +46,88 @@ func (repo *Repository) AllEnvironments() ([]string, error) {
 	return environments, nil
 }
 
+func (repo *Repository) EnvironmentHostContainerSum() ([]models.EnvironmentStats, error) {
+	cursor, err := r.Table("hosts").Distinct(r.DistinctOpts{Index: "environment"}).Run(repo.Session)
+	if err != nil {
+		log.Errorf("Repository EnvironmentHostContainerSum query failed %v", err)
+		return nil, err
+	}
+
+	all := []string{}
+
+	err = cursor.All(&all)
+	if err != nil {
+		log.Errorf("Repository EnvironmentHostContainerSum cursor failed %v", err)
+		return nil, err
+	}
+	cursor.Close()
+
+	environments := []models.EnvironmentStats{}
+	for _, env := range all {
+		cursor, err = r.Table("hosts").GetAllByIndex("environment", env).Count().Run(repo.Session)
+		if err != nil {
+			log.Errorf("Repository EnvironmentHostContainerSum query failed %v", err)
+			return nil, err
+		}
+		var hSum int
+		err = cursor.One(&hSum)
+		if err != nil {
+			log.Errorf("Repository EnvironmentHostContainerSum cursor failed %v", err)
+			return nil, err
+		}
+		cursor.Close()
+
+		cursor, err = r.Table("hosts").GetAllByIndex("environment", env).Sum("containers_running").Run(repo.Session)
+		if err != nil {
+			log.Errorf("Repository EnvironmentHostContainerSum query failed %v", err)
+			return nil, err
+		}
+		var cSum int
+		err = cursor.One(&cSum)
+		if err != nil {
+			log.Errorf("Repository EnvironmentHostContainerSum cursor failed %v", err)
+			return nil, err
+		}
+
+		cursor, err = r.Table("hosts").GetAllByIndex("environment", env).Sum("ncpu").Run(repo.Session)
+		if err != nil {
+			log.Errorf("Repository EnvironmentHostContainerSum query failed %v", err)
+			return nil, err
+		}
+		var ncpuSum int
+		err = cursor.One(&ncpuSum)
+		if err != nil {
+			log.Errorf("Repository EnvironmentHostContainerSum cursor failed %v", err)
+			return nil, err
+		}
+		cursor.Close()
+
+		cursor, err = r.Table("hosts").GetAllByIndex("environment", env).Sum("mem_total").Run(repo.Session)
+		if err != nil {
+			log.Errorf("Repository EnvironmentHostContainerSum query failed %v", err)
+			return nil, err
+		}
+		var memSum int64
+		err = cursor.One(&memSum)
+		if err != nil {
+			log.Errorf("Repository EnvironmentHostContainerSum cursor failed %v", err)
+			return nil, err
+		}
+		cursor.Close()
+
+		envEntry := models.EnvironmentStats{
+			Environment:       env,
+			Hosts:             hSum,
+			ContainersRunning: cSum,
+			NCPU:              ncpuSum,
+			MemTotal:          memSum,
+		}
+		environments = append(environments, envEntry)
+	}
+
+	return environments, nil
+}
+
 func (repo *Repository) AllHosts() ([]models.DockerHost, error) {
 	cursor, err := r.Table("hosts").OrderBy(r.Asc("collected"), r.OrderByOpts{Index: "collected"}).Run(repo.Session)
 	if err != nil {

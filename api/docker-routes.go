@@ -82,5 +82,15 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 		render.JSON(w, r, environments)
 	})
 
+	r.Get("/environments/stats", func(w http.ResponseWriter, r *http.Request) {
+		environments, err := s.Repository.EnvironmentHostContainerSum()
+		if err != nil {
+			render.Status(r, http.StatusInternalServerError)
+			render.PlainText(w, r, err.Error())
+			return
+		}
+		render.JSON(w, r, environments)
+	})
+
 	return r
 }

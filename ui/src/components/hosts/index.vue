@@ -11,7 +11,7 @@
       <div class="col-md-3 text-center">
         <h2>{{ stats.hosts }}</h2><small class="text-uppercase">Hosts</small></div>
       <div class="col-md-3 text-center">
-        <h2>{{ stats.containers }}</h2><small class="text-uppercase">Containers</small></div>
+        <h2>{{ stats.containers }}</h2><small class="text-uppercase">Containers up</small></div>
       <div class="col-md-3 text-center">
         <h2>{{ stats.cpus }}</h2><small class="text-uppercase">vCPUs</small></div>
       <div class="col-md-3 text-center">
@@ -67,13 +67,13 @@
                 statsHosts += 1
                 statsContainers += response.data[i].containers_running
                 statsCpus += response.data[i].ncpu
-                statsRam += parseInt(parseFloat((response.data[i].mem_total / Math.pow(1024, 3))).toFixed(0))
+                statsRam += response.data[i].mem_total
               }
               this.stats = {
                 hosts: statsHosts.toString(),
                 containers: statsContainers.toString(),
                 cpus: statsCpus.toString(),
-                ram: statsRam.toString() + 'GB'
+                ram: parseInt(parseFloat((statsRam / Math.pow(1024, 3))).toFixed(0)) + 'GB'
               }
               this.$Progress.finish()
             } else {

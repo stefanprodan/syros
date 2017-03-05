@@ -272,6 +272,24 @@ a {
     }
 }
 
+//Charts ---------------------------------------------------------------------
+
+.charts {
+    border-bottom: 1px dashed #ddd;
+    margin-bottom: 30px;
+}
+
+.pie-chart{
+    width: 256px;
+    margin: 0 auto;
+    text-align: center;
+    small {
+        color: #999;
+        display: block;
+        padding: 10px 0;
+    }
+}
+
 //Table style----------------------------------------------------------------------------------
 
 #vue-tables-options {
