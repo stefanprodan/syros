@@ -16,6 +16,7 @@
     "jquery": "^3.1.1",
     "moment": "^2.17.1",
     "vue": "^2.1.10",
+    "vue-chartjs": "^2.4.1",
     "vue-progressbar": "^0.7.1",
     "vue-router": "^2.2.0",
     "vue-select": "github:sagalbot/vue-select",
