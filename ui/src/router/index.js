@@ -30,6 +30,14 @@ export default new Router({
       }
     },
     {
+      path: '/container/:id',
+      name: 'container',
+      component: require('components/container/index.vue'),
+      meta: {
+        auth: true
+      }
+    },
+    {
       path: '/environment/:id',
       name: 'environment',
       component: require('components/environment/index.vue'),

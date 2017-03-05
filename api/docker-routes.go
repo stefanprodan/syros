@@ -58,6 +58,18 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 			}
 			render.JSON(w, r, containers)
 		})
+
+		r.Get("/containers/:containerID", func(w http.ResponseWriter, r *http.Request) {
+			containerID := chi.URLParam(r, "containerID")
+
+			payload, err := s.Repository.Container(containerID)
+			if err != nil {
+				render.Status(r, http.StatusInternalServerError)
+				render.PlainText(w, r, err.Error())
+				return
+			}
+			render.JSON(w, r, payload)
+		})
 	})
 
 	r.Get("/environments", func(w http.ResponseWriter, r *http.Request) {

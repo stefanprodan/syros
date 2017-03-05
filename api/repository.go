@@ -163,3 +163,41 @@ func (repo *Repository) AllContainers() ([]models.DockerContainer, error) {
 
 	return containers, nil
 }
+
+func (repo *Repository) Container(containerID string) (*models.DockerPayload, error) {
+	cursor, err := r.Table("containers").Get(containerID).Run(repo.Session)
+	if err != nil {
+		log.Errorf("Repository Container query failed for containerID %v %v", containerID, err)
+		return nil, err
+	}
+	container := models.DockerContainer{}
+	err = cursor.One(&container)
+	if err != nil {
+		log.Errorf("Repository Container cursor failed for containerID %v %v", containerID, err)
+		return nil, err
+	}
+	cursor.Close()
+
+	cursor, err = r.Table("hosts").Get(container.HostId).Run(repo.Session)
+	if err != nil {
+		log.Errorf("Repository Container hosts query failed for containerID %v %v", containerID, err)
+		return nil, err
+	}
+	host := models.DockerHost{}
+	err = cursor.One(&host)
+	if err != nil {
+		log.Errorf("Repository Container hosts cursor failed for containerID %v %v", containerID, err)
+		return nil, err
+	}
+	cursor.Close()
+
+	containers := []models.DockerContainer{}
+	containers = append(containers, container)
+
+	payload := &models.DockerPayload{
+		Host:       host,
+		Containers: containers,
+	}
+
+	return payload, nil
+}

@@ -11,7 +11,7 @@
       <div class="col-md-3 text-center">
         <h2>{{ stats.hosts }}</h2><small class="text-uppercase">Hosts</small></div>
       <div class="col-md-3 text-center">
-        <h2>{{ stats.containers }}</h2><small class="text-uppercase">Containers</small></div>
+        <h2>{{ stats.containers }}</h2><small class="text-uppercase">Containers up</small></div>
       <div class="col-md-3 text-center">
         <h2>{{ stats.cpus }}</h2><small class="text-uppercase">vCPUs</small></div>
       <div class="col-md-3 text-center">
