@@ -96,12 +96,20 @@
         this.timer = setTimeout(this.refreshData, 30000)
       }
     },
+    watch: {
+      '$route' (to, from) {
+        if (from.params.id !== to.params.id) {
+          this.id = to.params.id
+          return this.refreshData()
+        }
+      }
+    },
     created: function () {
       console.log('Created: ' + this.$options.name)
-      this.id = this.$route.params.id
     },
     mounted: function () {
       console.log('Mounted: ' + this.$options.name)
+      this.id = this.$route.params.id
       this.refreshData()
     },
     destroyed: function () {

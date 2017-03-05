@@ -3,7 +3,7 @@
   <div id="main-breadcrumb">
     <ol class="breadcrumb">
       <li><a class="text-uppercase" href="/#/home">Home</a></li>
-      <li>{{ this.$route.params.id }}</li>
+      <li>{{ id }}</li>
     </ol>
   </div>
   <div class="stats">
@@ -92,6 +92,14 @@
         // enqueue new call after 30 seconds
         if (this.timer) clearTimeout(this.timer)
         this.timer = setTimeout(this.refreshData, 30000)
+      }
+    },
+    watch: {
+      '$route' (to, from) {
+        if (from.params.id !== to.params.id) {
+          this.id = to.params.id
+          return this.refreshData()
+        }
       }
     },
     created: function () {

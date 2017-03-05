@@ -34,28 +34,6 @@ func (s *HttpServer) Start() {
 	http.HandleFunc("/status", func(w http.ResponseWriter, req *http.Request) {
 		render.JSON(w, http.StatusOK, s.Registry.GetActiveAgents())
 	})
-	http.HandleFunc("/api/hosts", func(w http.ResponseWriter, req *http.Request) {
-		w.Header().Set("Access-Control-Allow-Headers", "Authorization")
-		w.Header().Set("Access-Control-Allow-Methods", "*")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		hosts, err := s.Repository.AllHosts()
-		if err != nil {
-			render.JSON(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		render.JSON(w, http.StatusOK, hosts)
-	})
-	http.HandleFunc("/api/containers", func(w http.ResponseWriter, req *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		containers, err := s.Repository.AllContainers()
-		if err != nil {
-			render.JSON(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		render.JSON(w, http.StatusOK, containers)
-	})
 
 	http.HandleFunc("/api/error", func(w http.ResponseWriter, req *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
