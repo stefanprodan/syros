@@ -21,29 +21,27 @@
     <div class="row">
       <div class="col-md-6">
         <div class="pie-chart">
-          <env-pie-chart ref="hostChar" :chartData="hostChart"></env-pie-chart>
+          <env-pie-chart ref="hostChart" :chartData="hostChart"></env-pie-chart>
           <small class="text-uppercase">Hosts distribution</small>
         </div>      
       </div>
       <div class="col-md-6">
         <div class="pie-chart">
-          <env-pie-chart ref="containerChar" :chartData="containerChart"></env-pie-chart>
+          <env-pie-chart ref="containerChart" :chartData="containerChart"></env-pie-chart>
           <small class="text-uppercase">Containers distribution</small>
-        </div>
-        
+        </div>        
       </div>
     </div>
   </div>
-  <v-client-table ref="containersTabel" :data="tableData" :columns="columns" :options="options"></v-client-table>
+  <v-client-table ref="envsTabel" :data="tableData" :columns="columns" :options="options"></v-client-table>
 </div>
-
 </template>
 
 <script>
   import Vue from 'vue'
   import bus from 'components/bus.vue'
   import rowTemplate from 'components/home/row.template.jsx'
-  import EnvPieChart from 'components/home/envpiechart.vue'
+  import EnvPieChart from 'components/home/env.piechart.vue'
 
   export default {
     name: 'home',
@@ -95,43 +93,8 @@
                 containerdata.push(response.data[i].containers_running)
               }
 
-              this.hostChart = {
-                labels: labels,
-                datasets: [
-                  {
-                    backgroundColor: [
-                      'rgba(65, 184, 131, .8)',
-                      'rgba(228, 102, 81, .8)',
-                      'rgba(0, 116, 255, .8)',
-                      'rgba(155, 89, 182, .8)',
-                      'rgba(88, 172, 11, .8)',
-                      'rgba(65, 90, 131, .8)',
-                      'rgba(0, 216, 255, .8)'
-                    ],
-                    borderWidth: 0,
-                    data: hostdata
-                  }
-                ]
-              }
-
-              this.containerChart = {
-                labels: labels,
-                datasets: [
-                  {
-                    backgroundColor: [
-                      'rgba(155, 89, 182, .8)',
-                      'rgba(88, 172, 11, .8)',
-                      'rgba(65, 90, 131, .8)',
-                      'rgba(65, 184, 131, .8)',
-                      'rgba(228, 102, 81, .8)',
-                      'rgba(0, 116, 255, .8)',
-                      'rgba(0, 216, 255, .8)'
-                    ],
-                    borderWidth: 0,
-                    data: containerdata
-                  }
-                ]
-              }
+              this.hostChart = this.fillChart(labels, hostdata)
+              this.containerChart = this.fillChart(labels, containerdata)
               this.loaded = true
 
               this.stats = {
@@ -166,6 +129,26 @@
         // enqueue new call after 30 seconds
         if (this.timer) clearTimeout(this.timer)
         this.timer = setTimeout(this.refreshData, 30000)
+      },
+      fillChart (labels, data) {
+        return {
+          labels: labels,
+          datasets: [
+            {
+              backgroundColor: [
+                'rgba(65, 184, 131, .8)',
+                'rgba(228, 102, 81, .8)',
+                'rgba(0, 116, 255, .8)',
+                'rgba(155, 89, 182, .8)',
+                'rgba(88, 172, 11, .8)',
+                'rgba(65, 90, 131, .8)',
+                'rgba(0, 216, 255, .8)'
+              ],
+              borderWidth: 0,
+              data: data
+            }
+          ]
+        }
       }
     },
     created: function () {

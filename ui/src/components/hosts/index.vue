@@ -18,9 +18,7 @@
         <h2>{{ stats.ram }}</h2><small class="text-uppercase">Memory</small></div>
     </div>
   </div>
-
-  <v-client-table ref="hostsTabel" :data="tableData" :columns="columns" :options="options"></v-client-table>
-  
+  <v-client-table ref="hostsTabel" :data="tableData" :columns="columns" :options="options"></v-client-table>  
 </div>
 </template>
 
