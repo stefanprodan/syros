@@ -8,6 +8,7 @@ import (
 	docker "github.com/docker/docker/client"
 	"github.com/stefanprodan/syros/models"
 	"hash/fnv"
+	"strings"
 	"time"
 )
 
@@ -155,15 +156,49 @@ func MapDockerContainer(environment string, hostId string, hostName string, c ty
 	}
 
 	// use first Host port bind as container Port
-	if len(container.PortBindings) > 0 {
-		for _, val := range container.PortBindings {
+	// if multiple ports are present search for gliderlabs/registrator meta
+	container.Port = GetPortFromEnv(container.PortBindings, container.Env)
+
+	return container
+}
+
+func GetPortFromEnv(portBindings map[string]string, env []string) string {
+	port := ""
+	if len(portBindings) == 0 {
+		return port
+	} else if len(portBindings) == 1 {
+		for _, val := range portBindings {
 			if len(val) > 0 {
-				container.Port = val
+				return val
+			}
+		}
+	}
+	if len(env) == 0 {
+		for _, val := range portBindings {
+			if len(val) > 0 {
+				return val
+			}
+		}
+	}
+	for _, val := range portBindings {
+		if len(val) > 0 {
+			registratorMeta := "SERVICE_" + val + "_NAME"
+			for _, e := range env {
+				if strings.Contains(e, registratorMeta) {
+					return val
+				}
+			}
+		}
+	}
+	if port == "" {
+		for _, val := range portBindings {
+			if len(val) > 0 {
+				return val
 			}
 		}
 	}
 
-	return container
+	return port
 }
 
 func Hash(val string) string {
