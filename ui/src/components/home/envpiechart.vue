@@ -1,20 +1,10 @@
 <script>
 import {Pie, mixins} from 'vue-chartjs'
-const { reactiveData } = mixins
 export default Pie.extend({
-  mixins: [reactiveData],
-  data () {
-    return {
-      chartData: null
-    }
-  },
+  mixins: [mixins.reactiveProp],
+  props: ['chartData'],
   mounted () {
-    this.renderChart(this.chartData, {responsive: true, maintainAspectRatio: false})
-  },
-  methods: {
-    fillData (data) {
-      this.chartData = data
-    }
+    this.renderChart(this.chartData, {responsive: true, maintainAspectRatio: true})
   }
 })
 </script>

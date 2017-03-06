@@ -17,17 +17,17 @@
         <h2>{{ stats.ram }}</h2><small class="text-uppercase">Memory</small></div>
     </div>
   </div>
-    <div class="charts" v-if="">
+    <div class="charts" v-if="loaded">
     <div class="row">
       <div class="col-md-6">
         <div class="pie-chart">
-          <env-pie-chart ref="hostChar"></env-pie-chart>
+          <env-pie-chart ref="hostChar" :chartData="hostChart"></env-pie-chart>
           <small class="text-uppercase">Hosts distribution</small>
         </div>      
       </div>
       <div class="col-md-6">
         <div class="pie-chart">
-          <env-pie-chart ref="containerChar"></env-pie-chart>
+          <env-pie-chart ref="containerChar" :chartData="containerChart"></env-pie-chart>
           <small class="text-uppercase">Containers distribution</small>
         </div>
         
@@ -51,6 +51,8 @@
       return {
         timer: null,
         loaded: false,
+        hostChart: null,
+        containerChart: null,
         stats: {hosts: '', containers: '0', cpus: '0', ram: '0 MB'},
         columns: ['n', 'environment', 'hosts', 'containers_running', 'ncpu', 'mem_total'],
         tableData: [],
@@ -81,6 +83,7 @@
               var statsRam = 0
               var labels = []
               var hostdata = []
+              var containerdata = []
               for (var i = 0, len = response.data.length; i < len; i++) {
                 statsHosts += response.data[i].hosts
                 statsContainers += response.data[i].containers_running
@@ -89,12 +92,10 @@
 
                 labels.push(response.data[i].environment)
                 hostdata.push(response.data[i].hosts)
+                containerdata.push(response.data[i].containers_running)
               }
 
-              this.hostCharData.labels = labels
-              this.hostCharData.datasets[0].data = hostdata
-
-              var data = {
+              this.hostChart = {
                 labels: labels,
                 datasets: [
                   {
@@ -112,8 +113,27 @@
                   }
                 ]
               }
-              this.$refs.hostChar.fillData(data)
+
+              this.containerChart = {
+                labels: labels,
+                datasets: [
+                  {
+                    backgroundColor: [
+                      'rgba(155, 89, 182, .8)',
+                      'rgba(88, 172, 11, .8)',
+                      'rgba(65, 90, 131, .8)',
+                      'rgba(65, 184, 131, .8)',
+                      'rgba(228, 102, 81, .8)',
+                      'rgba(0, 116, 255, .8)',
+                      'rgba(0, 216, 255, .8)'
+                    ],
+                    borderWidth: 0,
+                    data: containerdata
+                  }
+                ]
+              }
               this.loaded = true
+
               this.stats = {
                 hosts: statsHosts.toString(),
                 containers: statsContainers.toString(),
