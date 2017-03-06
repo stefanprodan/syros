@@ -1,6 +1,6 @@
 <template>
 <div>
-  <div id="main-breadcrumb">
+  <div>
     <ol class="breadcrumb">
       <li><a class="text-uppercase" href="/#/home">Home</a></li>
       <li><a class="text-uppercase" href="/#/hosts">hosts</a></li>

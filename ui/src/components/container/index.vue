@@ -1,6 +1,6 @@
 <template>
 <div>
-  <div id="main-breadcrumb">
+  <div>
     <ol class="breadcrumb">
       <li><a class="text-uppercase" href="/#/home">Home</a></li>
       <li><router-link class="text-uppercase" :to="{ name: 'hosts', params: { id: stats.host_id }}">{{stats.host}}</router-link></li>

@@ -1,6 +1,6 @@
 <template>
 <div>
-  <div id="main-breadcrumb">
+  <div>
     <ol class="breadcrumb">
       <li>Home</li>
     </ol>
