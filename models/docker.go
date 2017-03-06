@@ -15,6 +15,17 @@ type EnvironmentStats struct {
 	MemTotal          int64  `json:"mem_total"`
 }
 
+type EnvironmentDto struct {
+	Host        DockerHost        `json:"host"`
+	Containers  []DockerContainer `json:"containers"`
+	Deployments ChartDto          `json:"deployments"`
+}
+
+type ChartDto struct {
+	Labels []string `json:"labels"`
+	Values []int64  `json:"values"`
+}
+
 type DockerHost struct {
 	Id                 string    `gorethink:"id,omitempty" json:"id"`
 	Containers         int       `gorethink:"containers" json:"containers"`

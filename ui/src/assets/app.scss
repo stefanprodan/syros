@@ -290,6 +290,16 @@ a {
     }
 }
 
+.line-chart{
+    margin: 0 auto;
+    text-align: center;
+    small {
+        color: #999;
+        display: block;
+        padding: 10px 0;
+    }
+}
+
 //Table style----------------------------------------------------------------------------------
 
 #vue-tables-options {

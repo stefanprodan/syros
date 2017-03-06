@@ -4,6 +4,7 @@ import (
 	"github.com/goware/jwtauth"
 	"github.com/pressly/chi"
 	"github.com/pressly/chi/render"
+	"github.com/stefanprodan/syros/models"
 	"net/http"
 )
 
@@ -46,7 +47,36 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 				render.PlainText(w, r, err.Error())
 				return
 			}
-			render.JSON(w, r, payload)
+
+			deployments := models.ChartDto{
+				Labels: make([]string, 0),
+				Values: make([]int64, 0),
+			}
+
+			// aggregate deployments per day based on container created date
+			for _, cont := range payload.Containers {
+				date := cont.Created.Format("06-01-02")
+				found := -1
+				for i, s := range deployments.Labels {
+					if s == date {
+						found = i
+						break
+					}
+				}
+				if found > -1 {
+					deployments.Values[found]++
+				} else {
+					deployments.Labels = append(deployments.Labels, date)
+					deployments.Values = append(deployments.Values, 1)
+				}
+			}
+
+			result := models.EnvironmentDto{
+				Host:        payload.Host,
+				Containers:  payload.Containers,
+				Deployments: deployments,
+			}
+			render.JSON(w, r, result)
 		})
 
 		r.Get("/containers", func(w http.ResponseWriter, r *http.Request) {

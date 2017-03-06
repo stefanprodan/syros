@@ -206,7 +206,7 @@ func (repo *Repository) EnvironmentContainers(env string) (*models.DockerPayload
 		envStats.MemTotal += host.MemTotal
 	}
 
-	cursor, err = r.Table("containers").GetAllByIndex("environment", env).Run(repo.Session)
+	cursor, err = r.Table("containers").GetAllByIndex("environment", env).OrderBy(r.Asc("created")).Run(repo.Session)
 	if err != nil {
 		log.Errorf("Repository EnvironmentContainers query containers GetAllByIndex for env %v failed %v", env, err)
 		return nil, err

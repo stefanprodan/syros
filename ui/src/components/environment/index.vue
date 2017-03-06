@@ -18,6 +18,16 @@
         <h2>{{ stats.ram }}</h2><small class="text-uppercase">Memory</small></div>
     </div>
   </div>
+  <div class="charts" v-if="loaded">
+    <div class="row">
+      <div class="col-md-16">
+        <div class="line-chart">
+          <deployment-chart ref="deploymentChart" :chartData="deploymentData" :height="deploymentHeight"></deployment-chart>
+          <small class="text-uppercase">Deployments</small>
+        </div>      
+      </div>
+    </div>
+  </div>
   <v-client-table ref="containersTabel" :data="tableData" :columns="columns" :options="options"></v-client-table>
 </div>
 </template>
@@ -27,12 +37,16 @@
   import bus from 'components/bus.vue'
   import rowTemplate from 'components/environment/row.template.jsx'
   import rowChild from 'components/environment/row-child.template.jsx'
+  import DeploymentChart from 'components/environment/deployment.chart.vue'
 
   export default {
     name: 'environment',
     data () {
       return {
         timer: null,
+        loaded: false,
+        deploymentHeight: 180,
+        deploymentData: null,
         id: this.$route.params.id,
         stats: {hosts: '', containers: '0', cpus: '0', ram: '0 MB'},
         columns: ['name', 'state', 'status', 'host_name', 'network_mode', 'port', 'created'],
@@ -51,6 +65,9 @@
         }
       }
     },
+    components: {
+      DeploymentChart
+    },
     methods: {
       loadData () {
         this.$Progress.start()
@@ -58,6 +75,9 @@
           .then((response) => {
             if (response != null) {
               this.tableData = response.data.containers
+              this.deploymentData = this.fillChart(response.data.deployments)
+              this.loaded = true
+              console.log(response.data.deployments)
               this.stats = {
                 hosts: response.data.host.containers.toString(),
                 containers: response.data.host.containers_running.toString(),
@@ -90,6 +110,23 @@
         // enqueue new call after 30 seconds
         if (this.timer) clearTimeout(this.timer)
         this.timer = setTimeout(this.refreshData, 30000)
+      },
+      fillChart (data) {
+        var backgroundColors = []
+        for (var i = 0, len = data.labels.length; i < len; i++) {
+          backgroundColors.push('#309292')
+        }
+        return {
+          labels: data.labels,
+          datasets: [
+            {
+              label: 'deployments',
+              backgroundColor: backgroundColors,
+              borderWidth: 0,
+              data: data.values
+            }
+          ]
+        }
       }
     },
     watch: {

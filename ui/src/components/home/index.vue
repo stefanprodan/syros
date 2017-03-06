@@ -17,7 +17,7 @@
         <h2>{{ stats.ram }}</h2><small class="text-uppercase">Memory</small></div>
     </div>
   </div>
-    <div class="charts" v-if="loaded">
+  <div class="charts" v-if="loaded">
     <div class="row">
       <div class="col-md-6">
         <div class="pie-chart">
