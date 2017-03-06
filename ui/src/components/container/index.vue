@@ -2,8 +2,8 @@
 <div>
   <div>
     <ol class="breadcrumb">
-      <li><a class="text-uppercase" href="/#/home">Home</a></li>
-      <li><router-link class="text-uppercase" :to="{ name: 'hosts', params: { id: stats.host_id }}">{{stats.host}}</router-link></li>
+      <li><router-link class="text-uppercase" :to="{ name: 'home'}">home</router-link></li>
+      <li><router-link v-if="loaded" class="text-uppercase" :to="{ name: 'host', params: { id: stats.host_id }}">{{stats.host}}</router-link></li>
       <li>{{ stats.name }}</li>
     </ol>
   </div>
@@ -34,6 +34,7 @@
       return {
         timer: null,
         id: null,
+        loaded: false,
         stats: {name: '', host: '', host_id: '', state: '', status: '', cpus: '0', ram: '0 MB'},
         columns: ['n', 'property', 'value'],
         tableData: [],
@@ -95,6 +96,7 @@
                 cpus: response.data.host.ncpu.toString(),
                 ram: parseInt(parseFloat((response.data.host.mem_total / Math.pow(1024, 3))).toFixed(0)).toString() + 'GB'
               }
+              this.loaded = true
               this.$Progress.finish()
             } else {
               this.$Progress.fail()

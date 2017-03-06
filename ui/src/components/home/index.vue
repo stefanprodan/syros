@@ -17,8 +17,8 @@
         <h2>{{ stats.ram }}</h2><small class="text-uppercase">Memory</small></div>
     </div>
   </div>
-  <div class="charts" v-if="loaded">
-    <div class="row">
+  <div class="charts">
+    <div class="row" v-if="loaded">
       <div class="col-md-6">
         <div class="pie-chart">
           <env-pie-chart ref="hostChart" :chartData="hostChart"></env-pie-chart>

@@ -2,7 +2,7 @@
 <div>
   <div>
     <ol class="breadcrumb">
-      <li><a class="text-uppercase" href="/#/home">Home</a></li>
+      <li><router-link class="text-uppercase" :to="{ name: 'home'}">home</router-link></li>
       <li>{{ id }}</li>
     </ol>
   </div>
@@ -18,8 +18,8 @@
         <h2>{{ stats.ram }}</h2><small class="text-uppercase">Memory</small></div>
     </div>
   </div>
-  <div class="charts" v-if="loaded">
-    <div class="row">
+  <div class="charts">
+    <div class="row" v-if="loaded">
       <div class="col-md-16">
         <div class="line-chart">
           <deployment-chart ref="deploymentChart" :chartData="deploymentData" :height="deploymentHeight"></deployment-chart>

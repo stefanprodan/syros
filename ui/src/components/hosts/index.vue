@@ -2,7 +2,7 @@
 <div>
   <div>
     <ol class="breadcrumb">
-      <li><a class="text-uppercase" href="/#/home">Home</a></li>
+      <li><router-link class="text-uppercase" :to="{ name: 'home'}">home</router-link></li>
       <li>hosts</li>
     </ol>
   </div>
