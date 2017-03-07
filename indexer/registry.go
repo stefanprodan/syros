@@ -10,17 +10,19 @@ import (
 )
 
 type Registry struct {
-	Agents         map[string]models.Agent
+	Agents         map[string]models.SyrosService
 	mutex          sync.RWMutex
 	NatsConnection *nats.Conn
 	Config         *Config
+	Repository     *Repository
 }
 
-func NewRegistry(config *Config, nc *nats.Conn) *Registry {
+func NewRegistry(config *Config, nc *nats.Conn, repo *Repository) *Registry {
 	registry := &Registry{
-		Agents:         make(map[string]models.Agent),
+		Agents:         make(map[string]models.SyrosService),
 		NatsConnection: nc,
 		Config:         config,
+		Repository:     repo,
 	}
 
 	return registry
@@ -29,12 +31,13 @@ func NewRegistry(config *Config, nc *nats.Conn) *Registry {
 func (reg *Registry) WatchForAgents() {
 
 	reg.NatsConnection.Subscribe(reg.Config.RegistryTopic, func(m *nats.Msg) {
-		var payload models.Agent
+		var payload models.SyrosService
 		err := json.Unmarshal(m.Data, &payload)
 		if err != nil {
 			log.Errorf("Agent payload unmarshal error %v", err)
 		} else {
 			log.Debugf("Agent payload received from %v", payload.Hostname)
+			reg.Repository.SyrosServiceUpsert(payload)
 			reg.mutex.Lock()
 			defer reg.mutex.Unlock()
 			reg.Agents[payload.Id] = payload
@@ -42,14 +45,18 @@ func (reg *Registry) WatchForAgents() {
 	})
 }
 
-func (reg *Registry) GetActiveAgents() []models.Agent {
-	agents := make([]models.Agent, 0)
+func (reg *Registry) SelfRegister(indexer models.SyrosService) {
+	reg.Repository.SyrosServiceUpsert(indexer)
+}
+
+func (reg *Registry) GetActiveAgents() []models.SyrosService {
+	agents := make([]models.SyrosService, 0)
 
 	reg.mutex.Lock()
 	defer reg.mutex.Unlock()
 
 	for _, a := range reg.Agents {
-		if a.LastSeen.After(time.Now().Add(-1 * time.Minute).UTC()) {
+		if a.Collected.After(time.Now().Add(-1 * time.Minute).UTC()) {
 			agents = append(agents, a)
 		}
 	}

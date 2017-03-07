@@ -3,9 +3,11 @@ package main
 import (
 	"flag"
 	log "github.com/Sirupsen/logrus"
+	"github.com/stefanprodan/syros/models"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 func main() {
@@ -33,7 +35,7 @@ func main() {
 	repo.Initialize()
 	log.Infof("Connected to RethinkDB cluster %v database initialization done", config.RethinkDB)
 
-	repo.RunGarbageCollector([]string{"containers", "hosts"})
+	repo.RunGarbageCollector([]string{"containers", "hosts", "syros_services"})
 
 	nc, err := NewNatsConnection(config.Nats)
 	if err != nil {
@@ -43,8 +45,24 @@ func main() {
 
 	log.Infof("Connected to NATS server %v status %v", nc.ConnectedUrl(), nc.Status())
 
-	registry := NewRegistry(config, nc)
+	registry := NewRegistry(config, nc, repo)
 	registry.WatchForAgents()
+
+	indexer := models.SyrosService{
+		Environment: "all",
+		Type:        "indexer",
+	}
+	indexer.Config, _ = models.ConfigToMap(config, "m")
+	indexer.Hostname, _ = os.Hostname()
+	uuid, _ := models.NewUUID()
+	indexer.Id = models.Hash(indexer.Hostname + uuid)
+	go func(a models.SyrosService) {
+		for true {
+			indexer.Collected = time.Now().UTC()
+			registry.SelfRegister(indexer)
+			time.Sleep(10 * time.Second)
+		}
+	}(indexer)
 
 	dockerConsumer, err := NewDockerConsumer(config, nc, repo)
 	if err != nil {

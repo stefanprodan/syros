@@ -59,6 +59,9 @@ func (repo *Repository) Initialize() {
 	repo.CreateIndex("containers", "host_id")
 	repo.CreateIndex("containers", "environment")
 	repo.CreateIndex("containers", "collected")
+	repo.CreateTable("syros_services")
+	repo.CreateIndex("syros_services", "environment")
+	repo.CreateIndex("syros_services", "collected")
 }
 
 func (repo *Repository) CreateTable(table string) {
@@ -140,6 +143,26 @@ func (repo *Repository) ContainerUpsert(container models.DockerContainer) {
 		_, err := r.Table("containers").Get(container.Id).Update(container).Run(repo.Session)
 		if err != nil {
 			log.Errorf("Repository containers update failed %v", err)
+		}
+	}
+}
+
+func (repo *Repository) SyrosServiceUpsert(service models.SyrosService) {
+	res, err := r.Table("syros_services").Get(service.Id).Run(repo.Session)
+	if err != nil {
+		log.Errorf("Repository syros_services upsert query after ID failed %v", err)
+		return
+	}
+
+	if res.IsNil() {
+		_, err := r.Table("syros_services").Insert(service).RunWrite(repo.Session)
+		if err != nil {
+			log.Errorf("Repository syros_services insert failed %v", err)
+		}
+	} else {
+		_, err := r.Table("syros_services").Get(service.Id).Update(service).Run(repo.Session)
+		if err != nil {
+			log.Errorf("Repository syros_services update failed %v", err)
 		}
 	}
 }

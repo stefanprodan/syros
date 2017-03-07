@@ -55,6 +55,9 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 
 			// aggregate deployments per day based on container created date
 			for _, cont := range payload.Containers {
+				if cont.State != "running" {
+					continue
+				}
 				date := cont.Created.Format("06-01-02")
 				found := -1
 				for i, s := range deployments.Labels {

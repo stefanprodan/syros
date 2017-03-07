@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/braintree/manners"
-	"github.com/pkg/errors"
 	unrender "github.com/unrolled/render"
 	"net/http"
 )
@@ -33,12 +32,6 @@ func (s *HttpServer) Start() {
 	})
 	http.HandleFunc("/status", func(w http.ResponseWriter, req *http.Request) {
 		render.JSON(w, http.StatusOK, s.Registry.GetActiveAgents())
-	})
-
-	http.HandleFunc("/api/error", func(w http.ResponseWriter, req *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		err := errors.New("This is just a test")
-		render.Text(w, http.StatusInternalServerError, err.Error())
 	})
 
 	manners.ListenAndServe(fmt.Sprintf(":%v", s.Config.Port), http.DefaultServeMux)
