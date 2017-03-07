@@ -6,11 +6,9 @@ import (
 	"github.com/nats-io/go-nats"
 	"github.com/stefanprodan/syros/models"
 	"sync"
-	"time"
 )
 
 type Registry struct {
-	Agents         map[string]models.SyrosService
 	mutex          sync.RWMutex
 	NatsConnection *nats.Conn
 	Config         *Config
@@ -19,7 +17,6 @@ type Registry struct {
 
 func NewRegistry(config *Config, nc *nats.Conn, repo *Repository) *Registry {
 	registry := &Registry{
-		Agents:         make(map[string]models.SyrosService),
 		NatsConnection: nc,
 		Config:         config,
 		Repository:     repo,
@@ -30,7 +27,7 @@ func NewRegistry(config *Config, nc *nats.Conn, repo *Repository) *Registry {
 
 func (reg *Registry) WatchForAgents() {
 
-	reg.NatsConnection.Subscribe(reg.Config.RegistryTopic, func(m *nats.Msg) {
+	reg.NatsConnection.QueueSubscribe(reg.Config.RegistryTopic, reg.Config.RegistryQueue, func(m *nats.Msg) {
 		var payload models.SyrosService
 		err := json.Unmarshal(m.Data, &payload)
 		if err != nil {
@@ -38,28 +35,10 @@ func (reg *Registry) WatchForAgents() {
 		} else {
 			log.Debugf("Agent payload received from %v", payload.Hostname)
 			reg.Repository.SyrosServiceUpsert(payload)
-			reg.mutex.Lock()
-			defer reg.mutex.Unlock()
-			reg.Agents[payload.Id] = payload
 		}
 	})
 }
 
 func (reg *Registry) SelfRegister(indexer models.SyrosService) {
 	reg.Repository.SyrosServiceUpsert(indexer)
-}
-
-func (reg *Registry) GetActiveAgents() []models.SyrosService {
-	agents := make([]models.SyrosService, 0)
-
-	reg.mutex.Lock()
-	defer reg.mutex.Unlock()
-
-	for _, a := range reg.Agents {
-		if a.Collected.After(time.Now().Add(-1 * time.Minute).UTC()) {
-			agents = append(agents, a)
-		}
-	}
-
-	return agents
 }

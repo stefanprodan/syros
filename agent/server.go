@@ -20,9 +20,6 @@ func (s *HttpServer) Start() {
 		Layout:     "layout",
 	})
 
-	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		render.JSON(w, http.StatusOK, s.Status)
-	})
 	http.HandleFunc("/ping", func(w http.ResponseWriter, req *http.Request) {
 		render.Text(w, http.StatusOK, "pong")
 	})

@@ -21,9 +21,6 @@ func (s *HttpServer) Start() {
 		Layout:     "layout",
 	})
 
-	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		render.JSON(w, http.StatusOK, s.Registry.GetActiveAgents())
-	})
 	http.HandleFunc("/ping", func(w http.ResponseWriter, req *http.Request) {
 		render.Text(w, http.StatusOK, "pong")
 	})
@@ -31,7 +28,7 @@ func (s *HttpServer) Start() {
 		render.JSON(w, http.StatusOK, s.Config)
 	})
 	http.HandleFunc("/status", func(w http.ResponseWriter, req *http.Request) {
-		render.JSON(w, http.StatusOK, s.Registry.GetActiveAgents())
+		render.JSON(w, http.StatusOK, s.Config)
 	})
 
 	manners.ListenAndServe(fmt.Sprintf(":%v", s.Config.Port), http.DefaultServeMux)
