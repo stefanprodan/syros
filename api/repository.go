@@ -283,3 +283,21 @@ func (repo *Repository) Container(containerID string) (*models.DockerPayload, er
 
 	return payload, nil
 }
+
+func (repo *Repository) AllSyrosServices() ([]models.SyrosService, error) {
+	cursor, err := r.Table("syros_services").OrderBy(r.Asc("collected"), r.OrderByOpts{Index: "collected"}).Run(repo.Session)
+	if err != nil {
+		log.Errorf("Repository AllContainers query failed %v", err)
+		return nil, err
+	}
+
+	services := []models.SyrosService{}
+	err = cursor.All(&services)
+	if err != nil {
+		log.Errorf("Repository AllSyrosServices cursor failed %v", err)
+		return nil, err
+	}
+	cursor.Close()
+
+	return services, nil
+}

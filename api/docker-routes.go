@@ -38,7 +38,7 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 			render.JSON(w, r, payload)
 		})
 
-		r.Get("/environment/:env", func(w http.ResponseWriter, r *http.Request) {
+		r.Get("/environments/:env", func(w http.ResponseWriter, r *http.Request) {
 			env := chi.URLParam(r, "env")
 
 			payload, err := s.Repository.EnvironmentContainers(env)
@@ -102,6 +102,16 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 				return
 			}
 			render.JSON(w, r, payload)
+		})
+
+		r.Get("/syrosservices", func(w http.ResponseWriter, r *http.Request) {
+			services, err := s.Repository.AllSyrosServices()
+			if err != nil {
+				render.Status(r, http.StatusInternalServerError)
+				render.PlainText(w, r, err.Error())
+				return
+			}
+			render.JSON(w, r, services)
 		})
 	})
 
