@@ -71,7 +71,7 @@
     methods: {
       loadData () {
         this.$Progress.start()
-        Vue.$http.get(`/docker/environment/${this.id}`)
+        Vue.$http.get(`/docker/environments/${this.id}`)
           .then((response) => {
             if (response != null) {
               this.tableData = response.data.containers

@@ -46,6 +46,14 @@ export default new Router({
       }
     },
     {
+      path: '/admin',
+      name: 'admin',
+      component: require('components/admin/index.vue'),
+      meta: {
+        auth: true
+      }
+    },
+    {
       path: '/login',
       name: 'login',
       component: require('components/login/index.vue'),

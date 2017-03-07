@@ -104,6 +104,16 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 			render.JSON(w, r, payload)
 		})
 
+		r.Get("/environments/stats", func(w http.ResponseWriter, r *http.Request) {
+			environments, err := s.Repository.EnvironmentHostContainerSum()
+			if err != nil {
+				render.Status(r, http.StatusInternalServerError)
+				render.PlainText(w, r, err.Error())
+				return
+			}
+			render.JSON(w, r, environments)
+		})
+
 		r.Get("/syrosservices", func(w http.ResponseWriter, r *http.Request) {
 			services, err := s.Repository.AllSyrosServices()
 			if err != nil {
@@ -117,16 +127,6 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 
 	r.Get("/environments", func(w http.ResponseWriter, r *http.Request) {
 		environments, err := s.Repository.AllEnvironments()
-		if err != nil {
-			render.Status(r, http.StatusInternalServerError)
-			render.PlainText(w, r, err.Error())
-			return
-		}
-		render.JSON(w, r, environments)
-	})
-
-	r.Get("/environments/stats", func(w http.ResponseWriter, r *http.Request) {
-		environments, err := s.Repository.EnvironmentHostContainerSum()
 		if err != nil {
 			render.Status(r, http.StatusInternalServerError)
 			render.PlainText(w, r, err.Error())

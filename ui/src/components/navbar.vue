@@ -26,6 +26,9 @@
             </router-link>
         </ul>
         <ul class="nav navbar-nav">
+            <router-link :to="{ name: 'admin' }" active-class="active" tag="li">
+                <a><i class="fa fa-circle-o-notch"></i> Admin</a>
+            </router-link>  
             <li><a href="#" @click="logout()"><i class="fa fa-sign-out"></i> Logout</a></li>
         </ul>
         <p class="navbar-text">
