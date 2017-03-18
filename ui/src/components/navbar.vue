@@ -32,8 +32,7 @@
             <li><a href="#" @click="logout()"><i class="fa fa-sign-out"></i> Logout</a></li>
         </ul>
         <p class="navbar-text">
-            Made by
-            <a href="http://www.stefanprodan.com">Stefan</a>
+            Syros is an OSS project MIT licensed hosted on <a href="https://github.com/stefanprodan/syros">GitHub</a> made by <a href="http://www.stefanprodan.com">Stefan</a>
         </p>
         </div>  
     </nav>
