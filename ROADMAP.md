@@ -1,6 +1,6 @@
 # Syros Roadmap
 
-The roadmap represents our estimate of when each feature will enter full production release. 
+The roadmap represents our estimate of when each feature will enter development stage. These features are subject to change.
 
 ### Near-term
 
@@ -8,7 +8,7 @@ The roadmap represents our estimate of when each feature will enter full product
 
 * Collect the health check results using the Docker collector and/or develop a new collector to extract heath checks from Consul
 * Display the health check result on the container page, add a health column to containers tables
-* Track health status changes into db container health history table
+* Record health status changes into container health history table
 * Create a container health history page with a line chart and health check results table view
 
 ### Medium-term
@@ -19,9 +19,9 @@ The roadmap represents our estimate of when each feature will enter full product
 * Create On-Call dashboard 
 * Display incidents stats (opened, resolved last 24h, resolved last 30 days)
 * Display incidents history (table view)
-* On-Call handover submit form (save to db and send by mail to the On-Call team)
+* On-Call handover submit form (save to db and send mail to the On-Call team)
 * Display On-Call handover history (table view)
-* Generate incidents monthly reports
+* Generate incident monthly reports
 
 ***ELK integration***
 
@@ -30,7 +30,13 @@ The roadmap represents our estimate of when each feature will enter full product
 * Add the logs stats to the environment dashboard
 * Add the logs stats and chart to the container health history page or create a dedicated page
 
-### Long-Term
+***Role-based access control***
+
+* Access control based on target audience
+* Tech roles: SRE, QA, DEV
+* Business roles: Stakeholder, PM, Audit
+
+### Long-term
 
 ***Prometheus integration***
 
@@ -42,3 +48,14 @@ The roadmap represents our estimate of when each feature will enter full product
 * Collect registry images
 * Display images (table view) and render images deploy graph
 * Track used/unused images by linking to the running container 
+
+***Git integration***
+
+* Collect change logs
+* Based on the Docker image Git tags link deployments to git commit history
+* Display Git stats per deploy (number of commits, contributors)
+
+***Jenkins integration***
+
+* Collect build logs
+* Trace and link services deployments to build logs
