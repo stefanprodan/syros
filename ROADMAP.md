@@ -1,6 +1,6 @@
 # Syros Roadmap
 
-The roadmap represents our estimate of when each feature will enter development stage. These features are subject to change.
+The roadmap represents an estimate of when each feature will enter development stage. These features are subject to change.
 
 ### Near-term
 
@@ -9,7 +9,8 @@ The roadmap represents our estimate of when each feature will enter development 
 * Collect the health check results using the Docker collector and/or develop a new collector to extract heath checks from Consul
 * Display the health check result on the container page, add a health column to containers tables
 * Record health status changes into container health history table
-* Create a container health history page with a line chart and health check results table view
+* Create a container health history page with a line chart showing last 30 days incidents trend and health check results table view
+* Display the health chart on the environment and host dashboards
 
 ### Medium-term
 
