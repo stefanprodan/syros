@@ -4,7 +4,7 @@ A highly available and horizontally scalable DevOps tool for managing microservi
 
 Components:
 
-* Syros Agent (collects various system data)
+* Syros Agent (collects various system information)
 * Syros Indexer (aggregates, transforms and persists collected data)
 * Syros App (management UI and API)
 
@@ -12,6 +12,14 @@ Backend:
 
 * NATS (communication backbone)
 * RethinkDB (persistence layer)
+
+HA Setup:
+
+* Agent: 2 instances per environment or one per host, indexer will do deduplication
+* Indexer: 2 instances per environment, NATS will load balance the messages between instances
+* App: one per environment, HAProxy or NGNIX can be used but not required
+* NATS: 3 instances minimum RAFT
+* RethinkDB: 3 instances minimum RAFT
 
 ### Development 
 
