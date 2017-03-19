@@ -4,12 +4,14 @@ The roadmap represents an estimate of when each feature will enter development s
 
 ### Near-term
 
-***Health checks***
+***Consul integration***
 
-* Collect the health check results using the Docker collector and/or develop a new collector to extract heath checks from Consul
+* Extract gliderlabs/registrator meta from container env vars to determine Consul service names
+* Collect the health check results from Consul
 * Display the health check result on the container page, add a health column to containers tables
 * Record health status changes into container health history table
-* Create a container health history page with a line chart showing last 30 days incidents trend and health check results table view
+* Create the container health history page 
+* Display the health chart last 30 days incidents trend and health check results table view
 * Display the health chart on the environment and host dashboards
 
 ### Medium-term
