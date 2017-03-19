@@ -11,24 +11,26 @@ import (
 )
 
 type DockerCollector struct {
-	ApiAddress string
-	Client     *docker.Client
-	Config     *Config
-	StopChan   chan struct{}
+	ApiAddress  string
+	Environment string
+	Topic       string
+	Client      *docker.Client
+	StopChan    chan struct{}
 }
 
-func NewDockerCollector(apiAddress string, config *Config) (*DockerCollector, error) {
+func NewDockerCollector(address string, env string) (*DockerCollector, error) {
 
 	defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
-	client, err := docker.NewClient(apiAddress, "", nil, defaultHeaders)
+	client, err := docker.NewClient(address, "", nil, defaultHeaders)
 	if err != nil {
 		return nil, err
 	}
 	collector := &DockerCollector{
-		ApiAddress: apiAddress,
-		Client:     client,
-		Config:     config,
-		StopChan:   make(chan struct{}, 1),
+		ApiAddress:  address,
+		Environment: env,
+		Topic:       "docker",
+		Client:      client,
+		StopChan:    make(chan struct{}, 1),
 	}
 
 	return collector, nil
@@ -42,7 +44,7 @@ func (col *DockerCollector) Collect() (*models.DockerPayload, error) {
 	if err != nil {
 		return nil, err
 	}
-	payload.Host = MapDockerHost(col.Config.Environment, host)
+	payload.Host = MapDockerHost(col.Environment, host)
 
 	options := types.ContainerListOptions{All: true}
 	containers, err := col.Client.ContainerList(context.Background(), options)
@@ -58,7 +60,7 @@ func (col *DockerCollector) Collect() (*models.DockerPayload, error) {
 			log.Error(err)
 			continue
 		}
-		payload.Containers = append(payload.Containers, MapDockerContainer(col.Config.Environment, host.ID, host.Name, container, containerInfo))
+		payload.Containers = append(payload.Containers, MapDockerContainer(col.Environment, host.ID, host.Name, container, containerInfo))
 	}
 
 	log.Debugf("%v collect duration: %v containers %v", col.ApiAddress, time.Now().UTC().Sub(start), len(payload.Containers))

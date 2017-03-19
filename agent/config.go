@@ -9,6 +9,5 @@ type Config struct {
 	CollectInterval    int    `m:"CollectInterval"`
 	DockerApiAddresses string `m:"DockerApiAddresses"`
 	Nats               string `m:"Nats"`
-	CollectorTopic     string `m:"CollectorTopic"`
 	RegistryTopic      string `m:"RegistryTopic"`
 }

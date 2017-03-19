@@ -20,7 +20,6 @@ func main() {
 	flag.IntVar(&config.CollectInterval, "CollectInterval", 10, "Collect interval in seconds")
 	flag.StringVar(&config.DockerApiAddresses, "DockerApiAddresses", "unix:///var/run/docker.sock", "Docker hosts API addresses comma delimited")
 	flag.StringVar(&config.Nats, "Nats", "nats://localhost:4222", "Nats server addresses comma delimited")
-	flag.StringVar(&config.CollectorTopic, "CollectorTopic", "docker", "Nats collector topic name")
 	flag.StringVar(&config.RegistryTopic, "RegistryTopic", "registry", "Nats registry topic name")
 	flag.Parse()
 
@@ -42,7 +41,7 @@ func main() {
 
 	collectors := make([]*DockerCollector, len(hosts))
 	for i, host := range hosts {
-		collector, err := NewDockerCollector(host, config)
+		collector, err := NewDockerCollector(host, config.Environment)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -98,7 +97,7 @@ func main() {
 						if err != nil {
 							log.Errorf("Docker collector %v payload marshal error %v", collector.ApiAddress, err)
 						} else {
-							err := nc.Publish(config.CollectorTopic, jsonPayload)
+							err := nc.Publish(collector.Topic, jsonPayload)
 							if err != nil {
 								log.Errorf("Docker collector %v NATS publish failed %v", collector.ApiAddress, err)
 							}
