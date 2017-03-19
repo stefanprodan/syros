@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"flag"
 	log "github.com/Sirupsen/logrus"
-	"github.com/stefanprodan/syros/models"
 	"os"
 	"os/signal"
 	"strings"
@@ -53,30 +52,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	agent := models.SyrosService{
-		Environment: config.Environment,
-		Type:        "agent",
-	}
-	agent.Config, _ = models.ConfigToMap(config, "m")
-	agent.Hostname, _ = os.Hostname()
-	uuid, _ := models.NewUUID()
-	agent.Id = models.Hash(agent.Hostname + uuid)
-	log.Infof("Register service as %v", agent.Hostname)
-	go func(a models.SyrosService) {
+	registry := NewRegistry(config, nc)
+	log.Infof("Register service as %v", registry.Agent.Id)
+	go func(r *Registry) {
 		for true {
-			agent.Collected = time.Now().UTC()
-			jsonPayload, err := json.Marshal(agent)
+			err := r.RegisterAgent()
 			if err != nil {
-				log.Errorf("Agent payload marshal error %v", err)
-			} else {
-				err := nc.Publish(config.RegistryTopic, jsonPayload)
-				if err != nil {
-					log.Errorf("Registry NATS publish failed %v", err)
-				}
+				log.Error(err)
 			}
 			time.Sleep(10 * time.Second)
 		}
-	}(agent)
+	}(registry)
 
 	log.Infof("Starting %v collector(s), collect interval is set to %v second(s)", len(collectors), config.CollectInterval)
 	for _, c := range collectors {

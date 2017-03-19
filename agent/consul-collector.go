@@ -11,7 +11,9 @@ import (
 type ConsulCollector struct {
 	ApiAddress  string
 	Environment string
+	Topic       string
 	Client      *consul.Client
+	StopChan    chan struct{}
 }
 
 func NewConsulCollector(address string, env string) (*ConsulCollector, error) {
@@ -26,7 +28,9 @@ func NewConsulCollector(address string, env string) (*ConsulCollector, error) {
 	c := &ConsulCollector{
 		ApiAddress:  address,
 		Environment: env,
+		Topic:       "consul",
 		Client:      client,
+		StopChan:    make(chan struct{}, 1),
 	}
 
 	return c, nil
