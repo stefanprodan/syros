@@ -59,6 +59,10 @@ func (repo *Repository) Initialize() {
 	repo.CreateIndex("containers", "host_id")
 	repo.CreateIndex("containers", "environment")
 	repo.CreateIndex("containers", "collected")
+	repo.CreateTable("checks")
+	repo.CreateIndex("checks", "host_id")
+	repo.CreateIndex("checks", "environment")
+	repo.CreateIndex("checks", "collected")
 	repo.CreateTable("syros_services")
 	repo.CreateIndex("syros_services", "environment")
 	repo.CreateIndex("syros_services", "collected")
@@ -128,13 +132,13 @@ func (repo *Repository) HostUpsert(host models.DockerHost) {
 }
 
 func (repo *Repository) ContainerUpsert(container models.DockerContainer) {
-	res, err := r.Table("containers").Get(container.Id).Run(repo.Session)
+	cursor, err := r.Table("containers").Get(container.Id).Run(repo.Session)
 	if err != nil {
 		log.Errorf("Repository containers upsert query after ID failed %v", err)
 		return
 	}
 
-	if res.IsNil() {
+	if cursor.IsNil() {
 		_, err := r.Table("containers").Insert(container).RunWrite(repo.Session)
 		if err != nil {
 			log.Errorf("Repository containers insert failed %v", err)
@@ -143,6 +147,30 @@ func (repo *Repository) ContainerUpsert(container models.DockerContainer) {
 		_, err := r.Table("containers").Get(container.Id).Update(container).Run(repo.Session)
 		if err != nil {
 			log.Errorf("Repository containers update failed %v", err)
+		}
+	}
+}
+
+func (repo *Repository) CheckUpsert(check models.ConsulHealthCheck) {
+	cursor, err := r.Table("checks").Get(check.Id).Run(repo.Session)
+	if err != nil {
+		log.Errorf("Repository checks upsert query after ID failed %v", err)
+		return
+	}
+
+	if cursor.IsNil() {
+		check.Since = check.Collected
+		_, err := r.Table("checks").Insert(check).RunWrite(repo.Session)
+		if err != nil {
+			log.Errorf("Repository checks insert failed %v", err)
+		}
+	} else {
+		c := models.ConsulHealthCheck{}
+		err = cursor.One(&c)
+		check.Since = c.Since
+		_, err := r.Table("checks").Get(check.Id).Update(check).Run(repo.Session)
+		if err != nil {
+			log.Errorf("Repository checks update failed %v", err)
 		}
 	}
 }

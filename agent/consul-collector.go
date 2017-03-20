@@ -5,6 +5,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	consul "github.com/hashicorp/consul/api"
 	"github.com/stefanprodan/syros/models"
+	"strings"
 	"time"
 )
 
@@ -53,7 +54,10 @@ func (col *ConsulCollector) Collect() (*models.ConsulPayload, error) {
 	}
 	res := make([]models.ConsulHealthCheck, 0)
 	for _, ck := range checks {
-		res = append(res, MapConsulCheck(ck))
+		// filter services
+		if len(ck.ServiceID) > 0 {
+			res = append(res, MapConsulCheck(col.Environment, ck))
+		}
 	}
 
 	payload := &models.ConsulPayload{
@@ -65,8 +69,9 @@ func (col *ConsulCollector) Collect() (*models.ConsulPayload, error) {
 	return payload, nil
 }
 
-func MapConsulCheck(ck *consul.HealthCheck) models.ConsulHealthCheck {
+func MapConsulCheck(env string, ck *consul.HealthCheck) models.ConsulHealthCheck {
 	check := models.ConsulHealthCheck{
+		Id:          models.Hash(ck.CheckID),
 		CheckID:     ck.CheckID,
 		Name:        ck.Name,
 		Node:        ck.Node,
@@ -75,6 +80,17 @@ func MapConsulCheck(ck *consul.HealthCheck) models.ConsulHealthCheck {
 		ServiceID:   ck.ServiceID,
 		ServiceName: ck.ServiceName,
 		Status:      ck.Status,
+		Collected:   time.Now().UTC(),
+		Environment: env,
 	}
+
+	// parse ServiceID to extract host and container name
+	// gliderlabs/registrator format is host:container:port
+	parts := strings.Split(ck.ServiceID, ":")
+	if len(parts) == 3 {
+		check.HostName = parts[0]
+		check.HostId = models.Hash(parts[0])
+	}
+
 	return check
 }

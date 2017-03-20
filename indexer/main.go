@@ -64,11 +64,11 @@ func main() {
 		}
 	}(indexer)
 
-	dockerConsumer, err := NewDockerConsumer(config, nc, repo)
+	consumer, err := NewConsumer(config, nc, repo)
 	if err != nil {
-		log.Fatalf("Docker consumer init error %v", err)
+		log.Fatalf("Consumer init error %v", err)
 	}
-	dockerConsumer.Consume()
+	consumer.Consume()
 
 	server := &HttpServer{
 		Config:     config,
@@ -83,6 +83,7 @@ func main() {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	sig := <-sigChan
 	log.Infof("Shuting down %v signal received", sig)
+	nc.Close()
 }
 
 func setLogLevel(levelName string) {
