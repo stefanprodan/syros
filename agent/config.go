@@ -8,6 +8,6 @@ type Config struct {
 	Port               int    `m:"Port"`
 	CollectInterval    int    `m:"CollectInterval"`
 	DockerApiAddresses string `m:"DockerApiAddresses"`
+	ConsulApiAddresses string `m:"ConsulApiAddresses"`
 	Nats               string `m:"Nats"`
-	RegistryTopic      string `m:"RegistryTopic"`
 }

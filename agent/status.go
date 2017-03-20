@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/pkg/errors"
-	"github.com/stefanprodan/syros/models"
 	"sync"
 	"time"
 )
@@ -10,7 +9,6 @@ import (
 type CollectorStatus struct {
 	LastCollectTime    time.Time
 	LastCollectSuccess bool
-	LastResult         *models.DockerPayload `json:",omitempty"`
 }
 
 type AgentStatus struct {
@@ -25,7 +23,7 @@ func NewAgentStatus(endpoints []string) (*AgentStatus, error) {
 	collectors := make(map[string]CollectorStatus, len(endpoints))
 	for _, endpoint := range endpoints {
 		collectors[endpoint] = CollectorStatus{
-			LastCollectSuccess: true,
+			LastCollectSuccess: false,
 			LastCollectTime:    time.Now(),
 		}
 	}
@@ -36,14 +34,13 @@ func NewAgentStatus(endpoints []string) (*AgentStatus, error) {
 	return status, nil
 }
 
-func (a *AgentStatus) SetCollectorStatus(endpoint string, lastCollectSuccess bool, lastResult *models.DockerPayload) {
+func (a *AgentStatus) SetCollectorStatus(endpoint string, lastCollectSuccess bool) {
 	a.mutex.Lock()
 	defer a.mutex.Unlock()
 
 	a.Collectors[endpoint] = CollectorStatus{
 		LastCollectSuccess: lastCollectSuccess,
 		LastCollectTime:    time.Now(),
-		LastResult:         lastResult,
 	}
 }
 
