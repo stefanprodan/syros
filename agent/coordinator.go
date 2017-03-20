@@ -94,8 +94,43 @@ func (cor *Coordinator) StartDockerCollectors() {
 	}
 }
 
+func (cor *Coordinator) StartConsulCollectors() {
+	log.Infof("Starting %v Consul collector(s)", len(cor.ConsulCollectors))
+	for _, c := range cor.ConsulCollectors {
+		go func(collector *ConsulCollector) {
+			stop := false
+			for !stop {
+				select {
+				case <-collector.StopChan:
+					stop = true
+				default:
+					payload, err := collector.Collect()
+					if err != nil {
+						log.Errorf("Consul collector %v error %v", collector.ApiAddress, err)
+						cor.Status.SetCollectorStatus(collector.ApiAddress, false)
+					} else {
+						cor.Status.SetCollectorStatus(collector.ApiAddress, true)
+						jsonPayload, err := json.Marshal(payload)
+						if err != nil {
+							log.Errorf("Consul collector %v payload marshal error %v", collector.ApiAddress, err)
+						} else {
+							err := cor.NatsConnection.Publish(collector.Topic, jsonPayload)
+							if err != nil {
+								log.Errorf("Consul collector %v NATS publish failed %v", collector.ApiAddress, err)
+							}
+						}
+					}
+					time.Sleep(time.Duration(cor.Config.CollectInterval) * time.Second)
+				}
+			}
+			log.Infof("Collector exited %v", collector.ApiAddress)
+		}(c)
+	}
+}
+
 func (cor *Coordinator) StartCollectors() {
 	cor.StartDockerCollectors()
+	cor.StartConsulCollectors()
 }
 
 func (cor *Coordinator) StopCollectors() {
