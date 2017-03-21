@@ -35,7 +35,7 @@ func main() {
 	repo.Initialize()
 	log.Infof("Connected to RethinkDB cluster %v database initialization done", config.RethinkDB)
 
-	repo.RunGarbageCollector([]string{"containers", "hosts", "syros_services"})
+	repo.RunGarbageCollector([]string{"containers", "hosts", "checks", "syros_services"})
 
 	nc, err := NewNatsConnection(config.Nats)
 	if err != nil {
