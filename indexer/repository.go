@@ -198,11 +198,11 @@ func (repo *Repository) SyrosServiceUpsert(service models.SyrosService) {
 // Removes stale records that have not been updated for a while
 func (repo *Repository) RunGarbageCollector(tables []string) {
 	if repo.Config.DatabaseStale > 0 {
-		go func(stale int) {
+		go func(stale int, since int) {
 			log.Infof("Stating repository GC interval %v minutes", stale)
 			for _, table := range tables {
 				res, err := r.Table(table).
-					Between(time.Now().Add(-12*time.Hour).UTC(),
+					Between(time.Now().Add(-time.Duration(since)*time.Hour).UTC(),
 						time.Now().Add(-time.Duration(stale)*time.Minute).UTC(),
 						r.BetweenOpts{Index: "collected"}).
 					Delete().RunWrite(repo.Session)
@@ -216,7 +216,7 @@ func (repo *Repository) RunGarbageCollector(tables []string) {
 			}
 
 			time.Sleep(60 * time.Second)
-		}(repo.Config.DatabaseStale)
+		}(repo.Config.DatabaseStale, repo.Config.DatabaseStaleSince)
 	}
 }
 
