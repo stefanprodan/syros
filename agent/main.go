@@ -62,7 +62,6 @@ func main() {
 	log.Infof("Shuting down %v signal received", sig)
 	server.Stop()
 	coordinator.StopCollectors()
-	nc.Close()
 	time.Sleep(10 * time.Second)
 }
 

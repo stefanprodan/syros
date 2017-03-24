@@ -14,18 +14,4 @@ export default {
     system_time: function (h, row) {
         return <span>{ moment(row.system_time).format('YYYY-MM-DD HH:mm:ss Z') }</span>
     }
-    /*edit: function (h, row) {
-        return <a href="#" on-click={ () => this.$emit('toggle',row.id) }><i class="fa fa-pencil"></i></a>
-    }
-    age: function (h, row) {
-        console.log(this)
-        return (
-        <button on-click={ () => this.hello() } class="btn btn-primary btn-sm">
-            <i class="glyphicon glyphicon-edit"></i>
-        </button>
-        )
-    }
-    edit: function (h, row) {
-        return <button on-click={ () => this.$refs.hostsTabel.toggleChildRow(row.id) } class="btn btn-primary btn-sm"><i class="glyphicon glyphicon-edit"></i></button>
-    }*/
 }

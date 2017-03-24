@@ -301,3 +301,21 @@ func (repo *Repository) AllSyrosServices() ([]models.SyrosService, error) {
 
 	return services, nil
 }
+
+func (repo *Repository) AllHealthChecks() ([]models.ConsulHealthCheck, error) {
+	cursor, err := r.Table("checks").OrderBy(r.Asc("collected"), r.OrderByOpts{Index: "collected"}).Run(repo.Session)
+	if err != nil {
+		log.Errorf("Repository AllContainers query failed %v", err)
+		return nil, err
+	}
+
+	c := []models.ConsulHealthCheck{}
+	err = cursor.All(&c)
+	if err != nil {
+		log.Errorf("Repository AllHealthChecks cursor failed %v", err)
+		return nil, err
+	}
+	cursor.Close()
+
+	return c, nil
+}

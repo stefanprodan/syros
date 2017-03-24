@@ -123,6 +123,16 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 			}
 			render.JSON(w, r, services)
 		})
+
+		r.Get("/healthchecks", func(w http.ResponseWriter, r *http.Request) {
+			hosts, err := s.Repository.AllHealthChecks()
+			if err != nil {
+				render.Status(r, http.StatusInternalServerError)
+				render.PlainText(w, r, err.Error())
+				return
+			}
+			render.JSON(w, r, hosts)
+		})
 	})
 
 	r.Get("/environments", func(w http.ResponseWriter, r *http.Request) {

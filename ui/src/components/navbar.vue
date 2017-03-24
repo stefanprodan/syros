@@ -13,11 +13,11 @@
         <div class="collapse navbar-collapse">
         <ul class="nav navbar-nav">
         <router-link :to="{ name: 'home' }" active-class="active" tag="li">
-            <a>Home</a>
+            <a><i class="fa fa-home"></i> Home</a>
         </router-link>
-        <router-link :to="{ name: 'hosts' }" active-class="active" tag="li">
-            <a>Hosts</a>
-        </router-link>                
+        <router-link :to="{ name: 'healthchecks' }" active-class="active" tag="li">
+            <a><i class="fa fa-heartbeat"></i> Health</a>
+        </router-link>             
         </ul>
         <ul v-if="environments" class="nav navbar-nav navbar-indent">
             <li class="dropdown-header">Environments</li>
@@ -26,6 +26,9 @@
             </router-link>
         </ul>
         <ul class="nav navbar-nav">
+            <router-link :to="{ name: 'hosts' }" active-class="active" tag="li">
+                <a><i class="fa fa-h-square"></i> Hosts</a>
+            </router-link>    
             <router-link :to="{ name: 'admin' }" active-class="active" tag="li">
                 <a><i class="fa fa-circle-o-notch"></i> Admin</a>
             </router-link>  

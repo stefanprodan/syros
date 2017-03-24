@@ -77,7 +77,6 @@
               this.tableData = response.data.containers
               this.deploymentData = this.fillChart(response.data.deployments)
               this.loaded = true
-              console.log(response.data.deployments)
               this.stats = {
                 hosts: response.data.host.containers.toString(),
                 containers: response.data.host.containers_running.toString(),

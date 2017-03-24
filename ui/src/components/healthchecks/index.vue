@@ -1,0 +1,133 @@
+<template>
+<div>
+  <div>
+    <ol class="breadcrumb">
+      <li><router-link class="text-uppercase" :to="{ name: 'home'}">home</router-link></li>
+      <li>health checks</li>
+    </ol>
+  </div>
+  <div class="stats">
+    <div class="row">
+      <div class="col-md-3 text-center">
+        <h2>{{ stats.unhealthy }}</h2><small class="text-uppercase">Critical</small></div>
+      <div class="col-md-3 text-center">
+        <h2>{{ stats.healthy }}</h2><small class="text-uppercase">Healthy</small></div>
+      <div class="col-md-3 text-center">
+        <h2>{{ stats.services }}</h2><small class="text-uppercase">Services</small></div>
+      <div class="col-md-3 text-center">
+        <h2>{{ stats.envs }}</h2><small class="text-uppercase">Environments</small></div>
+    </div>
+  </div>
+  <v-client-table ref="healthchecksTabel" :data="tableData" :columns="columns" :options="options"></v-client-table>  
+</div>
+</template>
+
+<script>
+  import Vue from 'vue'
+  import bus from 'components/bus.vue'
+  import rowTemplate from 'components/healthchecks/row.template.jsx'
+  import rowChild from 'components/healthchecks/row-child.template.jsx'
+
+  export default {
+    name: 'healthchecks',
+    data () {
+      return {
+        timer: null,
+        stats: {healthy: '0', unhealthy: '0', services: '0', envs: '0'},
+        columns: ['service_name', 'status', 'since', 'host_name', 'collected'],
+        tableData: [],
+        options: {
+          skin: 'table-hover',
+          sortable: ['service_name', 'status', 'host_name', 'since', 'collected'],
+          dateColumns: ['since', 'collected'],
+          toMomentFormat: 'YYYY-MM-DDTHH:mm:ssZ',
+          uniqueKey: 'id',
+          orderBy: {column: 'service_name', ascending: true},
+          perPage: 10,
+          perPageValues: [10, 20, 30, 50],
+          childRow: rowChild,
+          templates: rowTemplate
+        }
+      }
+    },
+    methods: {
+      loadData () {
+        this.$Progress.start()
+        Vue.$http.get('/docker/healthchecks')
+          .then((response) => {
+            if (response != null) {
+              this.tableData = response.data
+              var statsHealthy = 0
+              var statsUnhealthy = 0
+              var statsServices = 0
+              var statsEnvs = []
+              for (var i = 0, len = response.data.length; i < len; i++) {
+                statsServices += 1
+                if (response.data[i].status === 'passing') {
+                  statsHealthy += 1
+                } else {
+                  statsUnhealthy += 1
+                }
+                statsEnvs.push(response.data[i].environment)
+              }
+              let envs = [...new Set(statsEnvs)]
+              this.stats = {
+                healthy: statsHealthy.toString(),
+                unhealthy: statsUnhealthy.toString(),
+                services: statsServices.toString(),
+                envs: envs.length
+              }
+              this.$Progress.finish()
+            } else {
+              this.$Progress.fail()
+            }
+          })
+          .catch((error) => {
+            if (!error.response.status) {
+              bus.$emit('flashMessage', {
+                type: 'warning',
+                message: 'Network error! Could not connect to the server'
+              })
+            } else {
+              bus.$emit('flashMessage', {
+                type: 'warning',
+                message: `${error.response.statusText}! ${error.response.data}`
+              })
+            }
+            this.$Progress.fail()
+          })
+      },
+      refreshData () {
+        this.loadData()
+        console.log('Refresh data: ' + this.$options.name)
+        // enqueue new call after 30 seconds
+        if (this.timer) clearTimeout(this.timer)
+        this.timer = setTimeout(this.refreshData, 30000)
+      }
+    },
+    created: function () {
+      console.log('Created: ' + this.$options.name)
+    },
+    mounted: function () {
+      console.log('Mounted: ' + this.$options.name)
+      this.refreshData()
+
+      // setTimeout(
+      //   () => {
+      //     bus.$emit('flashMessage', {
+      //       type: 'warning',
+      //       message: 'testing a very loooooooong warning message'
+      //     })
+      //   },
+      //   2500
+      // )
+    },
+    destroyed: function () {
+      if (this.timer) {
+        clearTimeout(this.timer)
+        console.log('Destroyed: ' + this.$options.name)
+      }
+    }
+}
+
+</script>
