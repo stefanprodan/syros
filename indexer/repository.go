@@ -167,7 +167,12 @@ func (repo *Repository) CheckUpsert(check models.ConsulHealthCheck) {
 	} else {
 		c := models.ConsulHealthCheck{}
 		err = cursor.One(&c)
-		check.Since = c.Since
+		if c.Status != check.Status {
+			check.Since = check.Collected
+		} else {
+			check.Since = c.Since
+		}
+
 		_, err := r.Table("checks").Get(check.Id).Update(check).Run(repo.Session)
 		if err != nil {
 			log.Errorf("Repository checks update failed %v", err)
