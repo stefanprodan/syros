@@ -3,7 +3,7 @@
   <div>
     <ol class="breadcrumb">
       <li><router-link class="text-uppercase" :to="{ name: 'home'}">home</router-link></li>
-      <li>health checks</li>
+      <li>health</li>
     </ol>
   </div>
   <div class="stats">
@@ -11,9 +11,9 @@
       <div class="col-md-3 text-center">
         <h2>{{ stats.unhealthy }}</h2><small class="text-uppercase">Critical</small></div>
       <div class="col-md-3 text-center">
-        <h2>{{ stats.healthy }}</h2><small class="text-uppercase">Healthy</small></div>
+        <h2>{{ stats.healthy }}</h2><small class="text-uppercase">Passing</small></div>
       <div class="col-md-3 text-center">
-        <h2>{{ stats.services }}</h2><small class="text-uppercase">Services</small></div>
+        <h2>{{ stats.services }}</h2><small class="text-uppercase">Checks</small></div>
       <div class="col-md-3 text-center">
         <h2>{{ stats.envs }}</h2><small class="text-uppercase">Environments</small></div>
     </div>
@@ -95,7 +95,6 @@
               }
 
               this.envData = this.fillChart(response.data, envs)
-              console.log(this.envData)
               this.loaded = true
 
               this.$Progress.finish()
@@ -168,16 +167,6 @@
     mounted: function () {
       console.log('Mounted: ' + this.$options.name)
       this.refreshData()
-
-      // setTimeout(
-      //   () => {
-      //     bus.$emit('flashMessage', {
-      //       type: 'warning',
-      //       message: 'testing a very loooooooong warning message'
-      //     })
-      //   },
-      //   2500
-      // )
     },
     destroyed: function () {
       if (this.timer) {

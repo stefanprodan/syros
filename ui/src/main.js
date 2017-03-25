@@ -5,6 +5,7 @@ import App from './App'
 import router from './router'
 import auth from 'components/auth.vue'
 
+// register vue-progressbar
 import VueProgressBar from 'vue-progressbar'
 Vue.use(VueProgressBar, {
   show: true,
@@ -14,6 +15,7 @@ Vue.use(VueProgressBar, {
   height: '2px'
 })
 
+// API base URL and auth redirect
 import Axios from 'axios'
 Axios.defaults.baseURL = process.env.API_LOCATION
 Axios.defaults.headers.common.Accept = 'application/json'
@@ -28,6 +30,7 @@ Axios.interceptors.response.use(
   })
 Vue.$http = Axios
 
+// boostrap imports
 import jQuery from 'jquery'
 window.$ = window.jQuery = jQuery
 
@@ -39,6 +42,7 @@ require('bootstrap/less/bootstrap.less')
 require('font-awesome/less/font-awesome.less')
 require('./assets/app.scss')
 
+// register vue-table
 import {ClientTable} from 'vue-tables-2'
 Vue.use(ClientTable, {
   compileTemplates: true,
@@ -56,6 +60,7 @@ Vue.use(ClientTable, {
   }
 })
 
+// router auth check
 router.beforeEach((to, from, next) => {
   if (to.meta.auth && !auth.check()) {
     next({name: 'login'})
@@ -71,5 +76,5 @@ new Vue({
   el: '#app',
   router,
   template: '<App/>',
-  components: { App, ClientTable }
+  components: { App }
 })
