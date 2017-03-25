@@ -23,7 +23,7 @@
       <div class="col-md-16">
         <div class="line-chart">
           <env-chart ref="envChart" :chartData="envData" :height="envHeight"></env-chart>
-          <small class="text-uppercase">Environments distribution</small>
+          <small class="text-uppercase">Health checks distribution</small>
         </div>      
       </div>
     </div>
@@ -55,7 +55,7 @@
           dateColumns: ['since', 'collected'],
           toMomentFormat: 'YYYY-MM-DDTHH:mm:ssZ',
           uniqueKey: 'id',
-          orderBy: {column: 'service_name', ascending: true},
+          orderBy: {column: 'since', ascending: false},
           perPage: 10,
           perPageValues: [10, 20, 30, 50],
           childRow: rowChild,
