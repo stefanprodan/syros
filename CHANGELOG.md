@@ -1,5 +1,26 @@
 # Syros Changelog
 
+### v0.0.2 (release)
+
+Features:
+
+***Agent***
+
+* Collect health checks via Consul API
+* Extract gliderlabs/registrator meta from container env vars to determine Consul service names
+
+***Indexer***
+
+* Consul service health check aggregation and db persistence 
+
+***API***
+
+* Consul service health check db repository and REST endpoint
+
+***UI***
+
+* Health dashboard (stats, graph and master-detail view)
+
 ### v0.0.1 (release)
 
 Features:

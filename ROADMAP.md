@@ -6,11 +6,10 @@ The roadmap represents an estimate of when each feature will enter development s
 
 ***Consul integration***
 
-* Extract gliderlabs/registrator meta from container env vars to determine Consul service names
-* Collect the health check results for nodes and services from Consul
-* Display the health check result on the container page, add a health column to containers tables
-* Record health status changes into container health history table
-* Create the container health history page 
+* Collect the health check results for nodes
+* Display the health check result on the host page
+* Record health status changes into health history table
+* Create the health check history page 
 * Display the health chart last 30 days incidents trend and health check results table view
 * Display the health chart on the environment and host dashboards
 
