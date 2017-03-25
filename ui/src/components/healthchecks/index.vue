@@ -18,6 +18,16 @@
         <h2>{{ stats.envs }}</h2><small class="text-uppercase">Environments</small></div>
     </div>
   </div>
+  <div class="charts">
+    <div class="row" v-if="loaded">
+      <div class="col-md-16">
+        <div class="line-chart">
+          <env-chart ref="envChart" :chartData="envData" :height="envHeight"></env-chart>
+          <small class="text-uppercase">Environments distribution</small>
+        </div>      
+      </div>
+    </div>
+  </div>
   <v-client-table ref="healthchecksTabel" :data="tableData" :columns="columns" :options="options"></v-client-table>  
 </div>
 </template>
@@ -27,12 +37,15 @@
   import bus from 'components/bus.vue'
   import rowTemplate from 'components/healthchecks/row.template.jsx'
   import rowChild from 'components/healthchecks/row-child.template.jsx'
+  import EnvChart from 'components/healthchecks/env.chart.vue'
 
   export default {
     name: 'healthchecks',
     data () {
       return {
         timer: null,
+        loaded: false,
+        envHeight: 180,
         stats: {healthy: '0', unhealthy: '0', services: '0', envs: '0'},
         columns: ['service_name', 'status', 'since', 'host_name', 'collected'],
         tableData: [],
@@ -49,6 +62,9 @@
           templates: rowTemplate
         }
       }
+    },
+    components: {
+      EnvChart
     },
     methods: {
       loadData () {
@@ -77,6 +93,11 @@
                 services: statsServices.toString(),
                 envs: envs.length
               }
+
+              this.envData = this.fillChart(response.data, envs)
+              console.log(this.envData)
+              this.loaded = true
+
               this.$Progress.finish()
             } else {
               this.$Progress.fail()
@@ -103,6 +124,42 @@
         // enqueue new call after 30 seconds
         if (this.timer) clearTimeout(this.timer)
         this.timer = setTimeout(this.refreshData, 30000)
+      },
+      fillChart (data, envs) {
+        var passingData = []
+        var criticalData = []
+        for (var e = 0, elen = envs.length; e < elen; e++) {
+          var critical = 0
+          var passing = 0
+          for (var i = 0, len = data.length; i < len; i++) {
+            if (data[i].environment === envs[e]) {
+              if (data[i].status === 'passing') {
+                passing += 1
+              } else {
+                critical += 1
+              }
+            }
+          }
+          passingData.push(passing)
+          criticalData.push(critical)
+        }
+
+        return {
+          labels: envs,
+          datasets: [ {
+            label: 'passing',
+            backgroundColor: '#309292',
+            borderWidth: 0,
+            data: passingData,
+            stack: '1'
+          }, {
+            label: 'critical',
+            backgroundColor: '#f44265',
+            borderWidth: 0,
+            data: criticalData,
+            stack: '1'
+          }]
+        }
       }
     },
     created: function () {
