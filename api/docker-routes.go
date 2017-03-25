@@ -125,13 +125,13 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 		})
 
 		r.Get("/healthchecks", func(w http.ResponseWriter, r *http.Request) {
-			hosts, err := s.Repository.AllHealthChecks()
+			checks, err := s.Repository.AllHealthChecks()
 			if err != nil {
 				render.Status(r, http.StatusInternalServerError)
 				render.PlainText(w, r, err.Error())
 				return
 			}
-			render.JSON(w, r, hosts)
+			render.JSON(w, r, checks)
 		})
 	})
 
