@@ -3,6 +3,7 @@ $nav-color: #046D8B;
 $link-color: #2FB8AC;
 $text-color: #717175;
 $hilight-color: #309292;
+$critical-color: #f44265;
 
 body {
     -webkit-font-smoothing: antialiased;
@@ -264,6 +265,9 @@ a {
         font-size: 40px;
         margin: 0;
         color: $link-color;
+        &.critical {
+            color: $critical-color;
+        }
     }
     small {
         color: #999;

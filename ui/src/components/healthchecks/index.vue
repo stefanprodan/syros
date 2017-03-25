@@ -9,7 +9,7 @@
   <div class="stats">
     <div class="row">
       <div class="col-md-3 text-center">
-        <h2>{{ stats.unhealthy }}</h2><small class="text-uppercase">Critical</small></div>
+        <h2 class="critical">{{ stats.unhealthy }}</h2><small class="text-uppercase">Critical</small></div>
       <div class="col-md-3 text-center">
         <h2>{{ stats.healthy }}</h2><small class="text-uppercase">Passing</small></div>
       <div class="col-md-3 text-center">
@@ -94,7 +94,7 @@
                 envs: envs.length
               }
 
-              this.envData = this.fillChart(response.data, envs)
+              this.envData = this.fillChart(response.data, envs.sort())
               this.loaded = true
 
               this.$Progress.finish()
