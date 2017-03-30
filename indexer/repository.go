@@ -18,6 +18,8 @@ func NewRepository(config *Config) (*Repository, error) {
 	session, err := r.Connect(r.ConnectOpts{
 		Address:  config.RethinkDB,
 		Database: config.Database,
+		MaxIdle:  10,
+		MaxOpen:  10,
 	})
 	if err != nil {
 		return nil, err
@@ -149,6 +151,7 @@ func (repo *Repository) ContainerUpsert(container models.DockerContainer) {
 			log.Errorf("Repository containers update failed %v", err)
 		}
 	}
+	cursor.Close()
 }
 
 func (repo *Repository) CheckUpsert(check models.ConsulHealthCheck) {
@@ -178,16 +181,17 @@ func (repo *Repository) CheckUpsert(check models.ConsulHealthCheck) {
 			log.Errorf("Repository checks update failed %v", err)
 		}
 	}
+	cursor.Close()
 }
 
 func (repo *Repository) SyrosServiceUpsert(service models.SyrosService) {
-	res, err := r.Table("syros_services").Get(service.Id).Run(repo.Session)
+	cursor, err := r.Table("syros_services").Get(service.Id).Run(repo.Session)
 	if err != nil {
 		log.Errorf("Repository syros_services upsert query after ID failed %v", err)
 		return
 	}
 
-	if res.IsNil() {
+	if cursor.IsNil() {
 		_, err := r.Table("syros_services").Insert(service).RunWrite(repo.Session)
 		if err != nil {
 			log.Errorf("Repository syros_services insert failed %v", err)
@@ -198,6 +202,7 @@ func (repo *Repository) SyrosServiceUpsert(service models.SyrosService) {
 			log.Errorf("Repository syros_services update failed %v", err)
 		}
 	}
+	cursor.Close()
 }
 
 // Removes stale records that have not been updated for a while
