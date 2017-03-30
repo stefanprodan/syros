@@ -62,7 +62,7 @@ func main() {
 	log.Infof("Shuting down %v signal received", sig)
 	server.Stop()
 	coordinator.StopCollectors()
-	time.Sleep(10 * time.Second)
+	time.Sleep(1 * time.Second)
 }
 
 func setLogLevel(levelName string) {
