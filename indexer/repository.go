@@ -19,7 +19,7 @@ func NewRepository(config *Config) (*Repository, error) {
 		Address:  config.RethinkDB,
 		Database: config.Database,
 		MaxIdle:  10,
-		MaxOpen:  10,
+		MaxOpen:  100,
 	})
 	if err != nil {
 		return nil, err
@@ -114,19 +114,20 @@ func (repo *Repository) CreateIndex(table string, field string) {
 }
 
 func (repo *Repository) HostUpsert(host models.DockerHost) {
-	res, err := r.Table("hosts").Get(host.Id).Run(repo.Session)
+	cursor, err := r.Table("hosts").Get(host.Id).Run(repo.Session)
 	if err != nil {
 		log.Errorf("Repository host upsert query after ID failed %v", err)
 		return
 	}
+	defer cursor.Close()
 
-	if res.IsNil() {
+	if cursor.IsNil() {
 		_, err := r.Table("hosts").Insert(host).RunWrite(repo.Session)
 		if err != nil {
 			log.Errorf("Repository host insert failed %v", err)
 		}
 	} else {
-		_, err := r.Table("hosts").Get(host.Id).Update(host).Run(repo.Session)
+		_, err := r.Table("hosts").Get(host.Id).Update(host).RunWrite(repo.Session)
 		if err != nil {
 			log.Errorf("Repository host update failed %v", err)
 		}
@@ -139,6 +140,7 @@ func (repo *Repository) ContainerUpsert(container models.DockerContainer) {
 		log.Errorf("Repository containers upsert query after ID failed %v", err)
 		return
 	}
+	defer cursor.Close()
 
 	if cursor.IsNil() {
 		_, err := r.Table("containers").Insert(container).RunWrite(repo.Session)
@@ -146,12 +148,11 @@ func (repo *Repository) ContainerUpsert(container models.DockerContainer) {
 			log.Errorf("Repository containers insert failed %v", err)
 		}
 	} else {
-		_, err := r.Table("containers").Get(container.Id).Update(container).Run(repo.Session)
+		_, err := r.Table("containers").Get(container.Id).Update(container).RunWrite(repo.Session)
 		if err != nil {
 			log.Errorf("Repository containers update failed %v", err)
 		}
 	}
-	cursor.Close()
 }
 
 func (repo *Repository) CheckUpsert(check models.ConsulHealthCheck) {
@@ -160,6 +161,7 @@ func (repo *Repository) CheckUpsert(check models.ConsulHealthCheck) {
 		log.Errorf("Repository checks upsert query after ID failed %v", err)
 		return
 	}
+	defer cursor.Close()
 
 	if cursor.IsNil() {
 		check.Since = check.Collected
@@ -176,12 +178,11 @@ func (repo *Repository) CheckUpsert(check models.ConsulHealthCheck) {
 			check.Since = c.Since
 		}
 
-		_, err := r.Table("checks").Get(check.Id).Update(check).Run(repo.Session)
+		_, err := r.Table("checks").Get(check.Id).Update(check).RunWrite(repo.Session)
 		if err != nil {
 			log.Errorf("Repository checks update failed %v", err)
 		}
 	}
-	cursor.Close()
 }
 
 func (repo *Repository) SyrosServiceUpsert(service models.SyrosService) {
@@ -190,6 +191,7 @@ func (repo *Repository) SyrosServiceUpsert(service models.SyrosService) {
 		log.Errorf("Repository syros_services upsert query after ID failed %v", err)
 		return
 	}
+	defer cursor.Close()
 
 	if cursor.IsNil() {
 		_, err := r.Table("syros_services").Insert(service).RunWrite(repo.Session)
@@ -197,12 +199,11 @@ func (repo *Repository) SyrosServiceUpsert(service models.SyrosService) {
 			log.Errorf("Repository syros_services insert failed %v", err)
 		}
 	} else {
-		_, err := r.Table("syros_services").Get(service.Id).Update(service).Run(repo.Session)
+		_, err := r.Table("syros_services").Get(service.Id).Update(service).RunWrite(repo.Session)
 		if err != nil {
 			log.Errorf("Repository syros_services update failed %v", err)
 		}
 	}
-	cursor.Close()
 }
 
 // Removes stale records that have not been updated for a while
