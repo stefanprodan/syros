@@ -35,7 +35,11 @@ func main() {
 	repo.Initialize()
 	log.Infof("Connected to RethinkDB cluster %v database initialization done", config.RethinkDB)
 
-	repo.RunGarbageCollector([]string{"containers", "hosts", "checks", "syros_services"})
+	gcrepo, err := NewRepository(config)
+	if err != nil {
+		log.Fatalf("RethinkDB connection error %v", err)
+	}
+	gcrepo.RunGarbageCollector([]string{"containers", "hosts", "checks", "syros_services"})
 
 	nc, err := NewNatsConnection(config.Nats)
 	if err != nil {
@@ -45,7 +49,11 @@ func main() {
 
 	log.Infof("Connected to NATS server %v status %v", nc.ConnectedUrl(), nc.Status())
 
-	registry := NewRegistry(config, nc, repo)
+	regrepo, err := NewRepository(config)
+	if err != nil {
+		log.Fatalf("RethinkDB connection error %v", err)
+	}
+	registry := NewRegistry(config, nc, regrepo)
 	registry.WatchForAgents()
 
 	indexer := models.SyrosService{

@@ -29,32 +29,43 @@ func (c *Consumer) Consume() {
 
 func (c *Consumer) DockerConsume() {
 	c.NatsConnection.QueueSubscribe("docker", c.Config.CollectorQueue, func(m *nats.Msg) {
+		crepo, err := NewRepository(c.Config)
+		if err != nil {
+			log.Fatalf("RethinkDB connection error %v", err)
+		}
 		var payload models.DockerPayload
-		err := json.Unmarshal(m.Data, &payload)
+		err = json.Unmarshal(m.Data, &payload)
 		if err != nil {
 			log.Errorf("Docker payload unmarshal error %v", err)
 		} else {
 			log.Debugf("Docker payload received from host %v running containes %v", payload.Host.Name, payload.Host.ContainersRunning)
-			c.Repository.HostUpsert(payload.Host)
+			crepo.HostUpsert(payload.Host)
 
 			for _, container := range payload.Containers {
-				c.Repository.ContainerUpsert(container)
+				crepo.ContainerUpsert(container)
 			}
+			crepo.Session.Close()
 		}
 	})
 }
 
 func (c *Consumer) ConsulConsume() {
 	c.NatsConnection.QueueSubscribe("consul", c.Config.CollectorQueue, func(m *nats.Msg) {
+		crepo, err := NewRepository(c.Config)
+		if err != nil {
+			log.Fatalf("RethinkDB connection error %v", err)
+		}
+
 		var payload models.ConsulPayload
-		err := json.Unmarshal(m.Data, &payload)
+		err = json.Unmarshal(m.Data, &payload)
 		if err != nil {
 			log.Errorf("Consul payload unmarshal error %v", err)
 		} else {
 			log.Debugf("Consul payload received %v checks", len(payload.HealthChecks))
 			for _, check := range payload.HealthChecks {
-				c.Repository.CheckUpsert(check)
+				crepo.CheckUpsert(check)
 			}
+			crepo.Session.Close()
 		}
 	})
 }
