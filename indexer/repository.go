@@ -227,7 +227,7 @@ func (repo *Repository) RunGarbageCollector(tables []string) {
 			}
 
 			time.Sleep(60 * time.Second)
-		}(repo.Config.DatabaseStale, repo.Config.DatabaseStaleSince)
+		}(repo.Config.DatabaseStale, 48)
 	}
 }
 

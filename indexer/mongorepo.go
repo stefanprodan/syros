@@ -83,36 +83,50 @@ func (repo *MongoRepository) ContainerUpsert(container models.DockerContainer) {
 	}
 }
 
-func (repo *MongoRepository) CheckUpsert(check models.ConsulHealthCheck) {
+func (repo *MongoRepository) ContainersUpsert(containers []models.DockerContainer) {
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	c := s.DB(repo.Config.Database).C("containers")
+
+	for _, container := range containers {
+		_, err := c.UpsertId(container.Id, &container)
+		if err != nil {
+			log.Errorf("Repository containers upsert failed %v", err)
+		}
+	}
+}
+
+func (repo *MongoRepository) ChecksUpsert(checks []models.ConsulHealthCheck) {
 	s := repo.Session.Copy()
 	defer s.Close()
 
 	c := s.DB(repo.Config.Database).C("checks")
 
-	res := models.ConsulHealthCheck{}
-
-	err := c.FindId(check.Id).One(&res)
-	if err != nil {
-		if err.Error() == "not found" {
-			check.Since = check.Collected
-			_, err = c.UpsertId(check.Id, &check)
-			if err != nil {
-				log.Errorf("Repository checks upsert failed %v", err)
+	for _, check := range checks {
+		res := models.ConsulHealthCheck{}
+		err := c.FindId(check.Id).One(&res)
+		if err != nil {
+			if err.Error() == "not found" {
+				check.Since = check.Collected
+				_, err = c.UpsertId(check.Id, &check)
+				if err != nil {
+					log.Errorf("Repository checks insert failed %v", err)
+				}
+				return
+			} else {
+				log.Errorf("Repository checks find by id failed %v", err)
 			}
-			return
+		}
+		if res.Status != check.Status {
+			check.Since = check.Collected
 		} else {
+			check.Since = res.Since
+		}
+		_, err = c.UpsertId(check.Id, &check)
+		if err != nil {
 			log.Errorf("Repository checks upsert failed %v", err)
 		}
-	}
-
-	if res.Status != check.Status {
-		check.Since = check.Collected
-	} else {
-		check.Since = res.Since
-	}
-	_, err = c.UpsertId(check.Id, &check)
-	if err != nil {
-		log.Errorf("Repository checks upsert failed %v", err)
 	}
 }
 

@@ -21,7 +21,6 @@ func main() {
 	flag.StringVar(&config.MongoDB, "MongoDB", "localhost:27017", "MongoDB server addresses comma delimited")
 	flag.StringVar(&config.Database, "Database", "syros", "MongoDB database name")
 	flag.IntVar(&config.DatabaseStale, "DatabaseStale", 5, "Deletes database records older than specified value in minutes, set 0 to disable")
-	flag.IntVar(&config.DatabaseStaleSince, "DatabaseStaleSince", 48, "Scan for database records since specified value in hours")
 	flag.Parse()
 
 	setLogLevel(config.LogLevel)
@@ -70,13 +69,11 @@ func main() {
 	}
 	consumer.Consume()
 
-	//server := &HttpServer{
-	//	Config:     config,
-	//	Registry:   registry,
-	//	Repository: repo,
-	//}
-	//log.Infof("Starting HTTP server on port %v", config.Port)
-	//go server.Start()
+	server := &HttpServer{
+		Config: config,
+	}
+	log.Infof("Starting HTTP server on port %v", config.Port)
+	go server.Start()
 
 	//wait for SIGINT (Ctrl+C) or SIGTERM (docker stop)
 	sigChan := make(chan os.Signal, 1)
