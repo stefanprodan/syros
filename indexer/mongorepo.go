@@ -18,8 +18,9 @@ func NewMongoRepository(config *Config) (*MongoRepository, error) {
 	cluster := strings.Split(config.MongoDB, ",")
 	dialInfo := &mgo.DialInfo{
 		Addrs:    cluster,
-		Timeout:  60 * time.Second,
 		Database: config.Database,
+		Timeout:  10 * time.Second,
+		FailFast: true,
 	}
 
 	session, err := mgo.DialWithInfo(dialInfo)
