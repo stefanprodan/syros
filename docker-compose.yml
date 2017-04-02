@@ -12,16 +12,14 @@ services:
     networks:
       - local
 
-  rethinkdb:
-    image: rethinkdb
-    container_name: syros-rethinkdb
-    command: rethinkdb --bind all --server-name syros
+  mongo:
+    image: mongo
+    container_name: syros-mongo
     ports:
-      - 8080:8080
-      - 28015:28015
-      - 29015:29015
+      - 27017:27017
     volumes:
-      - data:/data
+      - data:/data/db
+      - configdb:/data/configdb
     restart: unless-stopped
     networks:
       - local
@@ -32,3 +30,4 @@ networks:
 
 volumes:
   data: {}
+  configdb: {}
