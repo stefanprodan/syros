@@ -10,10 +10,10 @@ import (
 type Consumer struct {
 	Config         *Config
 	NatsConnection *nats.Conn
-	Repository     *Repository
+	Repository     *MongoRepository
 }
 
-func NewConsumer(config *Config, nc *nats.Conn, repo *Repository) (*Consumer, error) {
+func NewConsumer(config *Config, nc *nats.Conn, repo *MongoRepository) (*Consumer, error) {
 	consumer := &Consumer{
 		Config:         config,
 		NatsConnection: nc,

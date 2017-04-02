@@ -59,6 +59,63 @@ func (repo *MongoRepository) CreateIndex(col string, index string) {
 	}
 }
 
+func (repo *MongoRepository) HostUpsert(host models.DockerHost) {
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	c := s.DB(repo.Config.Database).C("hosts")
+
+	_, err := c.UpsertId(host.Id, &host)
+	if err != nil {
+		log.Errorf("Repository hosts upsert failed %v", err)
+	}
+}
+
+func (repo *MongoRepository) ContainerUpsert(container models.DockerContainer) {
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	c := s.DB(repo.Config.Database).C("containers")
+
+	_, err := c.UpsertId(container.Id, &container)
+	if err != nil {
+		log.Errorf("Repository containers upsert failed %v", err)
+	}
+}
+
+func (repo *MongoRepository) CheckUpsert(check models.ConsulHealthCheck) {
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	c := s.DB(repo.Config.Database).C("checks")
+
+	res := models.ConsulHealthCheck{}
+
+	err := c.FindId(check.Id).One(&res)
+	if err != nil {
+		if err.Error() == "not found" {
+			check.Since = check.Collected
+			_, err = c.UpsertId(check.Id, &check)
+			if err != nil {
+				log.Errorf("Repository checks upsert failed %v", err)
+			}
+			return
+		} else {
+			log.Errorf("Repository checks upsert failed %v", err)
+		}
+	}
+
+	if res.Status != check.Status {
+		check.Since = check.Collected
+	} else {
+		check.Since = res.Since
+	}
+	_, err = c.UpsertId(check.Id, &check)
+	if err != nil {
+		log.Errorf("Repository checks upsert failed %v", err)
+	}
+}
+
 func (repo *MongoRepository) SyrosServiceUpsert(service models.SyrosService) {
 	s := repo.Session.Copy()
 	defer s.Close()

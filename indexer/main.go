@@ -64,11 +64,11 @@ func main() {
 		}
 	}(indexer)
 
-	//consumer, err := NewConsumer(config, nc, repo)
-	//if err != nil {
-	//	log.Fatalf("Consumer init error %v", err)
-	//}
-	//consumer.Consume()
+	consumer, err := NewConsumer(config, nc, repo)
+	if err != nil {
+		log.Fatalf("Consumer init error %v", err)
+	}
+	consumer.Consume()
 
 	//server := &HttpServer{
 	//	Config:     config,
