@@ -12,10 +12,10 @@ type Registry struct {
 	mutex          sync.RWMutex
 	NatsConnection *nats.Conn
 	Config         *Config
-	Repository     *MongoRepository
+	Repository     *Repository
 }
 
-func NewRegistry(config *Config, nc *nats.Conn, repo *MongoRepository) *Registry {
+func NewRegistry(config *Config, nc *nats.Conn, repo *Repository) *Registry {
 	registry := &Registry{
 		NatsConnection: nc,
 		Config:         config,

@@ -26,7 +26,7 @@ func main() {
 	setLogLevel(config.LogLevel)
 	log.Infof("Starting with config: %+v", config)
 
-	repo, err := NewMongoRepository(config)
+	repo, err := NewRepository(config)
 	if err != nil {
 		log.Fatalf("MongoDB connection error %v", err)
 	}
