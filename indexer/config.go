@@ -8,7 +8,7 @@ type Config struct {
 	CollectorQueue     string `m:"CollectorQueue"`
 	RegistryTopic      string `m:"RegistryTopic"`
 	RegistryQueue      string `m:"RegistryQueue"`
-	RethinkDB          string `m:"RethinkDB"`
+	MongoDB            string `m:"MongoDB"`
 	Database           string `m:"Database"`
 	DatabaseStale      int    `m:"DatabaseStale"`
 	DatabaseStaleSince int    `m:"DatabaseStaleSince"`

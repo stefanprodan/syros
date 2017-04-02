@@ -16,7 +16,7 @@ type Repository struct {
 func NewRepository(config *Config) (*Repository, error) {
 
 	session, err := r.Connect(r.ConnectOpts{
-		Address:  config.RethinkDB,
+		Address:  config.MongoDB,
 		Database: config.Database,
 		MaxIdle:  10,
 		MaxOpen:  100,
@@ -40,17 +40,17 @@ func (repo *Repository) Initialize() {
 	// init db
 	cursor, err = r.DBList().Contains(repo.Config.Database).Run(repo.Session)
 	if err != nil {
-		log.Fatalf("RethinkDB database init query failed %v", err)
+		log.Fatalf("MongoDB database init query failed %v", err)
 	}
 
 	cursor.One(&cnt)
 	cursor.Close()
 
 	if cnt < 1 {
-		log.Infof("RethinkDB no database found, creating %v", repo.Config.Database)
+		log.Infof("MongoDB no database found, creating %v", repo.Config.Database)
 		_, err := r.DBCreate(repo.Config.Database).RunWrite(repo.Session)
 		if err != nil {
-			log.Fatalf("RethinkDB database creation failed %v", err)
+			log.Fatalf("MongoDB database creation failed %v", err)
 		}
 	}
 
@@ -74,17 +74,17 @@ func (repo *Repository) CreateTable(table string) {
 	rdb := r.DB(repo.Config.Database)
 	cursor, err := rdb.TableList().Contains(table).Run(repo.Session)
 	if err != nil {
-		log.Fatalf("RethinkDB table init query failed %v", err)
+		log.Fatalf("MongoDB table init query failed %v", err)
 	}
 	var cnt int
 	cursor.One(&cnt)
 	cursor.Close()
 
 	if cnt < 1 {
-		log.Infof("RethinkDB no table found, creating %v", table)
+		log.Infof("MongoDB no table found, creating %v", table)
 		_, err := rdb.TableCreate(table).RunWrite(repo.Session)
 		if err != nil {
-			log.Fatalf("RethinkDB %v table creation failed %v", table, err)
+			log.Fatalf("MongoDB %v table creation failed %v", table, err)
 		}
 	}
 }
@@ -93,7 +93,7 @@ func (repo *Repository) CreateIndex(table string, field string) {
 	t := r.DB(repo.Config.Database).Table(table)
 	cursor, err := t.IndexList().Contains(field).Run(repo.Session)
 	if err != nil {
-		log.Fatalf("RethinkDB index init query failed %v", err)
+		log.Fatalf("MongoDB index init query failed %v", err)
 	}
 
 	var cnt int
@@ -101,14 +101,14 @@ func (repo *Repository) CreateIndex(table string, field string) {
 	cursor.Close()
 
 	if cnt < 1 {
-		log.Infof("RethinkDB no index found on table %v, creating %v", table, field)
+		log.Infof("MongoDB no index found on table %v, creating %v", table, field)
 		err := t.IndexCreate(field).Exec(repo.Session)
 		if err != nil {
-			log.Fatalf("RethinkDB table %v index %v creation failed %v", table, field, err)
+			log.Fatalf("MongoDB table %v index %v creation failed %v", table, field, err)
 		}
 		t.IndexWait().RunWrite(repo.Session)
 		if err != nil {
-			log.Fatalf("RethinkDB table %v index %v wait failed %v", table, field, err)
+			log.Fatalf("MongoDB table %v index %v wait failed %v", table, field, err)
 		}
 	}
 }
