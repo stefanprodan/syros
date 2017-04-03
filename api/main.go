@@ -23,13 +23,6 @@ func main() {
 
 	setLogLevel(config.LogLevel)
 
-	mongo, err := NewMongoRepository(config)
-	if err != nil {
-		log.Fatalf("MongoDB connection error %v", err)
-	}
-	mongo.EnvironmentHostContainerSum()
-	return
-
 	log.Infof("Starting with config: %+v", config)
 
 	if config.AppPath == "" {
