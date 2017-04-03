@@ -15,7 +15,7 @@ PACKAGES:=$(shell go list ./... | grep -v '/vendor/')
 VETARGS:=-asmdecl -atomic -bool -buildtags -copylocks -methods -nilfunc -rangeloops -shift -structtags -unsafeptr
 
 # run vars
-RDB?=192.168.1.135:28015
+MONGO?=192.168.1.135:27017
 NATS?=nats://192.168.1.135:4222
 
 #deploy vars
@@ -97,14 +97,14 @@ run: pack
 	@docker run -dp 8888:8888 --name syros-app-$(APP_VERSION) \
 	    --restart unless-stopped \
 		syros-app:$(APP_VERSION) \
-		-RethinkDB=$(RDB) \
+		-MongoDB=$(MONGO) \
 		-LogLevel=info
 
 	@echo ">>> Starting syros-indexer container"
 	@docker run -dp 8887:8887 --name syros-indexer-$(APP_VERSION) \
 	    --restart unless-stopped \
 		syros-indexer:$(APP_VERSION) \
-		-RethinkDB=$(RDB) \
+		-MongoDB=$(MONGO) \
 		-DatabaseStale=0 \
 		-Nats=$(NATS) \
 		-LogLevel=info
