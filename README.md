@@ -11,19 +11,19 @@ Components:
 Backend:
 
 * NATS (communication backbone)
-* RethinkDB (persistence layer)
+* MongoDB (persistence layer)
 
 HA Setup:
 
 * Agent: 2 instances per environment or one per host, indexer will do deduplication
 * Indexer: 2 instances per environment, NATS will load balance the messages between instances
 * App: one per environment, HAProxy or NGNIX can be used but not required
-* NATS: 3 instances minimum RAFT
-* RethinkDB: 3 instances minimum RAFT
+* NATS: 3 instances minimum 
+* MongoDB: 3 instances minimum 
 
 ### Development 
 
-Syros back-end is written in golang and the front-end in javascript (VueJs).
+Syros back-end is written in golang and the front-end in ES6 javascript (VueJs).
 
 Prerequisites:
 
@@ -51,10 +51,10 @@ $ npm install
 Run locally:
 
 ```sh
-# start NATS and RethinkDB
+# start NATS and MongoDB
 $ docker-compose up -d
 # build and run all services
-$ make build run APP_VERSION=0.0.1 RDB=192.168.1.135:28015 NATS=nats://192.168.1.135:4222
+$ make build run APP_VERSION=0.0.1 MONGO=192.168.1.135:27017 NATS=nats://192.168.1.135:4222
 # remove build artifacs 
 $ make clean
 # remove containers and images
@@ -72,7 +72,7 @@ no external dependencies like go or nodejs are required to build, test and deplo
 # build the UI with webpack and the golang binaries for Alpine
 $ make build APP_VERSION=0.0.1
 # run integration tests
-$ make build test APP_VERSION=0.0.1 RDB=192.168.1.135:28015 NATS=nats://192.168.1.135:4222
+$ make build test APP_VERSION=0.0.1 MONGO=192.168.1.135:27017 NATS=nats://192.168.1.135:4222
 # push Docker images to registry
 $ make build pack push APP_VERSION=0.0.1 REGISTRY=index.docker.io REPOSITORY=stefanprodan
 # remove test containers and local images

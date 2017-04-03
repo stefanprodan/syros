@@ -8,9 +8,7 @@ import (
 )
 
 type HttpServer struct {
-	Config     *Config
-	Registry   *Registry
-	Repository *Repository
+	Config *Config
 }
 
 // Starts HTTP Server

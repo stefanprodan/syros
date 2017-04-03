@@ -102,6 +102,7 @@ func MapDockerHost(environment string, info types.Info) models.DockerHost {
 		Collected:          time.Now().UTC(),
 		Environment:        environment,
 	}
+
 	for _, reg := range info.RegistryConfig.IndexConfigs {
 		host.Registries = append(host.Registries, reg.Name)
 	}
@@ -116,7 +117,6 @@ func MapDockerContainer(environment string, hostId string, hostName string, c ty
 		HostName:     hostName,
 		Image:        c.Image,
 		Command:      c.Command,
-		Labels:       c.Labels,
 		State:        c.State,
 		Status:       c.Status,
 		Path:         cj.ContainerJSONBase.Path,
@@ -126,6 +126,12 @@ func MapDockerContainer(environment string, hostId string, hostName string, c ty
 		PortBindings: make(map[string]string),
 		Collected:    time.Now().UTC(),
 		Environment:  environment,
+	}
+
+	container.Labels = make(map[string]string)
+	for key, value := range c.Labels {
+		k := strings.Replace(key, ".", "_", -1)
+		container.Labels[k] = value
 	}
 
 	container.Created, _ = time.Parse(time.RFC3339, cj.ContainerJSONBase.Created)

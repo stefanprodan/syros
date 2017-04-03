@@ -1,5 +1,11 @@
 # Syros Changelog
 
+### v0.1.0 (release)
+
+* replace RethinkDB with MongoDB
+* GC refactoring
+* Environments stats query optimization
+
 ### v0.0.2 (release)
 
 Features:

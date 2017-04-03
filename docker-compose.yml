@@ -12,23 +12,41 @@ services:
     networks:
       - local
 
-  rethinkdb:
-    image: rethinkdb
-    container_name: syros-rethinkdb
-    command: rethinkdb --bind all --server-name syros
+  mongo:
+    image: mongo
+    container_name: syros-mongo
+    command: --smallfiles
     ports:
-      - 8080:8080
-      - 28015:28015
-      - 29015:29015
+      - 27017:27017
     volumes:
-      - data:/data
+      - mongodata:/data/db
+      - mongocfg:/data/configdb
     restart: unless-stopped
     networks:
       - local
+
+  mongoclient:
+    image: mongoclient/mongoclient
+    container_name: syros-mongoclient
+    ports:
+      - 3000:3000
+    volumes:
+      - mongoclient:/data/db
+    environment:
+      - MONGO_URL=mongodb://syros-mongo:27017/mongoclient
+      - MONGOCLIENT_AUTH=true
+      - MONGOCLIENT_USERNAME=admin
+      - MONGOCLIENT_PASSWORD=admin
+    restart: unless-stopped
+    networks:
+      - local
+
 
 networks:
   local:
     driver: bridge
 
 volumes:
-  data: {}
+  mongodata: {}
+  mongocfg: {}
+  mongoclient: {}

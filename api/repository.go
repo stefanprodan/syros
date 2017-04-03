@@ -2,177 +2,129 @@ package main
 
 import (
 	log "github.com/Sirupsen/logrus"
-	r "github.com/dancannon/gorethink"
 	"github.com/stefanprodan/syros/models"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+	"strings"
+	"time"
 )
 
 type Repository struct {
 	Config  *Config
-	Session *r.Session
+	Session *mgo.Session
 }
 
 func NewRepository(config *Config) (*Repository, error) {
-
-	session, err := r.Connect(r.ConnectOpts{
-		Address:  config.RethinkDB,
+	cluster := strings.Split(config.MongoDB, ",")
+	dialInfo := &mgo.DialInfo{
+		Addrs:    cluster,
 		Database: config.Database,
-	})
+		Timeout:  10 * time.Second,
+		FailFast: true,
+	}
+
+	session, err := mgo.DialWithInfo(dialInfo)
 	if err != nil {
 		return nil, err
 	}
+
+	session.SetMode(mgo.Monotonic, true)
 
 	repo := &Repository{
 		Config:  config,
 		Session: session,
 	}
+
 	return repo, nil
 }
 
 func (repo *Repository) AllEnvironments() ([]string, error) {
-	cursor, err := r.Table("hosts").Distinct(r.DistinctOpts{Index: "environment"}).Run(repo.Session)
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	c := s.DB(repo.Config.Database).C("hosts")
+	var result []string
+	err := c.Find(nil).Distinct("environment", &result)
 	if err != nil {
 		log.Errorf("Repository AllEnvironments query failed %v", err)
 		return nil, err
 	}
 
-	environments := []string{}
-	err = cursor.All(&environments)
-	if err != nil {
-		log.Errorf("Repository AllEnvironments cursor failed %v", err)
-		return nil, err
-	}
-	cursor.Close()
+	return result, nil
+}
 
-	return environments, nil
+type HostStats struct {
+	Id bson.ObjectId `json:"id" bson:"_id"`
 }
 
 func (repo *Repository) EnvironmentHostContainerSum() ([]models.EnvironmentStats, error) {
-	cursor, err := r.Table("hosts").Distinct(r.DistinctOpts{Index: "environment"}).Run(repo.Session)
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	h := s.DB(repo.Config.Database).C("hosts")
+	var all []string
+	err := h.Find(nil).Distinct("environment", &all)
 	if err != nil {
 		log.Errorf("Repository EnvironmentHostContainerSum query failed %v", err)
 		return nil, err
 	}
 
-	all := []string{}
-
-	err = cursor.All(&all)
-	if err != nil {
-		log.Errorf("Repository EnvironmentHostContainerSum cursor failed %v", err)
-		return nil, err
-	}
-	cursor.Close()
-
 	environments := []models.EnvironmentStats{}
-	for _, env := range all {
-		cursor, err = r.Table("hosts").GetAllByIndex("environment", env).Count().Run(repo.Session)
-		if err != nil {
-			log.Errorf("Repository EnvironmentHostContainerSum query failed %v", err)
-			return nil, err
-		}
-		var hSum int
-		err = cursor.One(&hSum)
-		if err != nil {
-			log.Errorf("Repository EnvironmentHostContainerSum cursor failed %v", err)
-			return nil, err
-		}
-		cursor.Close()
 
-		cursor, err = r.Table("hosts").GetAllByIndex("environment", env).Sum("containers_running").Run(repo.Session)
-		if err != nil {
-			log.Errorf("Repository EnvironmentHostContainerSum query failed %v", err)
-			return nil, err
-		}
-		var cSum int
-		err = cursor.One(&cSum)
-		if err != nil {
-			log.Errorf("Repository EnvironmentHostContainerSum cursor failed %v", err)
-			return nil, err
-		}
+	pipeline := []bson.M{
+		{"$group": bson.M{
+			"_id":                "$environment",
+			"hosts":              bson.M{"$sum": 1},
+			"containers_running": bson.M{"$sum": "$containers_running"},
+			"ncpu":               bson.M{"$sum": "$ncpu"},
+			"mem_total":          bson.M{"$sum": "$mem_total"},
+		}},
+	}
 
-		cursor, err = r.Table("hosts").GetAllByIndex("environment", env).Sum("ncpu").Run(repo.Session)
-		if err != nil {
-			log.Errorf("Repository EnvironmentHostContainerSum query failed %v", err)
-			return nil, err
-		}
-		var ncpuSum int
-		err = cursor.One(&ncpuSum)
-		if err != nil {
-			log.Errorf("Repository EnvironmentHostContainerSum cursor failed %v", err)
-			return nil, err
-		}
-		cursor.Close()
-
-		cursor, err = r.Table("hosts").GetAllByIndex("environment", env).Sum("mem_total").Run(repo.Session)
-		if err != nil {
-			log.Errorf("Repository EnvironmentHostContainerSum query failed %v", err)
-			return nil, err
-		}
-		var memSum int64
-		err = cursor.One(&memSum)
-		if err != nil {
-			log.Errorf("Repository EnvironmentHostContainerSum cursor failed %v", err)
-			return nil, err
-		}
-		cursor.Close()
-
-		envEntry := models.EnvironmentStats{
-			Environment:       env,
-			Hosts:             hSum,
-			ContainersRunning: cSum,
-			NCPU:              ncpuSum,
-			MemTotal:          memSum,
-		}
-		environments = append(environments, envEntry)
+	pipe := h.Pipe(pipeline)
+	err = pipe.All(&environments)
+	if err != nil {
+		log.Errorf("Repository EnvironmentHostContainerSum pipeline failed %v", err)
+		return nil, err
 	}
 
 	return environments, nil
 }
 
 func (repo *Repository) AllHosts() ([]models.DockerHost, error) {
-	cursor, err := r.Table("hosts").OrderBy(r.Asc("collected"), r.OrderByOpts{Index: "collected"}).Run(repo.Session)
-	if err != nil {
-		log.Errorf("Repository AllHosts query failed %v", err)
-		return nil, err
-	}
+	s := repo.Session.Copy()
+	defer s.Close()
 
+	c := s.DB(repo.Config.Database).C("hosts")
 	hosts := []models.DockerHost{}
-	err = cursor.All(&hosts)
+	err := c.Find(nil).Sort("-collected").All(&hosts)
 	if err != nil {
 		log.Errorf("Repository AllHosts cursor failed %v", err)
 		return nil, err
 	}
-	cursor.Close()
 
 	return hosts, nil
 }
 
 func (repo *Repository) HostContainers(hostID string) (*models.DockerPayload, error) {
-	cursor, err := r.Table("hosts").Get(hostID).Run(repo.Session)
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	h := s.DB(repo.Config.Database).C("hosts")
+	host := models.DockerHost{}
+	err := h.FindId(hostID).One(&host)
 	if err != nil {
 		log.Errorf("Repository HostContainers query failed for hostID %v %v", hostID, err)
 		return nil, err
 	}
-	host := models.DockerHost{}
-	err = cursor.One(&host)
-	if err != nil {
-		log.Errorf("Repository HostContainers cursor failed for hostID %v %v", hostID, err)
-		return nil, err
-	}
-	cursor.Close()
 
-	cursor, err = r.Table("containers").GetAllByIndex("host_id", hostID).Run(repo.Session)
-	if err != nil {
-		log.Errorf("Repository HostContainers query containers GetAllByIndex for hostID %v failed %v", hostID, err)
-		return nil, err
-	}
-
+	c := s.DB(repo.Config.Database).C("containers")
 	containers := []models.DockerContainer{}
-	err = cursor.All(&containers)
+	err = c.Find(bson.M{"host_id": hostID}).Sort("-collected").All(&containers)
 	if err != nil {
-		log.Errorf("Repository HostContainers cursor containers GetAllByIndex for hostID %v failed %v", hostID, err)
+		log.Errorf("Repository HostContainers query containers All for hostID %v failed %v", hostID, err)
 		return nil, err
 	}
-	cursor.Close()
 
 	payload := &models.DockerPayload{
 		Host:       host,
@@ -183,19 +135,16 @@ func (repo *Repository) HostContainers(hostID string) (*models.DockerPayload, er
 }
 
 func (repo *Repository) EnvironmentContainers(env string) (*models.DockerPayload, error) {
-	cursor, err := r.Table("hosts").GetAllByIndex("environment", env).Run(repo.Session)
-	if err != nil {
-		log.Errorf("Repository EnvironmentContainers query containers GetAllByIndex for env %v failed %v", env, err)
-		return nil, err
-	}
+	s := repo.Session.Copy()
+	defer s.Close()
 
+	h := s.DB(repo.Config.Database).C("hosts")
 	hosts := []models.DockerHost{}
-	err = cursor.All(&hosts)
+	err := h.Find(bson.M{"environment": env}).All(&hosts)
 	if err != nil {
-		log.Errorf("Repository EnvironmentContainers cursor containers GetAllByIndex for env %v failed %v", env, err)
+		log.Errorf("Repository EnvironmentContainers query hosts for env %v failed %v", env, err)
 		return nil, err
 	}
-	cursor.Close()
 
 	envStats := models.DockerHost{}
 
@@ -206,19 +155,13 @@ func (repo *Repository) EnvironmentContainers(env string) (*models.DockerPayload
 		envStats.MemTotal += host.MemTotal
 	}
 
-	cursor, err = r.Table("containers").GetAllByIndex("environment", env).OrderBy(r.Asc("created")).Run(repo.Session)
-	if err != nil {
-		log.Errorf("Repository EnvironmentContainers query containers GetAllByIndex for env %v failed %v", env, err)
-		return nil, err
-	}
-
+	c := s.DB(repo.Config.Database).C("containers")
 	containers := []models.DockerContainer{}
-	err = cursor.All(&containers)
+	err = c.Find(bson.M{"environment": env}).Sort("-collected").All(&containers)
 	if err != nil {
-		log.Errorf("Repository EnvironmentContainers cursor containers GetAllByIndex for env %v failed %v", env, err)
+		log.Errorf("Repository EnvironmentContainers query containers All for env %v failed %v", env, err)
 		return nil, err
 	}
-	cursor.Close()
 
 	payload := &models.DockerPayload{
 		Host:       envStats,
@@ -227,51 +170,40 @@ func (repo *Repository) EnvironmentContainers(env string) (*models.DockerPayload
 
 	return payload, nil
 }
-
 func (repo *Repository) AllContainers() ([]models.DockerContainer, error) {
-	cursor, err := r.Table("containers").OrderBy(r.Asc("collected"), r.OrderByOpts{Index: "collected"}).Run(repo.Session)
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	c := s.DB(repo.Config.Database).C("containers")
+	containers := []models.DockerContainer{}
+	err := c.Find(nil).Sort("-collected").All(&containers)
 	if err != nil {
 		log.Errorf("Repository AllContainers query failed %v", err)
 		return nil, err
 	}
 
-	containers := []models.DockerContainer{}
-	err = cursor.All(&containers)
-	if err != nil {
-		log.Errorf("Repository AllContainers cursor failed %v", err)
-		return nil, err
-	}
-	cursor.Close()
-
 	return containers, nil
 }
 
 func (repo *Repository) Container(containerID string) (*models.DockerPayload, error) {
-	cursor, err := r.Table("containers").Get(containerID).Run(repo.Session)
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	c := s.DB(repo.Config.Database).C("containers")
+	container := models.DockerContainer{}
+	err := c.FindId(containerID).One(&container)
 	if err != nil {
 		log.Errorf("Repository Container query failed for containerID %v %v", containerID, err)
 		return nil, err
 	}
-	container := models.DockerContainer{}
-	err = cursor.One(&container)
-	if err != nil {
-		log.Errorf("Repository Container cursor failed for containerID %v %v", containerID, err)
-		return nil, err
-	}
-	cursor.Close()
 
-	cursor, err = r.Table("hosts").Get(container.HostId).Run(repo.Session)
+	h := s.DB(repo.Config.Database).C("hosts")
+	host := models.DockerHost{}
+	err = h.FindId(container.HostId).One(&host)
 	if err != nil {
 		log.Errorf("Repository Container hosts query failed for containerID %v %v", containerID, err)
 		return nil, err
 	}
-	host := models.DockerHost{}
-	err = cursor.One(&host)
-	if err != nil {
-		log.Errorf("Repository Container hosts cursor failed for containerID %v %v", containerID, err)
-		return nil, err
-	}
-	cursor.Close()
 
 	containers := []models.DockerContainer{}
 	containers = append(containers, container)
@@ -285,37 +217,31 @@ func (repo *Repository) Container(containerID string) (*models.DockerPayload, er
 }
 
 func (repo *Repository) AllSyrosServices() ([]models.SyrosService, error) {
-	cursor, err := r.Table("syros_services").OrderBy(r.Asc("collected"), r.OrderByOpts{Index: "collected"}).Run(repo.Session)
-	if err != nil {
-		log.Errorf("Repository AllContainers query failed %v", err)
-		return nil, err
-	}
+	s := repo.Session.Copy()
+	defer s.Close()
 
+	c := s.DB(repo.Config.Database).C("syros_services")
 	services := []models.SyrosService{}
-	err = cursor.All(&services)
+	err := c.Find(nil).Sort("-collected").All(&services)
 	if err != nil {
-		log.Errorf("Repository AllSyrosServices cursor failed %v", err)
+		log.Errorf("Repository AllSyrosServices query failed %v", err)
 		return nil, err
 	}
-	cursor.Close()
 
 	return services, nil
 }
 
 func (repo *Repository) AllHealthChecks() ([]models.ConsulHealthCheck, error) {
-	cursor, err := r.Table("checks").OrderBy(r.Asc("collected"), r.OrderByOpts{Index: "collected"}).Run(repo.Session)
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	c := s.DB(repo.Config.Database).C("checks")
+	checks := []models.ConsulHealthCheck{}
+	err := c.Find(nil).Sort("-collected").All(&checks)
 	if err != nil {
-		log.Errorf("Repository AllContainers query failed %v", err)
+		log.Errorf("Repository AllHealthChecks query failed %v", err)
 		return nil, err
 	}
 
-	c := []models.ConsulHealthCheck{}
-	err = cursor.All(&c)
-	if err != nil {
-		log.Errorf("Repository AllHealthChecks cursor failed %v", err)
-		return nil, err
-	}
-	cursor.Close()
-
-	return c, nil
+	return checks, nil
 }

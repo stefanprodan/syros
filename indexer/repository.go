@@ -1,237 +1,176 @@
 package main
 
 import (
-	"encoding/json"
 	log "github.com/Sirupsen/logrus"
-	r "github.com/dancannon/gorethink"
 	"github.com/stefanprodan/syros/models"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+	"strings"
 	"time"
 )
 
 type Repository struct {
 	Config  *Config
-	Session *r.Session
+	Session *mgo.Session
 }
 
 func NewRepository(config *Config) (*Repository, error) {
-
-	session, err := r.Connect(r.ConnectOpts{
-		Address:  config.RethinkDB,
+	cluster := strings.Split(config.MongoDB, ",")
+	dialInfo := &mgo.DialInfo{
+		Addrs:    cluster,
 		Database: config.Database,
-		MaxIdle:  10,
-		MaxOpen:  100,
-	})
+		Timeout:  10 * time.Second,
+		FailFast: true,
+	}
+
+	session, err := mgo.DialWithInfo(dialInfo)
 	if err != nil {
 		return nil, err
 	}
+
+	session.SetMode(mgo.Monotonic, true)
 
 	repo := &Repository{
 		Config:  config,
 		Session: session,
 	}
+
 	return repo, nil
 }
 
 func (repo *Repository) Initialize() {
-	var cursor *r.Cursor
-	var err error
-	var cnt int
-
-	// init db
-	cursor, err = r.DBList().Contains(repo.Config.Database).Run(repo.Session)
-	if err != nil {
-		log.Fatalf("RethinkDB database init query failed %v", err)
-	}
-
-	cursor.One(&cnt)
-	cursor.Close()
-
-	if cnt < 1 {
-		log.Infof("RethinkDB no database found, creating %v", repo.Config.Database)
-		_, err := r.DBCreate(repo.Config.Database).RunWrite(repo.Session)
-		if err != nil {
-			log.Fatalf("RethinkDB database creation failed %v", err)
-		}
-	}
-
-	repo.CreateTable("hosts")
 	repo.CreateIndex("hosts", "environment")
 	repo.CreateIndex("hosts", "collected")
-	repo.CreateTable("containers")
 	repo.CreateIndex("containers", "host_id")
 	repo.CreateIndex("containers", "environment")
 	repo.CreateIndex("containers", "collected")
-	repo.CreateTable("checks")
 	repo.CreateIndex("checks", "host_id")
 	repo.CreateIndex("checks", "environment")
 	repo.CreateIndex("checks", "collected")
-	repo.CreateTable("syros_services")
 	repo.CreateIndex("syros_services", "environment")
 	repo.CreateIndex("syros_services", "collected")
 }
 
-func (repo *Repository) CreateTable(table string) {
-	rdb := r.DB(repo.Config.Database)
-	cursor, err := rdb.TableList().Contains(table).Run(repo.Session)
+func (repo *Repository) CreateIndex(col string, index string) {
+	c := repo.Session.DB(repo.Config.Database).C(col)
+	err := c.EnsureIndexKey(index)
+
 	if err != nil {
-		log.Fatalf("RethinkDB table init query failed %v", err)
-	}
-	var cnt int
-	cursor.One(&cnt)
-	cursor.Close()
-
-	if cnt < 1 {
-		log.Infof("RethinkDB no table found, creating %v", table)
-		_, err := rdb.TableCreate(table).RunWrite(repo.Session)
-		if err != nil {
-			log.Fatalf("RethinkDB %v table creation failed %v", table, err)
-		}
-	}
-}
-
-func (repo *Repository) CreateIndex(table string, field string) {
-	t := r.DB(repo.Config.Database).Table(table)
-	cursor, err := t.IndexList().Contains(field).Run(repo.Session)
-	if err != nil {
-		log.Fatalf("RethinkDB index init query failed %v", err)
-	}
-
-	var cnt int
-	cursor.One(&cnt)
-	cursor.Close()
-
-	if cnt < 1 {
-		log.Infof("RethinkDB no index found on table %v, creating %v", table, field)
-		err := t.IndexCreate(field).Exec(repo.Session)
-		if err != nil {
-			log.Fatalf("RethinkDB table %v index %v creation failed %v", table, field, err)
-		}
-		t.IndexWait().RunWrite(repo.Session)
-		if err != nil {
-			log.Fatalf("RethinkDB table %v index %v wait failed %v", table, field, err)
-		}
+		log.Fatalf("MongoDB index %v init failed %v", index, err)
 	}
 }
 
 func (repo *Repository) HostUpsert(host models.DockerHost) {
-	cursor, err := r.Table("hosts").Get(host.Id).Run(repo.Session)
-	if err != nil {
-		log.Errorf("Repository host upsert query after ID failed %v", err)
-		return
-	}
-	defer cursor.Close()
+	s := repo.Session.Copy()
+	defer s.Close()
 
-	if cursor.IsNil() {
-		_, err := r.Table("hosts").Insert(host).RunWrite(repo.Session)
-		if err != nil {
-			log.Errorf("Repository host insert failed %v", err)
-		}
-	} else {
-		_, err := r.Table("hosts").Get(host.Id).Update(host).RunWrite(repo.Session)
-		if err != nil {
-			log.Errorf("Repository host update failed %v", err)
-		}
+	c := s.DB(repo.Config.Database).C("hosts")
+
+	_, err := c.UpsertId(host.Id, &host)
+	if err != nil {
+		log.Errorf("Repository hosts upsert failed %v", err)
 	}
 }
 
 func (repo *Repository) ContainerUpsert(container models.DockerContainer) {
-	cursor, err := r.Table("containers").Get(container.Id).Run(repo.Session)
-	if err != nil {
-		log.Errorf("Repository containers upsert query after ID failed %v", err)
-		return
-	}
-	defer cursor.Close()
+	s := repo.Session.Copy()
+	defer s.Close()
 
-	if cursor.IsNil() {
-		_, err := r.Table("containers").Insert(container).RunWrite(repo.Session)
+	c := s.DB(repo.Config.Database).C("containers")
+
+	_, err := c.UpsertId(container.Id, &container)
+	if err != nil {
+		log.Errorf("Repository containers upsert failed %v", err)
+	}
+}
+
+func (repo *Repository) ContainersUpsert(containers []models.DockerContainer) {
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	c := s.DB(repo.Config.Database).C("containers")
+
+	for _, container := range containers {
+		_, err := c.UpsertId(container.Id, &container)
 		if err != nil {
-			log.Errorf("Repository containers insert failed %v", err)
-		}
-	} else {
-		_, err := r.Table("containers").Get(container.Id).Update(container).RunWrite(repo.Session)
-		if err != nil {
-			log.Errorf("Repository containers update failed %v", err)
+			log.Errorf("Repository containers upsert failed %v", err)
 		}
 	}
 }
 
-func (repo *Repository) CheckUpsert(check models.ConsulHealthCheck) {
-	cursor, err := r.Table("checks").Get(check.Id).Run(repo.Session)
-	if err != nil {
-		log.Errorf("Repository checks upsert query after ID failed %v", err)
-		return
-	}
-	defer cursor.Close()
+func (repo *Repository) ChecksUpsert(checks []models.ConsulHealthCheck) {
+	s := repo.Session.Copy()
+	defer s.Close()
 
-	if cursor.IsNil() {
-		check.Since = check.Collected
-		_, err := r.Table("checks").Insert(check).RunWrite(repo.Session)
+	c := s.DB(repo.Config.Database).C("checks")
+
+	for _, check := range checks {
+		res := models.ConsulHealthCheck{}
+		err := c.FindId(check.Id).One(&res)
 		if err != nil {
-			log.Errorf("Repository checks insert failed %v", err)
+			if err.Error() == "not found" {
+				check.Since = check.Collected
+				_, err = c.UpsertId(check.Id, &check)
+				if err != nil {
+					log.Errorf("Repository checks insert failed %v", err)
+				}
+				return
+			} else {
+				log.Errorf("Repository checks find by id failed %v", err)
+			}
 		}
-	} else {
-		c := models.ConsulHealthCheck{}
-		err = cursor.One(&c)
-		if c.Status != check.Status {
+		if res.Status != check.Status {
 			check.Since = check.Collected
 		} else {
-			check.Since = c.Since
+			check.Since = res.Since
 		}
-
-		_, err := r.Table("checks").Get(check.Id).Update(check).RunWrite(repo.Session)
+		_, err = c.UpsertId(check.Id, &check)
 		if err != nil {
-			log.Errorf("Repository checks update failed %v", err)
+			log.Errorf("Repository checks upsert failed %v", err)
 		}
 	}
 }
 
 func (repo *Repository) SyrosServiceUpsert(service models.SyrosService) {
-	cursor, err := r.Table("syros_services").Get(service.Id).Run(repo.Session)
-	if err != nil {
-		log.Errorf("Repository syros_services upsert query after ID failed %v", err)
-		return
-	}
-	defer cursor.Close()
+	s := repo.Session.Copy()
+	defer s.Close()
 
-	if cursor.IsNil() {
-		_, err := r.Table("syros_services").Insert(service).RunWrite(repo.Session)
-		if err != nil {
-			log.Errorf("Repository syros_services insert failed %v", err)
-		}
-	} else {
-		_, err := r.Table("syros_services").Get(service.Id).Update(service).RunWrite(repo.Session)
-		if err != nil {
-			log.Errorf("Repository syros_services update failed %v", err)
-		}
+	c := s.DB(repo.Config.Database).C("syros_services")
+
+	_, err := c.UpsertId(service.Id, &service)
+	if err != nil {
+		log.Errorf("Repository syros_services upsert failed %v", err)
 	}
 }
 
-// Removes stale records that have not been updated for a while
-func (repo *Repository) RunGarbageCollector(tables []string) {
+// Removes stale records
+func (repo *Repository) RunGarbageCollector(cols []string) {
 	if repo.Config.DatabaseStale > 0 {
-		go func(stale int, since int) {
-			log.Infof("Stating repository GC interval %v minutes", stale)
-			for _, table := range tables {
-				res, err := r.Table(table).
-					Between(time.Now().Add(-time.Duration(since)*time.Hour).UTC(),
-						time.Now().Add(-time.Duration(stale)*time.Minute).UTC(),
-						r.BetweenOpts{Index: "collected"}).
-					Delete().RunWrite(repo.Session)
-				if err != nil {
-					log.Errorf("Repository GC for table %v query failed %v", table, err)
-				} else {
-					if res.Deleted > 0 {
-						log.Infof("Repository GC removed %v from %v", res.Deleted, table)
+		log.Infof("Stating repository GC interval %v minutes", repo.Config.DatabaseStale)
+		go func(stale int) {
+
+			for true {
+				s := repo.Session.Copy()
+				for _, col := range cols {
+					c := s.DB(repo.Config.Database).C(col)
+					info, err := c.RemoveAll(
+						bson.M{
+							"collected": bson.M{
+								"$lt": time.Now().Add(-time.Duration(stale) * time.Minute).UTC(),
+							},
+						})
+					if err != nil {
+						log.Errorf("Repository GC for col %v query failed %v", col, err)
+					} else {
+						if info.Removed > 0 {
+							log.Infof("Repository GC removed %v from %v", info.Removed, col)
+						}
 					}
 				}
+				s.Close()
+				time.Sleep(60 * time.Second)
 			}
 
-			time.Sleep(60 * time.Second)
-		}(repo.Config.DatabaseStale, repo.Config.DatabaseStaleSince)
+		}(repo.Config.DatabaseStale)
 	}
-}
-
-func logRepositoryResponse(action string, response interface{}) {
-	jBytes, _ := json.Marshal(response)
-	log.Debugf("Repository %v result %s", action, string(jBytes))
 }

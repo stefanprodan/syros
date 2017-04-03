@@ -36,10 +36,7 @@ func (c *Consumer) DockerConsume() {
 		} else {
 			log.Debugf("Docker payload received from host %v running containes %v", payload.Host.Name, payload.Host.ContainersRunning)
 			c.Repository.HostUpsert(payload.Host)
-
-			for _, container := range payload.Containers {
-				c.Repository.ContainerUpsert(container)
-			}
+			c.Repository.ContainersUpsert(payload.Containers)
 		}
 	})
 }
@@ -52,9 +49,7 @@ func (c *Consumer) ConsulConsume() {
 			log.Errorf("Consul payload unmarshal error %v", err)
 		} else {
 			log.Debugf("Consul payload received %v checks", len(payload.HealthChecks))
-			for _, check := range payload.HealthChecks {
-				c.Repository.CheckUpsert(check)
-			}
+			c.Repository.ChecksUpsert(payload.HealthChecks)
 		}
 	})
 }

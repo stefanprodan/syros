@@ -10,12 +10,12 @@ import (
 )
 
 type SyrosService struct {
-	Id          string            `gorethink:"id,omitempty" json:"id"`
-	Hostname    string            `gorethink:"hostname" json:"hostname"`
-	Type        string            `gorethink:"type" json:"type"`
-	Config      map[string]string `gorethink:"config" json:"config"`
-	Environment string            `gorethink:"environment" json:"environment"`
-	Collected   time.Time         `gorethink:"collected" json:"collected"`
+	Id          string            `bson:"_id,omitempty" json:"id"`
+	Hostname    string            `bson:"hostname" json:"hostname"`
+	Type        string            `bson:"type" json:"type"`
+	Config      map[string]string `bson:"config" json:"config"`
+	Environment string            `bson:"environment" json:"environment"`
+	Collected   time.Time         `bson:"collected" json:"collected"`
 }
 
 // ConfigToMap converts a config struct to a map using the m tags
