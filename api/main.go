@@ -14,7 +14,7 @@ func main() {
 	var config = &Config{}
 	flag.StringVar(&config.LogLevel, "LogLevel", "debug", "logging threshold level: debug|info|warn|error|fatal|panic")
 	flag.IntVar(&config.Port, "Port", 8888, "HTTP port to listen on")
-	flag.StringVar(&config.MongoDB, "MongoDB", "localhost:28015", "MongoDB server addresses comma delimited")
+	flag.StringVar(&config.MongoDB, "MongoDB", "localhost:27017", "MongoDB server addresses comma delimited")
 	flag.StringVar(&config.Database, "Database", "syros", "MongoDB database name")
 	flag.StringVar(&config.JwtSecret, "JwtSecret", "syros", "JWT secret")
 	flag.StringVar(&config.Credentials, "Credentials", "admin@admin", "Credentials format user@password")
@@ -22,6 +22,14 @@ func main() {
 	flag.Parse()
 
 	setLogLevel(config.LogLevel)
+
+	mongo, err := NewMongoRepository(config)
+	if err != nil {
+		log.Fatalf("MongoDB connection error %v", err)
+	}
+	mongo.EnvironmentHostContainerSum()
+	return
+
 	log.Infof("Starting with config: %+v", config)
 
 	if config.AppPath == "" {

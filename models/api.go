@@ -1,11 +1,11 @@
 package models
 
 type EnvironmentStats struct {
-	Environment       string `json:"environment"`
-	Hosts             int    `json:"hosts"`
-	ContainersRunning int    `json:"containers_running"`
-	NCPU              int    `json:"ncpu"`
-	MemTotal          int64  `json:"mem_total"`
+	Environment       string `json:"environment" bson:"_id"`
+	Hosts             int    `json:"hosts" bson:"hosts"`
+	ContainersRunning int    `json:"containers_running" bson:"containers_running"`
+	NCPU              int    `json:"ncpu" bson:"ncpu"`
+	MemTotal          int64  `json:"mem_total" bson:"mem_total"`
 }
 
 type EnvironmentDto struct {

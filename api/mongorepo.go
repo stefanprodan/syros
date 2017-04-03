@@ -53,6 +53,44 @@ func (repo *MongoRepository) AllEnvironments() ([]string, error) {
 	return result, nil
 }
 
+type HostStats struct {
+	Id bson.ObjectId `json:"id" bson:"_id"`
+}
+
+func (repo *MongoRepository) EnvironmentHostContainerSum() ([]models.EnvironmentStats, error) {
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	h := s.DB(repo.Config.Database).C("hosts")
+	var all []string
+	err := h.Find(nil).Distinct("environment", &all)
+	if err != nil {
+		log.Errorf("Repository EnvironmentHostContainerSum query failed %v", err)
+		return nil, err
+	}
+
+	environments := []models.EnvironmentStats{}
+
+	pipeline := []bson.M{
+		{"$group": bson.M{
+			"_id":                "$environment",
+			"hosts":              bson.M{"$sum": 1},
+			"containers_running": bson.M{"$sum": "$containers_running"},
+			"ncpu":               bson.M{"$sum": "$ncpu"},
+			"mem_total":          bson.M{"$sum": "$mem_total"},
+		}},
+	}
+
+	pipe := h.Pipe(pipeline)
+	err = pipe.All(&environments)
+	if err != nil {
+		log.Errorf("Repository EnvironmentHostContainerSum pipeline failed %v", err)
+		return nil, err
+	}
+
+	return environments, nil
+}
+
 func (repo *MongoRepository) AllHosts() ([]models.DockerHost, error) {
 	s := repo.Session.Copy()
 	defer s.Close()
