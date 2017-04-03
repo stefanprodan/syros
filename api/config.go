@@ -4,7 +4,7 @@ package main
 type Config struct {
 	LogLevel    string `m:"LogLevel"`
 	Port        int    `m:"Port"`
-	RethinkDB   string `m:"RethinkDB"`
+	MongoDB     string `m:"MongoDB"`
 	Database    string `m:"Database"`
 	JwtSecret   string `m:"JwtSecret"`
 	Credentials string `m:"Credentials"`

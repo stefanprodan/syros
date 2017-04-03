@@ -14,7 +14,7 @@ type Repository struct {
 func NewRepository(config *Config) (*Repository, error) {
 
 	session, err := r.Connect(r.ConnectOpts{
-		Address:  config.RethinkDB,
+		Address:  config.MongoDB,
 		Database: config.Database,
 	})
 	if err != nil {
