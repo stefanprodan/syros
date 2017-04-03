@@ -23,7 +23,7 @@ HA Setup:
 
 ### Development 
 
-Syros back-end is written in golang and the front-end in javascript (VueJs).
+Syros back-end is written in golang and the front-end in ES6 javascript (VueJs).
 
 Prerequisites:
 
