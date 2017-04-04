@@ -1,10 +1,4 @@
 export default {
-    service_name: function (h, row) {
-        return <a class='' href={'#/healthcheck/' + row.id}>{row.service_name}</a>
-    },
-    host_name: function (h, row) {
-        return <a class='' href={'#/host/' + row.host_id}>{row.host_name}</a>
-    },
     status: function (h, row) {
         if (moment().diff(row.collected, 'minutes') > 1){
             return <span class="alert alert-danger text-uppercase" title="No signal received for more than one minute ago">removed</span>
@@ -14,10 +8,15 @@ export default {
         }
         return <span class="alert alert-danger text-uppercase">{row.status}</span>
     },
-    since: function (h, row) {
-        return <span>{ moment(row.since).fromNow() }</span>
+    duration: function (h, row) {
+        var begin = moment(row.begin)
+        var end = moment(row.end)
+        return <span>{ moment(row.end).diff(row.begin, 'minutes')} minutes</span>
     },
-    collected: function (h, row) {
-        return <span>{ moment(row.collected).format('YYYY-MM-DD HH:mm:ss Z') }</span>
+    begin: function (h, row) {
+        return <span>{ moment(row.begin).format('YYYY-MM-DD HH:mm:ss Z') }</span>
+    },
+    end: function (h, row) {
+        return <span>{ moment(row.end).format('YYYY-MM-DD HH:mm:ss Z') }</span>
     }
 }

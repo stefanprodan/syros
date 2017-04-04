@@ -22,6 +22,14 @@ export default new Router({
       }
     },
     {
+      path: '/healthcheck/:id',
+      name: 'healthcheck',
+      component: require('components/healthcheck/index.vue'),
+      meta: {
+        auth: true
+      }
+    },
+    {
       path: '/hosts',
       name: 'hosts',
       component: require('components/hosts/index.vue'),
