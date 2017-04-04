@@ -9,9 +9,19 @@ export default {
         return <span class="alert alert-danger text-uppercase">{row.status}</span>
     },
     duration: function (h, row) {
-        var begin = moment(row.begin)
         var end = moment(row.end)
-        return <span>{ moment(row.end).diff(row.begin, 'minutes')} minutes</span>
+        var duration = end.diff(row.begin, 'minutes') + ' minutes'
+        if (end.diff(row.begin, 'minutes') < 2){
+            duration = end.diff(row.begin, 'seconds') + ' seconds'
+        }
+        if (end.diff(row.begin, 'minutes') > 60){
+            duration = end.diff(row.begin, 'hours') + ' hours'
+        }
+        if (end.diff(row.begin, 'h') > 48){
+            duration = end.diff(row.begin, 'days') + ' days'
+        }
+
+        return <span>{ duration }</span>
     },
     begin: function (h, row) {
         return <span>{ moment(row.begin).format('YYYY-MM-DD HH:mm:ss Z') }</span>
