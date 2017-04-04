@@ -245,3 +245,29 @@ func (repo *Repository) AllHealthChecks() ([]models.ConsulHealthCheck, error) {
 
 	return checks, nil
 }
+
+func (repo *Repository) HealthCheckLog(checkId string) ([]models.ConsulHealthCheckLog, error) {
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	c := s.DB(repo.Config.Database).C("checks_log")
+	checks := []models.ConsulHealthCheckLog{}
+	err := c.Find(bson.M{"check_id": checkId}).Sort("-end").Limit(500).All(&checks)
+	if err != nil {
+		log.Errorf("Repository HealthCheckLog query failed %v", err)
+		return nil, err
+	}
+
+	k := s.DB(repo.Config.Database).C("checks")
+	current := models.ConsulHealthCheck{}
+	err = k.FindId(checkId).One(&current)
+	if err != nil {
+		log.Errorf("Repository HealthCheckLog query failed %v", err)
+		return nil, err
+	}
+
+	cur := models.NewConsulHealthCheckLog(current, current.Since, time.Now().UTC())
+	checks = append(checks, cur)
+
+	return checks, nil
+}

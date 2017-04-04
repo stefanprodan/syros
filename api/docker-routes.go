@@ -133,6 +133,17 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 			}
 			render.JSON(w, r, checks)
 		})
+
+		r.Get("/healthchecks/:checkID", func(w http.ResponseWriter, r *http.Request) {
+			checkID := chi.URLParam(r, "checkID")
+			checks, err := s.Repository.HealthCheckLog(checkID)
+			if err != nil {
+				render.Status(r, http.StatusInternalServerError)
+				render.PlainText(w, r, err.Error())
+				return
+			}
+			render.JSON(w, r, checks)
+		})
 	})
 
 	r.Get("/environments", func(w http.ResponseWriter, r *http.Request) {
