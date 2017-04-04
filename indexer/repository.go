@@ -47,6 +47,8 @@ func (repo *Repository) Initialize() {
 	repo.CreateIndex("checks", "host_id")
 	repo.CreateIndex("checks", "environment")
 	repo.CreateIndex("checks", "collected")
+	repo.CreateIndex("checks_log", "check_id")
+	repo.CreateIndex("checks_log", "end")
 	repo.CreateIndex("syros_services", "environment")
 	repo.CreateIndex("syros_services", "collected")
 }
@@ -108,22 +110,33 @@ func (repo *Repository) ChecksUpsert(checks []models.ConsulHealthCheck) {
 		res := models.ConsulHealthCheck{}
 		err := c.FindId(check.Id).One(&res)
 		if err != nil {
+			// insert check
 			if err.Error() == "not found" {
 				check.Since = check.Collected
-				_, err = c.UpsertId(check.Id, &check)
+				err = c.Insert(&check)
 				if err != nil {
 					log.Errorf("Repository checks insert failed %v", err)
 				}
-				return
 			} else {
 				log.Errorf("Repository checks find by id failed %v", err)
 			}
+			continue
 		}
+
+		// if status changed insert into logs and reset since
 		if res.Status != check.Status {
+			checkLog := models.NewConsulHealthCheckLog(res, res.Since, check.Collected)
+			l := s.DB(repo.Config.Database).C("checks_log")
+			err = l.Insert(&checkLog)
+			if err != nil {
+				log.Errorf("Repository checks_log insert failed %v", err)
+			}
 			check.Since = check.Collected
 		} else {
 			check.Since = res.Since
 		}
+
+		// update check
 		_, err = c.UpsertId(check.Id, &check)
 		if err != nil {
 			log.Errorf("Repository checks upsert failed %v", err)
