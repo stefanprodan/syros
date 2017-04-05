@@ -66,7 +66,6 @@
               var statsCriticalDuration = '0s'
               var statsPassingCount = 0
               var statsPassingDuration = '0s'
-
               for (var i = 0, len = response.data.stats.length; i < len; i++) {
                 if (response.data.stats[i].status === 'passing') {
                   statsPassingCount = response.data.stats[i].count

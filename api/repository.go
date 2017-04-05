@@ -254,15 +254,15 @@ func (repo *Repository) HealthCheckLog(checkId string) ([]models.ConsulHealthChe
 	logs := []models.ConsulHealthCheckLog{}
 	err := c.Find(bson.M{"check_id": checkId}).Sort("-begin").Limit(500).All(&logs)
 	if err != nil {
-		log.Errorf("Repository HealthCheckLog query failed %v", err)
+		log.Errorf("Repository HealthCheckLog checks_log query failed %v", err)
 		return nil, nil, err
 	}
 
-	k := s.DB(repo.Config.Database).C("logs")
+	k := s.DB(repo.Config.Database).C("checks")
 	current := models.ConsulHealthCheck{}
 	err = k.FindId(checkId).One(&current)
 	if err != nil {
-		log.Errorf("Repository HealthCheckLog query failed %v", err)
+		log.Errorf("Repository HealthCheckLog checks query failed %v", err)
 		return nil, nil, err
 	}
 
@@ -293,20 +293,21 @@ func (repo *Repository) HealthCheckLog(checkId string) ([]models.ConsulHealthChe
 	}
 
 	// add current status to stats
-	if len(stats) == 0 {
+	found := false
+	for i, stat := range stats {
+		if stat.Status == cur.Status {
+			stats[i].Count++
+			stats[i].Duration += cur.Duration
+			found = true
+		}
+	}
+	if !found {
 		stat := models.HealthCheckStats{
 			Status:   cur.Status,
 			Count:    1,
 			Duration: cur.Duration,
 		}
 		stats = append(stats, stat)
-	} else {
-		for i, stat := range stats {
-			if stat.Status == cur.Status {
-				stats[i].Count++
-				stats[i].Duration += cur.Duration
-			}
-		}
 	}
 
 	return logs, stats, nil
