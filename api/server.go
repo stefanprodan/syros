@@ -59,6 +59,7 @@ func (s *HttpServer) Start() {
 
 	r.Mount("/api/auth", s.authRoutes())
 	r.Mount("/api/docker", s.dockerRoutes())
+	r.Mount("/api/deployment", s.deploymentApiRoutes())
 
 	// ui paths
 	indexPath := filepath.Join(s.Config.AppPath, "index.html")
