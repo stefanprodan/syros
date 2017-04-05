@@ -136,14 +136,24 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 
 		r.Get("/healthchecks/:checkID", func(w http.ResponseWriter, r *http.Request) {
 			checkID := chi.URLParam(r, "checkID")
-			checks, err := s.Repository.HealthCheckLog(checkID)
+			checks, stats, err := s.Repository.HealthCheckLog(checkID)
 			if err != nil {
 				render.Status(r, http.StatusInternalServerError)
 				render.PlainText(w, r, err.Error())
 				return
 			}
-			render.JSON(w, r, checks)
+
+			data := struct {
+				Checks []models.ConsulHealthCheckLog `json:"checks"`
+				Stats  []models.HealthCheckStats     `json:"stats"`
+			}{
+				Checks: checks,
+				Stats:  stats,
+			}
+
+			render.JSON(w, r, data)
 		})
+
 	})
 
 	r.Get("/environments", func(w http.ResponseWriter, r *http.Request) {

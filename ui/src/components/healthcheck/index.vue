@@ -10,13 +10,13 @@
   <div class="stats">
     <div class="row">
       <div class="col-md-3 text-center">
-        <h2 class="critical">{{ stats.unhealthy }}</h2><small class="text-uppercase">Critical</small></div>
+        <h2 class="critical">{{ stats.criticalCount }}</h2><small class="text-uppercase">Critical</small></div>
       <div class="col-md-3 text-center">
-        <h2>{{ stats.healthy }}</h2><small class="text-uppercase">Passing</small></div>
+        <h2 class="critical">{{ stats.criticalDuration }}</h2><small class="text-uppercase">Critical last 30d</small></div>
       <div class="col-md-3 text-center">
-        <h2>{{ stats.services }}</h2><small class="text-uppercase">Total</small></div>
+        <h2>{{ stats.passingCount }}</h2><small class="text-uppercase">Passing</small></div>
       <div class="col-md-3 text-center">
-        <h2>{{ stats.env }}</h2><small class="text-uppercase">Environment</small></div>
+        <h2>{{ stats.passingDuration }}</h2><small class="text-uppercase">Passing last 30d</small></div>
     </div>
   </div>
 
@@ -38,7 +38,7 @@
         id: null,
         loaded: false,
         envHeight: 180,
-        stats: {healthy: '0', unhealthy: '0', services: '0', env: '', name: ''},
+        stats: {criticalCount: '0', criticalDuration: '0s', passingCount: '0', passingDuration: '0s', name: ''},
         columns: ['status', 'duration', 'begin', 'end'],
         tableData: [],
         options: {
@@ -61,28 +61,27 @@
         Vue.$http.get(`/docker/healthchecks/${this.id}`)
           .then((response) => {
             if (response != null) {
-              this.tableData = response.data
-              var statsHealthy = 0
-              var statsUnhealthy = 0
-              var statsServices = 0
-              var statsName = ''
-              var statsEnv = ''
-              for (var i = 0, len = response.data.length; i < len; i++) {
-                statsName = response.data[i].service_name
-                statsEnv = response.data[i].environment
-                statsServices += 1
-                if (response.data[i].status === 'passing') {
-                  statsHealthy += 1
+              this.tableData = response.data.checks
+              var statsCriticalCount = 0
+              var statsCriticalDuration = '0s'
+              var statsPassingCount = 0
+              var statsPassingDuration = '0s'
+
+              for (var i = 0, len = response.data.stats.length; i < len; i++) {
+                if (response.data.stats[i].status === 'passing') {
+                  statsPassingCount = response.data.stats[i].count
+                  statsPassingDuration = window.moment.duration(response.data.stats[i].duration, 'seconds').humanize()
                 } else {
-                  statsUnhealthy += 1
+                  statsCriticalCount = response.data.stats[i].count
+                  statsCriticalDuration = window.moment.duration(response.data.stats[i].duration, 'seconds').humanize()
                 }
               }
               this.stats = {
-                name: statsName,
-                healthy: statsHealthy.toString(),
-                unhealthy: statsUnhealthy.toString(),
-                services: statsServices.toString(),
-                env: statsEnv
+                name: response.data.checks[0].service_id,
+                criticalCount: statsCriticalCount.toString(),
+                criticalDuration: statsCriticalDuration,
+                passingCount: statsPassingCount.toString(),
+                passingDuration: statsPassingDuration
               }
 
               this.loaded = true

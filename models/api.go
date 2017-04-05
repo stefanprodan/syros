@@ -18,3 +18,9 @@ type ChartDto struct {
 	Labels []string `json:"labels"`
 	Values []int64  `json:"values"`
 }
+
+type HealthCheckStats struct {
+	Status   string `json:"status" bson:"_id"`
+	Count    int    `json:"count" bson:"count"`
+	Duration int64  `json:"duration" bson:"duration"`
+}
