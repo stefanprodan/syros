@@ -31,12 +31,6 @@
 			"revisionTime": "2016-10-20T19:44:10Z"
 		},
 		{
-			"checksumSHA1": "Vkc4f2ZfbxCPJrZqptggW2O94SQ=",
-			"path": "github.com/dancannon/gorethink",
-			"revision": "610fcc04c971a9fa42f1b6625c7c52b5bb472c51",
-			"revisionTime": "2017-01-30T21:28:06Z"
-		},
-		{
 			"checksumSHA1": "CMfwCFcZRDJeIVVbIHa6t4Aewl8=",
 			"path": "github.com/dgrijalva/jwt-go",
 			"revision": "268038b363c7a8d7306b8e35bf77a1fde4b0c402",
@@ -319,24 +313,6 @@
 			"path": "gopkg.in/fatih/pool.v2",
 			"revision": "6e328e67893eb46323ad06f0e92cb9536babbabc",
 			"revisionTime": "2017-01-11T21:10:42Z"
-		},
-		{
-			"checksumSHA1": "yjQTriVMAzKdR8CKhDFQMbgrFvg=",
-			"path": "gopkg.in/gorethink/gorethink.v3/encoding",
-			"revision": "610fcc04c971a9fa42f1b6625c7c52b5bb472c51",
-			"revisionTime": "2017-01-30T21:28:06Z"
-		},
-		{
-			"checksumSHA1": "aWKVb1QHxeor0el0wybSLEd4pBc=",
-			"path": "gopkg.in/gorethink/gorethink.v3/ql2",
-			"revision": "610fcc04c971a9fa42f1b6625c7c52b5bb472c51",
-			"revisionTime": "2017-01-30T21:28:06Z"
-		},
-		{
-			"checksumSHA1": "E5k29XlUCWLvucxkOimNHtozB7g=",
-			"path": "gopkg.in/gorethink/gorethink.v3/types",
-			"revision": "610fcc04c971a9fa42f1b6625c7c52b5bb472c51",
-			"revisionTime": "2017-01-30T21:28:06Z"
 		},
 		{
 			"checksumSHA1": "1D8GzeoFGUs5FZOoyC2DpQg8c5Y=",
