@@ -1,5 +1,11 @@
 # Syros Changelog
 
+### v0.2.0 (release)
+
+* Record Consul health status changes
+* Service health check history page 
+* Service health check stats for the last 30 days
+
 ### v0.1.0 (release)
 
 * replace RethinkDB with MongoDB

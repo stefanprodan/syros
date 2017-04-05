@@ -4,14 +4,11 @@ The roadmap represents an estimate of when each feature will enter development s
 
 ### Near-term
 
-***Consul integration***
+***Release tracker***
 
-* Collect the health check results for nodes
-* Display the health check result on the host page
-* Record health status changes into health history table
-* Create the health check history page 
-* Display the health chart last 30 days incidents trend and health check results table view
-* Display the health chart on the environment and host dashboards
+* Expose web API to record releases
+* Releases history page
+* Released services page
 
 ### Medium-term
 
@@ -61,3 +58,9 @@ The roadmap represents an estimate of when each feature will enter development s
 
 * Collect build logs
 * Trace and link services deployments to build logs
+
+***Consul integration add-ons***
+
+* Collect the health check results for nodes
+* Display the health check result on the host page
+* Display the health chart on the environment and host dashboards
