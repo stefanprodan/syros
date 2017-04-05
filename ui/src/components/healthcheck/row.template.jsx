@@ -14,7 +14,7 @@ export default {
         if (end.diff(row.begin, 'minutes') < 2){
             duration = end.diff(row.begin, 'seconds') + ' seconds'
         }
-        if (end.diff(row.begin, 'minutes') > 60){
+        if (end.diff(row.begin, 'minutes') > 120){
             duration = end.diff(row.begin, 'hours') + ' hours'
         }
         if (end.diff(row.begin, 'h') > 48){

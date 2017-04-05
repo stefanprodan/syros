@@ -252,7 +252,7 @@ func (repo *Repository) HealthCheckLog(checkId string) ([]models.ConsulHealthChe
 
 	c := s.DB(repo.Config.Database).C("checks_log")
 	checks := []models.ConsulHealthCheckLog{}
-	err := c.Find(bson.M{"check_id": checkId}).Sort("-end").Limit(500).All(&checks)
+	err := c.Find(bson.M{"check_id": checkId}).Sort("-begin").Limit(500).All(&checks)
 	if err != nil {
 		log.Errorf("Repository HealthCheckLog query failed %v", err)
 		return nil, err

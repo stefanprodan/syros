@@ -48,6 +48,7 @@ func (repo *Repository) Initialize() {
 	repo.CreateIndex("checks", "environment")
 	repo.CreateIndex("checks", "collected")
 	repo.CreateIndex("checks_log", "check_id")
+	repo.CreateIndex("checks_log", "begin")
 	repo.CreateIndex("checks_log", "end")
 	repo.CreateIndex("syros_services", "environment")
 	repo.CreateIndex("syros_services", "collected")

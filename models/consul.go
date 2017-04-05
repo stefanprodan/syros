@@ -39,6 +39,7 @@ type ConsulHealthCheckLog struct {
 	Begin       time.Time `bson:"begin" json:"begin"`
 	End         time.Time `bson:"end" json:"end"`
 	Timestamp   time.Time `bson:"timestamp" json:"timestamp"`
+	Duration    float64   `bson:"duration" json:"duration"`
 	Environment string    `bson:"environment" json:"environment"`
 }
 
@@ -59,6 +60,8 @@ func NewConsulHealthCheckLog(check ConsulHealthCheck, begin time.Time, end time.
 		Status:      check.Status,
 		Timestamp:   time.Now().UTC(),
 	}
+
+	log.Duration = end.Sub(begin).Seconds()
 
 	return log
 }
