@@ -50,7 +50,6 @@ func main() {
 
 	server := &HttpServer{
 		Config: config,
-		Status: coordinator.Status,
 	}
 	log.Infof("Starting HTTP server on port %v", config.Port)
 	go server.Start()
