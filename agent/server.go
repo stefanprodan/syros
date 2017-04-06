@@ -9,7 +9,6 @@ import (
 
 type HttpServer struct {
 	Config *Config
-	Status *AgentStatus
 }
 
 // Starts HTTP Server
@@ -27,8 +26,7 @@ func (s *HttpServer) Start() {
 		render.JSON(w, http.StatusOK, s.Config)
 	})
 	http.HandleFunc("/status", func(w http.ResponseWriter, req *http.Request) {
-		status, code := s.Status.GetStatus()
-		render.JSON(w, code, status)
+		render.Text(w, http.StatusOK, "OK")
 	})
 
 	manners.ListenAndServe(fmt.Sprintf(":%v", s.Config.Port), http.DefaultServeMux)

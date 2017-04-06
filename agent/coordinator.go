@@ -11,7 +11,6 @@ import (
 type Coordinator struct {
 	DockerCollectors []*DockerCollector
 	ConsulCollectors []*ConsulCollector
-	Status           *AgentStatus
 	NatsConnection   *nats.Conn
 	Config           *Config
 }
@@ -51,12 +50,6 @@ func NewCoordinator(config *Config, nc *nats.Conn) (*Coordinator, error) {
 		co.ConsulCollectors = cc
 	}
 
-	status, err := NewAgentStatus(ep)
-	if err != nil {
-		return nil, err
-	}
-	co.Status = status
-
 	return co, nil
 }
 
@@ -73,9 +66,7 @@ func (cor *Coordinator) StartDockerCollectors() {
 					payload, err := collector.Collect()
 					if err != nil {
 						log.Errorf("Docker collector %v error %v", collector.ApiAddress, err)
-						cor.Status.SetCollectorStatus(collector.ApiAddress, false)
 					} else {
-						cor.Status.SetCollectorStatus(collector.ApiAddress, true)
 						jsonPayload, err := json.Marshal(payload)
 						if err != nil {
 							log.Errorf("Docker collector %v payload marshal error %v", collector.ApiAddress, err)
@@ -107,9 +98,7 @@ func (cor *Coordinator) StartConsulCollectors() {
 					payload, err := collector.Collect()
 					if err != nil {
 						log.Errorf("Consul collector %v error %v", collector.ApiAddress, err)
-						cor.Status.SetCollectorStatus(collector.ApiAddress, false)
 					} else {
-						cor.Status.SetCollectorStatus(collector.ApiAddress, true)
 						jsonPayload, err := json.Marshal(payload)
 						if err != nil {
 							log.Errorf("Consul collector %v payload marshal error %v", collector.ApiAddress, err)
