@@ -3,13 +3,14 @@ package models
 import "time"
 
 type Release struct {
-	Id          string    `bson:"_id,omitempty" json:"id"`
-	TicketId    string    `bson:"ticket_id,omitempty" json:"ticket_id"`
-	Name        string    `bson:"name" json:"name"`
-	Begin       time.Time `bson:"begin" json:"begin"`
-	End         time.Time `bson:"end" json:"end"`
-	Deployments int       `bson:"deployments" json:"deployments"`
-	Log         string    `bson:"log" json:"log"`
+	Id           string    `bson:"_id,omitempty" json:"id"`
+	TicketId     string    `bson:"ticket_id,omitempty" json:"ticket_id"`
+	Name         string    `bson:"name" json:"name"`
+	Begin        time.Time `bson:"begin" json:"begin"`
+	End          time.Time `bson:"end" json:"end"`
+	Deployments  int       `bson:"deployments" json:"deployments"`
+	Environments string    `bson:"environments" json:"environments"`
+	Log          string    `bson:"log" json:"log"`
 }
 
 type Deployment struct {

@@ -348,7 +348,7 @@ func (repo *Repository) DeploymentUpsert(dep models.Deployment) error {
 	}
 
 	dep.ReleaseId = rel.Id
-	dep.Timestamp = rel.End
+	dep.Timestamp = time.Now().UTC()
 	dep.Status = "Finished"
 	dep.Id = models.Hash(fmt.Sprintf("%v%v%v", dep.TicketId, dep.ServiceName, dep.HostName))
 
@@ -378,15 +378,19 @@ func (repo *Repository) DeploymentStartUpsert(dep models.Deployment) error {
 
 	if len(rels) < 1 {
 		rel = models.Release{
-			Id:       models.Hash(dep.TicketId),
-			Begin:    time.Now().UTC(),
-			End:      time.Now().UTC().Add(1 * time.Second),
-			Name:     dep.TicketId,
-			TicketId: dep.TicketId,
+			Id:           models.Hash(dep.TicketId),
+			Begin:        time.Now().UTC(),
+			End:          time.Now().UTC().Add(1 * time.Second),
+			Name:         dep.TicketId,
+			TicketId:     dep.TicketId,
+			Environments: dep.Environment,
 		}
 	} else {
 		rel = rels[0]
 		rel.End = time.Now().UTC()
+		if !strings.Contains(rel.Environments, dep.Environment) {
+			rel.Environments += fmt.Sprintf(", %v", dep.Environment)
+		}
 	}
 
 	dlog := fmt.Sprintf("%v deploying on %v at %v env %v \n", dep.ServiceName, dep.HostName, time.Now().UTC(), dep.Environment)

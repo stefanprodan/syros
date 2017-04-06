@@ -44,7 +44,7 @@
         deploymentHeight: 180,
         deploymentData: null,
         stats: {rels: '0', deps: '0'},
-        columns: ['ticket_id', 'deployments', 'duration', 'begin', 'end'],
+        columns: ['ticket_id', 'deployments', 'environments', 'duration', 'begin', 'end'],
         tableData: [],
         options: {
           skin: 'table-hover',

@@ -10,7 +10,7 @@
   <div class="stats">
     <div class="row">
       <div class="col-md-6 text-center">
-        <h2>{{ stats.deps }}</h2><small class="text-uppercase">Deployments</small></div>
+        <h2>{{ stats.deps }}</h2><small class="text-uppercase">Services</small></div>
       <div class="col-md-6 text-center">
         <h2>{{ stats.name }}</h2><small class="text-uppercase">Release</small></div>
     </div>
