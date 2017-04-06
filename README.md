@@ -75,6 +75,8 @@ go get github.com/google/pprof
 pprof --web localhost:8887/debug/pprof/profile
 # goroutine profile
 pprof -web localhost:8886/debug/pprof/goroutine
+# memory profile
+pprof http://127.0.0.1:8886/debug/pprof/heap
 ```
 
 ### Continuous Integration
