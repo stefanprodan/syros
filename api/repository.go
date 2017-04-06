@@ -412,7 +412,7 @@ func (repo *Repository) AllReleases() ([]models.Release, error) {
 
 	c := s.DB(repo.Config.Database).C("releases")
 	rels := []models.Release{}
-	err := c.Find(nil).Sort("-end").Limit(1000).All(&rels)
+	err := c.Find(nil).Sort("end").Limit(1000).All(&rels)
 	if err != nil {
 		log.Errorf("Repository AllReleases query failed %v", err)
 		return nil, err
