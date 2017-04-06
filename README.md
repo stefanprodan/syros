@@ -63,6 +63,20 @@ $ make purge APP_VERSION=0.0.1
 $ make fmt vet
 ```
 
+Profiling on macOS
+
+```sh
+# install graphviz
+brew install gperftools
+brew install graphviz
+# install pprof
+go get github.com/google/pprof
+# CPU profile
+pprof --web localhost:8887/debug/pprof/profile
+# goroutine profile
+pprof -web localhost:8886/debug/pprof/goroutine
+```
+
 ### Continuous Integration
 
 The CI pipeline is written in Make and uses Docker containers, 
