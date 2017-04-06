@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/stefanprodan/syros/models"
 	"gopkg.in/mgo.v2"
@@ -51,10 +52,6 @@ func (repo *Repository) AllEnvironments() ([]string, error) {
 	}
 
 	return result, nil
-}
-
-type HostStats struct {
-	Id bson.ObjectId `json:"id" bson:"_id"`
 }
 
 func (repo *Repository) EnvironmentHostContainerSum() ([]models.EnvironmentStats, error) {
@@ -311,4 +308,71 @@ func (repo *Repository) HealthCheckLog(checkId string) ([]models.ConsulHealthChe
 	}
 
 	return logs, stats, nil
+}
+
+func (repo *Repository) DeploymentUpsert(dep models.Deployment) error {
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	// search for a release, update or insert
+	r := s.DB(repo.Config.Database).C("releases")
+	rel := models.Release{}
+	rels := []models.Release{}
+	err := r.Find(bson.M{"ticket_id": dep.TicketId}).All(&rels)
+	if err != nil {
+		log.Errorf("Repository DeploymentUpsert releases query failed %v", err)
+		return err
+	}
+
+	if len(rels) < 1 {
+		rel = models.Release{
+			Id:       models.Hash(dep.TicketId),
+			Begin:    time.Now().UTC(),
+			End:      time.Now().UTC().Add(1 * time.Second),
+			Name:     dep.TicketId,
+			TicketId: dep.TicketId,
+		}
+	} else {
+		rel = rels[0]
+		rel.End = time.Now().UTC()
+	}
+
+	dlog := fmt.Sprintf("%v deployed on %v at %v env %v \n", dep.ServiceName, dep.HostName, time.Now().UTC(), dep.Environment)
+	rel.Log += dlog
+	rel.Deployments++
+
+	_, err = r.UpsertId(rel.Id, &rel)
+	if err != nil {
+		log.Errorf("Repository DeploymentUpsert releases upsert failed %v", err)
+		return err
+	}
+
+	dep.ReleaseId = rel.Id
+	dep.Timestamp = rel.End
+	dep.Status = "Finished"
+	dep.Id = models.Hash(fmt.Sprintf("%v%v%v", dep.TicketId, dep.ServiceName, dep.HostName))
+
+	d := s.DB(repo.Config.Database).C("deployments")
+	_, err = d.UpsertId(dep.Id, &dep)
+	if err != nil {
+		log.Errorf("Repository DeploymentUpsert deployments upsert failed %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func (repo *Repository) AllReleases() ([]models.Release, error) {
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	c := s.DB(repo.Config.Database).C("releases")
+	rels := []models.Release{}
+	err := c.Find(nil).Sort("-end").Limit(1000).All(&rels)
+	if err != nil {
+		log.Errorf("Repository AllReleases query failed %v", err)
+		return nil, err
+	}
+
+	return rels, nil
 }

@@ -17,11 +17,27 @@ func (s *HttpServer) deploymentApiRoutes() chi.Router {
 			render.PlainText(w, r, err.Error())
 			return
 		}
+
+		if len(d.TicketId) < 1 {
+			render.Status(r, http.StatusInternalServerError)
+			render.PlainText(w, r, "ticket_id is required")
+		}
 	})
 
 	r.Post("/end", func(w http.ResponseWriter, r *http.Request) {
 		d := models.Deployment{}
 		if err := render.Bind(r.Body, &d); err != nil {
+			render.Status(r, http.StatusInternalServerError)
+			render.PlainText(w, r, err.Error())
+			return
+		}
+
+		if len(d.TicketId) < 1 {
+			render.Status(r, http.StatusInternalServerError)
+			render.PlainText(w, r, "ticket_id is required")
+		}
+
+		if err := s.Repository.DeploymentUpsert(d); err != nil {
 			render.Status(r, http.StatusInternalServerError)
 			render.PlainText(w, r, err.Error())
 			return

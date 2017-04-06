@@ -52,6 +52,8 @@ func (repo *Repository) Initialize() {
 	repo.CreateIndex("checks_log", "end")
 	repo.CreateIndex("syros_services", "environment")
 	repo.CreateIndex("syros_services", "collected")
+	repo.CreateIndex("releases", "ticket_id")
+	repo.CreateIndex("deployments", "release_id")
 }
 
 func (repo *Repository) CreateIndex(col string, index string) {

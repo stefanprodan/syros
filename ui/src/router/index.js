@@ -14,6 +14,14 @@ export default new Router({
       }
     },
     {
+      path: '/releases',
+      name: 'releases',
+      component: require('components/releases/index.vue'),
+      meta: {
+        auth: true
+      }
+    },
+    {
       path: '/healthchecks',
       name: 'healthchecks',
       component: require('components/healthchecks/index.vue'),

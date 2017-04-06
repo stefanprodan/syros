@@ -14,10 +14,13 @@
         <ul class="nav navbar-nav">
         <router-link :to="{ name: 'home' }" active-class="active" tag="li">
             <a><i class="fa fa-home"></i> Home</a>
-        </router-link>
+        </router-link> 
         <router-link :to="{ name: 'healthchecks' }" active-class="active" tag="li">
             <a><i class="fa fa-heartbeat"></i> Health</a>
-        </router-link>             
+        </router-link>
+        <router-link :to="{ name: 'releases' }" active-class="active" tag="li">
+            <a><i class="fa fa-play-circle-o"></i> Releases</a>
+        </router-link>
         </ul>
         <ul v-if="environments" class="nav navbar-nav navbar-indent">
             <li class="dropdown-header">Environments</li>
