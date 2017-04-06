@@ -154,7 +154,7 @@ func (repo *Repository) EnvironmentContainers(env string) (*models.DockerPayload
 
 	c := s.DB(repo.Config.Database).C("containers")
 	containers := []models.DockerContainer{}
-	err = c.Find(bson.M{"environment": env}).Sort("-collected").All(&containers)
+	err = c.Find(bson.M{"environment": env}).Sort("created").All(&containers)
 	if err != nil {
 		log.Errorf("Repository EnvironmentContainers query containers All for env %v failed %v", env, err)
 		return nil, err
@@ -167,6 +167,7 @@ func (repo *Repository) EnvironmentContainers(env string) (*models.DockerPayload
 
 	return payload, nil
 }
+
 func (repo *Repository) AllContainers() ([]models.DockerContainer, error) {
 	s := repo.Session.Copy()
 	defer s.Close()

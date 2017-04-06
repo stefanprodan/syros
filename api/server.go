@@ -48,7 +48,7 @@ func (s *HttpServer) Start() {
 	})
 
 	r.Get("/status", func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, r, s.Config)
+		render.PlainText(w, r, "OK")
 	})
 
 	r.Get("/api/error", func(w http.ResponseWriter, r *http.Request) {

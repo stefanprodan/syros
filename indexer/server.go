@@ -27,7 +27,7 @@ func (s *HttpServer) Start() {
 		render.JSON(w, http.StatusOK, s.Config)
 	})
 	http.HandleFunc("/status", func(w http.ResponseWriter, req *http.Request) {
-		render.JSON(w, http.StatusOK, s.Config)
+		render.Text(w, http.StatusOK, "OK")
 	})
 
 	manners.ListenAndServe(fmt.Sprintf(":%v", s.Config.Port), http.DefaultServeMux)
