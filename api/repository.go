@@ -391,7 +391,6 @@ func (repo *Repository) DeploymentStartUpsert(dep models.Deployment) error {
 
 	dlog := fmt.Sprintf("%v deployment started on %v at %v env %v \n", dep.ServiceName, dep.HostName, time.Now().UTC(), dep.Environment)
 	rel.Log += dlog
-	rel.Deployments++
 
 	_, err = r.UpsertId(rel.Id, &rel)
 	if err != nil {
