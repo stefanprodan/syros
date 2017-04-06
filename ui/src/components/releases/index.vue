@@ -24,7 +24,7 @@
       </div>
     </div>
   </div>
-  <v-client-table ref="containersTabel" :data="tableData" :columns="columns" :options="options"></v-client-table>
+  <v-client-table ref="releasesTabel" :data="tableData" :columns="columns" :options="options"></v-client-table>
 </div>
 </template>
 

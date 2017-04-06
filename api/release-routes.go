@@ -59,6 +59,18 @@ func (s *HttpServer) releaseRoutes() chi.Router {
 
 			render.JSON(w, r, data)
 		})
+
+		r.Get("/:releaseID", func(w http.ResponseWriter, r *http.Request) {
+			releaseID := chi.URLParam(r, "releaseID")
+
+			payload, err := s.Repository.ReleaseDeployments(releaseID)
+			if err != nil {
+				render.Status(r, http.StatusInternalServerError)
+				render.PlainText(w, r, err.Error())
+				return
+			}
+			render.JSON(w, r, payload)
+		})
 	})
 
 	return r

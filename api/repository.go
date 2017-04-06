@@ -389,7 +389,7 @@ func (repo *Repository) DeploymentStartUpsert(dep models.Deployment) error {
 		rel.End = time.Now().UTC()
 	}
 
-	dlog := fmt.Sprintf("%v deployment started on %v at %v env %v \n", dep.ServiceName, dep.HostName, time.Now().UTC(), dep.Environment)
+	dlog := fmt.Sprintf("%v deploying on %v at %v env %v \n", dep.ServiceName, dep.HostName, time.Now().UTC(), dep.Environment)
 	rel.Log += dlog
 
 	_, err = r.UpsertId(rel.Id, &rel)
@@ -414,4 +414,19 @@ func (repo *Repository) AllReleases() ([]models.Release, error) {
 	}
 
 	return rels, nil
+}
+
+func (repo *Repository) ReleaseDeployments(releaseId string) ([]models.Deployment, error) {
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	c := s.DB(repo.Config.Database).C("deployments")
+	deployments := []models.Deployment{}
+	err := c.Find(bson.M{"release_id": releaseId}).Sort("-end").All(&deployments)
+	if err != nil {
+		log.Errorf("Repository ReleaseDeployments query failed %v", err)
+		return nil, err
+	}
+
+	return deployments, nil
 }

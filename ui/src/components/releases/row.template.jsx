@@ -1,4 +1,7 @@
 export default {
+    ticket_id: function (h, row) {
+        return <a class='' href={'#/release/' + row.id}>{row.ticket_id}</a>
+    },
     duration: function (h, row) {
         var end = moment(row.end)
         var duration = end.diff(row.begin, 'minutes') + ' minutes'
