@@ -5,6 +5,7 @@ import (
 	"github.com/braintree/manners"
 	unrender "github.com/unrolled/render"
 	"net/http"
+	_ "net/http/pprof"
 )
 
 type HttpServer struct {
