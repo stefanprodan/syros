@@ -1,5 +1,13 @@
 # Syros Changelog
 
+### v0.3.0 (beta)
+
+***Release tracker***
+
+* Expose web API to record releases
+* Releases history page (stats, graph and master-detail view)
+* Released services page
+
 ### v0.2.0 (release)
 
 * Record Consul health status changes
