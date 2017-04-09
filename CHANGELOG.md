@@ -1,6 +1,6 @@
 # Syros Changelog
 
-### v0.3.0 (beta)
+### v0.3.0 (release)
 
 ***Release tracker***
 

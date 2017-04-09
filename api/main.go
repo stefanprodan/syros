@@ -21,8 +21,6 @@ func main() {
 	flag.StringVar(&config.AppPath, "AppPath", "", "Path to dist dir")
 	flag.Parse()
 
-	setLogLevel(config.LogLevel)
-
 	log.Infof("Starting with config: %+v", config)
 
 	if config.AppPath == "" {
