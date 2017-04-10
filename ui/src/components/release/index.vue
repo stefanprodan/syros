@@ -43,7 +43,7 @@
           dateColumns: ['timestamp'],
           toMomentFormat: 'YYYY-MM-DDTHH:mm:ssZ',
           uniqueKey: 'id',
-          orderBy: {column: 'timestamp', ascending: true},
+          orderBy: {column: 'timestamp', ascending: false},
           perPage: 10,
           perPageValues: [10, 20, 30, 50],
           childRow: rowChild,

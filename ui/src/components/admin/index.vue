@@ -13,9 +13,9 @@
       <div class="col-md-3 text-center">
         <h2>{{ stats.indexers }}</h2><small class="text-uppercase">Indexers</small></div>
       <div class="col-md-3 text-center">
-        <h2>{{ stats.rdb }}</h2><small class="text-uppercase">RethinkDB</small></div>
+        <h2>{{ stats.rdb }}</h2><small class="text-uppercase">MongoDB Cluster</small></div>
       <div class="col-md-3 text-center">
-        <h2>{{ stats.nats }}</h2><small class="text-uppercase">NATS</small></div>
+        <h2>{{ stats.nats }}</h2><small class="text-uppercase">NATS Cluster</small></div>
     </div>
   </div>
   <v-client-table ref="servicesTabel" :data="tableData" :columns="columns" :options="options"></v-client-table>  
