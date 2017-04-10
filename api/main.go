@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/goware/jwtauth"
 	"os"
