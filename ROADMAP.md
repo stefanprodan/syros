@@ -4,11 +4,10 @@ The roadmap represents an estimate of when each feature will enter development s
 
 ### Near-term
 
-***Release tracker***
+***Release management***
 
-* Expose web API to record releases
-* Releases history page
-* Released services page
+* Release planning page
+* Execute plan via SSH
 
 ### Medium-term
 
