@@ -42,7 +42,7 @@
           dateColumns: ['collected'],
           toMomentFormat: 'YYYY-MM-DDTHH:mm:ssZ',
           uniqueKey: 'id',
-          orderBy: {column: 'type', ascending: true},
+          orderBy: {column: 'environment', ascending: true},
           perPage: 10,
           perPageValues: [10, 20, 30, 50],
           childRow: rowChild,
