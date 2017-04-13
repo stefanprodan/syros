@@ -41,15 +41,15 @@ build: clean
 
 	@echo ">>> building syros-agent"
 	@docker run --rm  -v "$(DIST):/go/dist" syros-services-build:$(BUILD_DATE) \
-		go build -o /go/dist/agent github.com/stefanprodan/syros/agent
+		go build -ldflags "-X main.version=$(APP_VERSION)" -o /go/dist/agent github.com/stefanprodan/syros/agent
 
 	@echo ">>> Building syros-indexer"
 	@docker run --rm  -v "$(DIST):/go/dist" syros-services-build:$(BUILD_DATE) \
-		go build -o /go/dist/indexer github.com/stefanprodan/syros/indexer
+		go build -ldflags "-X main.version=$(APP_VERSION)" -o /go/dist/indexer github.com/stefanprodan/syros/indexer
 
 	@echo ">>> Building syros-api"
 	@docker run --rm  -v "$(DIST):/go/dist" syros-services-build:$(BUILD_DATE) \
-		go build -o /go/dist/api github.com/stefanprodan/syros/api
+		go build -ldflags "-X main.version=$(APP_VERSION)" -o /go/dist/api github.com/stefanprodan/syros/api
 
 	@docker rmi syros-services-build:$(BUILD_DATE)
 

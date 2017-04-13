@@ -11,6 +11,8 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"runtime"
+	"strconv"
 )
 
 type HttpServer struct {
@@ -49,6 +51,20 @@ func (s *HttpServer) Start() {
 
 	r.Get("/status", func(w http.ResponseWriter, r *http.Request) {
 		render.PlainText(w, r, "OK")
+	})
+
+	r.Get("/version", func(w http.ResponseWriter, r *http.Request) {
+		info := map[string]string{
+			"syros_version": version,
+			"os":            runtime.GOOS,
+			"arch":          runtime.GOARCH,
+			"golang":        runtime.Version(),
+			"max_procs":     strconv.FormatInt(int64(runtime.GOMAXPROCS(0)), 10),
+			"goroutines":    strconv.FormatInt(int64(runtime.NumGoroutine()), 10),
+			"cpu_count":     strconv.FormatInt(int64(runtime.NumCPU()), 10),
+		}
+
+		render.JSON(w, r, info)
 	})
 
 	r.Get("/api/error", func(w http.ResponseWriter, r *http.Request) {

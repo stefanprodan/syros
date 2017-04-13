@@ -10,6 +10,8 @@ import (
 	"syscall"
 )
 
+var version = "undefined"
+
 func main() {
 	var config = &Config{}
 	flag.StringVar(&config.LogLevel, "LogLevel", "debug", "logging threshold level: debug|info|warn|error|fatal|panic")

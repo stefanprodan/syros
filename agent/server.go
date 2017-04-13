@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/braintree/manners"
+	log "github.com/Sirupsen/logrus"
 	unrender "github.com/unrolled/render"
 	"net/http"
 	_ "net/http/pprof"
+	"runtime"
+	"strconv"
 )
 
 type HttpServer struct {
@@ -29,11 +31,18 @@ func (s *HttpServer) Start() {
 	http.HandleFunc("/status", func(w http.ResponseWriter, req *http.Request) {
 		render.Text(w, http.StatusOK, "OK")
 	})
+	http.HandleFunc("/version", func(w http.ResponseWriter, req *http.Request) {
+		info := map[string]string{
+			"syros_version": version,
+			"os":            runtime.GOOS,
+			"arch":          runtime.GOARCH,
+			"golang":        runtime.Version(),
+			"max_procs":     strconv.FormatInt(int64(runtime.GOMAXPROCS(0)), 10),
+			"goroutines":    strconv.FormatInt(int64(runtime.NumGoroutine()), 10),
+			"cpu_count":     strconv.FormatInt(int64(runtime.NumCPU()), 10),
+		}
+		render.JSON(w, http.StatusOK, info)
+	})
 
-	manners.ListenAndServe(fmt.Sprintf(":%v", s.Config.Port), http.DefaultServeMux)
-}
-
-// Stop attempts to gracefully shutdown the HTTP server
-func (s *HttpServer) Stop() {
-	manners.Close()
+	log.Error(http.ListenAndServe(fmt.Sprintf(":%v", s.Config.Port), http.DefaultServeMux))
 }

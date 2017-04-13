@@ -15,12 +15,6 @@
 			"revisionTime": "2017-02-07T18:34:08Z"
 		},
 		{
-			"checksumSHA1": "N0U6Eow0jWYAOSxLymEQwjFceCo=",
-			"path": "github.com/braintree/manners",
-			"revision": "82a8879fc5fd0381fa8b2d8033b19bf255252088",
-			"revisionTime": "2016-04-18T04:36:13Z"
-		},
-		{
 			"checksumSHA1": "SPQcWDUN+wcTThipcR9EzX4t3E8=",
 			"path": "github.com/cenkalti/backoff",
 			"revision": "b02f2bbce11d7ea6b97f282ef1771b0fe2f65ef3",

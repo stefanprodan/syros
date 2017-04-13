@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+var version = "undefined"
+
 func main() {
 	var config = &Config{}
 	flag.StringVar(&config.Environment, "Environment", "dev", "Environment dev|int|stg|test|prep|prod")
@@ -59,7 +61,6 @@ func main() {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	sig := <-sigChan
 	log.Infof("Shuting down %v signal received", sig)
-	server.Stop()
 	coordinator.StopCollectors()
 	time.Sleep(1 * time.Second)
 }
