@@ -66,7 +66,7 @@
             }
           })
           .catch((error) => {
-            if (!error.response.status) {
+            if (error.message === 'Network Error') {
               bus.$emit('flashMessage', {
                 type: 'warning',
                 message: 'Network error! Could not connect to the server'
