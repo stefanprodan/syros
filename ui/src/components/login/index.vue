@@ -44,7 +44,6 @@
 
 <script>
   import Vue from 'vue'
-  import bus from 'components/bus.vue'
   import auth from 'components/auth.vue'
 
   export default {
@@ -75,11 +74,8 @@
               }
             })
             .catch((error) => {
-              if (!error.response.status) {
-                bus.$emit('flashMessage', {
-                  type: 'warning',
-                  message: 'Network error! Could not connect to the server'
-                })
+              if (error.message === 'Network Error') {
+                this.error = 'Could not connect to the server'
               } else {
                 this.error = error.response.data
               }
