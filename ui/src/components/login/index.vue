@@ -68,7 +68,7 @@
               if (response != null) {
                 this.$Progress.finish()
                 auth.login(response.data)
-                this.$router.push('/')
+                this.$router.push(this.$route.params.redirect)
               } else {
                 this.$Progress.fail()
               }

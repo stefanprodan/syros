@@ -86,7 +86,7 @@ export default new Router({
       }
     },
     {
-      path: '/login',
+      path: '/login/:redirect?',
       name: 'login',
       component: require('components/login/index.vue'),
       meta: {

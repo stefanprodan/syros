@@ -63,7 +63,7 @@ Vue.use(ClientTable, {
 // router auth check
 router.beforeEach((to, from, next) => {
   if (to.meta.auth && !auth.check()) {
-    next({name: 'login'})
+    next({name: 'login', params: {redirect: to.fullPath}})
   } else if (!to.meta.auth && auth.check()) {
     next({name: 'home'})
   } else {
