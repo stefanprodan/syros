@@ -185,10 +185,10 @@
 			"revisionTime": "2016-01-25T11:53:50Z"
 		},
 		{
-			"checksumSHA1": "Mb7mLcmqwGlT3lU5po67ds+P0ZY=",
+			"checksumSHA1": "cSRa/yOduLtohycBodz5zVI4hmM=",
 			"path": "github.com/hashicorp/consul/api",
-			"revision": "a88446f208d9458cbe690e9d9425664ed05828e9",
-			"revisionTime": "2017-03-17T22:16:57Z"
+			"revision": "d549c9c9f0bdfb4e0e4e96bd2de2b80955f7bf3b",
+			"revisionTime": "2017-04-13T21:45:38Z"
 		},
 		{
 			"checksumSHA1": "b8F628srIitj5p7Y130xc9k0QWs=",
@@ -199,8 +199,8 @@
 		{
 			"checksumSHA1": "E3Xcanc9ouQwL+CZGOUyA/+giLg=",
 			"path": "github.com/hashicorp/serf/coordinate",
-			"revision": "19f2c401e122352c047a84d6584dd51e2fb8fcc4",
-			"revisionTime": "2017-03-08T19:39:51Z"
+			"revision": "3d6a974239f0b515c87479d5beefe575ad866805",
+			"revisionTime": "2017-04-13T01:32:54Z"
 		},
 		{
 			"checksumSHA1": "et+t9kv8mj3FJLUwK8HXalaCwCk=",
