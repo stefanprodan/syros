@@ -1,4 +1,4 @@
-FROM alpine:3.5
+FROM golang:1.8.1
 
 ARG APP_VERSION=unkown
 ARG BUILD_DATE=unkown
@@ -18,7 +18,12 @@ EXPOSE 8887
 
 COPY /dist/indexer /syros/indexer
 
-RUN apk add --no-cache --virtual curl && chmod 777 /syros/indexer
+#RUN apk add --no-cache --virtual curl && chmod 777 /syros/indexer
+RUN apt-get update && apt-get install -y --no-install-recommends \
+		ca-certificates \
+		curl \
+		wget \
+	&& rm -rf /var/lib/apt/lists/*
 
 HEALTHCHECK --interval=30s --timeout=15s --retries=3\
   CMD curl -f http://localhost:8887/status || exit 1
