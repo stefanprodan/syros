@@ -3,11 +3,9 @@ package main
 import (
 	"flag"
 	log "github.com/Sirupsen/logrus"
-	"github.com/stefanprodan/syros/models"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 var version = "undefined"
@@ -48,22 +46,7 @@ func main() {
 
 	registry := NewRegistry(config, nc, repo)
 	registry.WatchForAgents()
-
-	indexer := models.SyrosService{
-		Environment: "all",
-		Type:        "indexer",
-	}
-	indexer.Config, _ = models.ConfigToMap(config, "m")
-	indexer.Hostname, _ = os.Hostname()
-	uuid, _ := models.NewUUID()
-	indexer.Id = models.Hash(indexer.Hostname + uuid)
-	go func(a models.SyrosService) {
-		for true {
-			indexer.Collected = time.Now().UTC()
-			registry.SelfRegister(indexer)
-			time.Sleep(10 * time.Second)
-		}
-	}(indexer)
+	registry.Start()
 
 	consumer, err := NewConsumer(config, nc, repo)
 	if err != nil {

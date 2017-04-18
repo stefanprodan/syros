@@ -5,7 +5,9 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/nats-io/go-nats"
 	"github.com/stefanprodan/syros/models"
+	"os"
 	"sync"
+	"time"
 )
 
 type Registry struct {
@@ -39,6 +41,31 @@ func (reg *Registry) WatchForAgents() {
 	})
 }
 
-func (reg *Registry) SelfRegister(indexer models.SyrosService) {
-	reg.Repository.SyrosServiceUpsert(indexer)
+func (reg *Registry) Start() chan bool {
+
+	indexer := models.SyrosService{
+		Environment: "all",
+		Type:        "indexer",
+	}
+	indexer.Config, _ = models.ConfigToMap(reg.Config, "m")
+	indexer.Hostname, _ = os.Hostname()
+	uuid, _ := models.NewUUID()
+	indexer.Id = models.Hash(indexer.Hostname + uuid)
+
+	stopped := make(chan bool, 1)
+	ticker := time.NewTicker(10 * time.Second)
+
+	go func(i models.SyrosService) {
+		for {
+			select {
+			case <-ticker.C:
+				i.Collected = time.Now().UTC()
+				reg.Repository.SyrosServiceUpsert(i)
+			case <-stopped:
+				return
+			}
+		}
+	}(indexer)
+
+	return stopped
 }

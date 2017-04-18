@@ -34,15 +34,8 @@ func main() {
 
 	registry := NewRegistry(config, nc)
 	log.Infof("Register service as %v", registry.Agent.Id)
-	go func(r *Registry) {
-		for true {
-			err := r.RegisterAgent()
-			if err != nil {
-				log.Error(err)
-			}
-			time.Sleep(10 * time.Second)
-		}
-	}(registry)
+	registry.RegisterAgent()
+	registry.Start()
 
 	coordinator, err := NewCoordinator(config, nc)
 	if err != nil {

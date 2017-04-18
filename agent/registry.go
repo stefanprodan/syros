@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/nats-io/go-nats"
 	"github.com/stefanprodan/syros/models"
 	"os"
@@ -36,8 +37,28 @@ func NewRegistry(config *Config, nc *nats.Conn) *Registry {
 	return registry
 }
 
-func (r *Registry) RegisterAgent() error {
+func (r *Registry) Start() chan bool {
+	stopped := make(chan bool, 1)
+	ticker := time.NewTicker(10 * time.Second)
 
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				err := r.RegisterAgent()
+				if err != nil {
+					log.Error(err)
+				}
+			case <-stopped:
+				return
+			}
+		}
+	}()
+
+	return stopped
+}
+
+func (r *Registry) RegisterAgent() error {
 	r.Agent.Collected = time.Now().UTC()
 	jsonPayload, err := json.Marshal(r.Agent)
 	if err != nil {
