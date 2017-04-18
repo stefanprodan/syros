@@ -56,13 +56,14 @@ func NewCoordinator(config *Config, nc *nats.Conn) (*Coordinator, error) {
 func (cor *Coordinator) StartDockerCollectors() {
 	log.Infof("Starting %v Docker collector(s)", len(cor.DockerCollectors))
 	for _, c := range cor.DockerCollectors {
+		ticker := time.NewTicker(time.Duration(cor.Config.CollectInterval) * time.Second)
 		go func(collector *DockerCollector) {
-			stop := false
-			for !stop {
+			for {
 				select {
 				case <-collector.StopChan:
-					stop = true
-				default:
+					log.Infof("Collector exited %v", collector.ApiAddress)
+					return
+				case <-ticker.C:
 					payload, err := collector.Collect()
 					if err != nil {
 						log.Errorf("Docker collector %v error %v", collector.ApiAddress, err)
@@ -77,10 +78,8 @@ func (cor *Coordinator) StartDockerCollectors() {
 							}
 						}
 					}
-					time.Sleep(time.Duration(cor.Config.CollectInterval) * time.Second)
 				}
 			}
-			log.Infof("Collector exited %v", collector.ApiAddress)
 		}(c)
 	}
 }
@@ -88,13 +87,14 @@ func (cor *Coordinator) StartDockerCollectors() {
 func (cor *Coordinator) StartConsulCollectors() {
 	log.Infof("Starting %v Consul collector(s)", len(cor.ConsulCollectors))
 	for _, c := range cor.ConsulCollectors {
+		ticker := time.NewTicker(time.Duration(cor.Config.CollectInterval) * time.Second)
 		go func(collector *ConsulCollector) {
-			stop := false
-			for !stop {
+			for {
 				select {
 				case <-collector.StopChan:
-					stop = true
-				default:
+					log.Infof("Collector exited %v", collector.ApiAddress)
+					return
+				case <-ticker.C:
 					payload, err := collector.Collect()
 					if err != nil {
 						log.Errorf("Consul collector %v error %v", collector.ApiAddress, err)
@@ -109,10 +109,8 @@ func (cor *Coordinator) StartConsulCollectors() {
 							}
 						}
 					}
-					time.Sleep(time.Duration(cor.Config.CollectInterval) * time.Second)
 				}
 			}
-			log.Infof("Collector exited %v", collector.ApiAddress)
 		}(c)
 	}
 }
