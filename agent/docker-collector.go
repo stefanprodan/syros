@@ -15,7 +15,7 @@ type DockerCollector struct {
 	Environment string
 	Topic       string
 	Client      *docker.Client
-	StopChan    chan struct{}
+	StopChan    chan bool
 }
 
 func NewDockerCollector(address string, env string) (*DockerCollector, error) {
@@ -30,7 +30,7 @@ func NewDockerCollector(address string, env string) (*DockerCollector, error) {
 		Environment: env,
 		Topic:       "docker",
 		Client:      client,
-		StopChan:    make(chan struct{}, 1),
+		StopChan:    make(chan bool, 1),
 	}
 
 	return collector, nil

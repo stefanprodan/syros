@@ -14,7 +14,7 @@ type ConsulCollector struct {
 	Environment string
 	Topic       string
 	Client      *consul.Client
-	StopChan    chan struct{}
+	StopChan    chan bool
 }
 
 func NewConsulCollector(address string, env string) (*ConsulCollector, error) {
@@ -31,7 +31,7 @@ func NewConsulCollector(address string, env string) (*ConsulCollector, error) {
 		Environment: env,
 		Topic:       "consul",
 		Client:      client,
-		StopChan:    make(chan struct{}, 1),
+		StopChan:    make(chan bool, 1),
 	}
 
 	return c, nil

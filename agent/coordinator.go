@@ -123,11 +123,11 @@ func (cor *Coordinator) StartCollectors() {
 func (cor *Coordinator) StopCollectors() {
 	log.Infof("Stopping %v Docker collector(s)", len(cor.DockerCollectors))
 	for _, c := range cor.DockerCollectors {
-		c.StopChan <- struct{}{}
+		c.StopChan <- true
 	}
 
 	log.Infof("Stopping %v Consul collector(s)", len(cor.ConsulCollectors))
 	for _, c := range cor.ConsulCollectors {
-		c.StopChan <- struct{}{}
+		c.StopChan <- true
 	}
 }
