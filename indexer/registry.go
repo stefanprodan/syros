@@ -6,6 +6,8 @@ import (
 	"github.com/nats-io/go-nats"
 	"github.com/stefanprodan/syros/models"
 	"os"
+	"runtime"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -48,6 +50,13 @@ func (reg *Registry) Start() chan bool {
 		Type:        "indexer",
 	}
 	indexer.Config, _ = models.ConfigToMap(reg.Config, "m")
+	indexer.Config["syros_version"] = version
+	indexer.Config["os"] = runtime.GOOS
+	indexer.Config["arch"] = runtime.GOARCH
+	indexer.Config["golang"] = runtime.Version()
+	indexer.Config["max_procs"] = strconv.FormatInt(int64(runtime.GOMAXPROCS(0)), 10)
+	indexer.Config["goroutines"] = strconv.FormatInt(int64(runtime.NumGoroutine()), 10)
+	indexer.Config["cpu_count"] = strconv.FormatInt(int64(runtime.NumCPU()), 10)
 	indexer.Hostname, _ = os.Hostname()
 	uuid, _ := models.NewUUID()
 	indexer.Id = models.Hash(indexer.Hostname + uuid)

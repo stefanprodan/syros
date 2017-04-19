@@ -7,6 +7,8 @@ import (
 	"github.com/nats-io/go-nats"
 	"github.com/stefanprodan/syros/models"
 	"os"
+	"runtime"
+	"strconv"
 	"time"
 )
 
@@ -24,6 +26,13 @@ func NewRegistry(config *Config, nc *nats.Conn) *Registry {
 	}
 
 	agent.Config, _ = models.ConfigToMap(config, "m")
+	agent.Config["syros_version"] = version
+	agent.Config["os"] = runtime.GOOS
+	agent.Config["arch"] = runtime.GOARCH
+	agent.Config["golang"] = runtime.Version()
+	agent.Config["max_procs"] = strconv.FormatInt(int64(runtime.GOMAXPROCS(0)), 10)
+	agent.Config["goroutines"] = strconv.FormatInt(int64(runtime.NumGoroutine()), 10)
+	agent.Config["cpu_count"] = strconv.FormatInt(int64(runtime.NumCPU()), 10)
 	agent.Hostname, _ = os.Hostname()
 	uuid, _ := models.NewUUID()
 	agent.Id = models.Hash(agent.Hostname + uuid)
