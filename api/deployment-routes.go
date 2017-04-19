@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/pressly/chi"
-	"github.com/pressly/chi/render"
+	"github.com/stefanprodan/chi"
+	"github.com/stefanprodan/chi/render"
 	"github.com/stefanprodan/syros/models"
 	"net/http"
 )
@@ -11,8 +11,8 @@ func (s *HttpServer) deploymentApiRoutes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Post("/start", func(w http.ResponseWriter, r *http.Request) {
-		d := models.Deployment{}
-		if err := render.Bind(r.Body, &d); err != nil {
+		d := Deployment{}
+		if err := render.Bind(r, &d); err != nil {
 			render.Status(r, http.StatusInternalServerError)
 			render.PlainText(w, r, err.Error())
 			return
@@ -23,7 +23,7 @@ func (s *HttpServer) deploymentApiRoutes() chi.Router {
 			render.PlainText(w, r, "ticket_id is required")
 		}
 
-		if err := s.Repository.DeploymentStartUpsert(d); err != nil {
+		if err := s.Repository.DeploymentStartUpsert(d.Deployment); err != nil {
 			render.Status(r, http.StatusInternalServerError)
 			render.PlainText(w, r, err.Error())
 			return
@@ -31,8 +31,8 @@ func (s *HttpServer) deploymentApiRoutes() chi.Router {
 	})
 
 	r.Post("/finish", func(w http.ResponseWriter, r *http.Request) {
-		d := models.Deployment{}
-		if err := render.Bind(r.Body, &d); err != nil {
+		d := Deployment{}
+		if err := render.Bind(r, &d); err != nil {
 			render.Status(r, http.StatusInternalServerError)
 			render.PlainText(w, r, err.Error())
 			return
@@ -43,11 +43,20 @@ func (s *HttpServer) deploymentApiRoutes() chi.Router {
 			render.PlainText(w, r, "ticket_id is required")
 		}
 
-		if err := s.Repository.DeploymentUpsert(d); err != nil {
+		if err := s.Repository.DeploymentUpsert(d.Deployment); err != nil {
 			render.Status(r, http.StatusInternalServerError)
 			render.PlainText(w, r, err.Error())
 			return
 		}
 	})
 	return r
+}
+
+type Deployment struct {
+	models.Deployment
+}
+
+func (l *Deployment) Bind(r *http.Request) error {
+	// just a post-process after a decode..
+	return nil
 }

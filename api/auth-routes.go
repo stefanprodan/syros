@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/goware/jwtauth"
-	"github.com/pressly/chi"
-	"github.com/pressly/chi/render"
+	"github.com/stefanprodan/chi"
+	"github.com/stefanprodan/chi/render"
 	"net/http"
 	"strings"
 )
@@ -12,11 +12,8 @@ func (s *HttpServer) authRoutes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Post("/login", func(w http.ResponseWriter, r *http.Request) {
-		var data struct {
-			Username string `json:"name"`
-			Password string `json:"password"`
-		}
-		if err := render.Bind(r.Body, &data); err != nil {
+		data := LoginForm{}
+		if err := render.Bind(r, &data); err != nil {
 			render.Status(r, http.StatusInternalServerError)
 			render.PlainText(w, r, err.Error())
 			return
@@ -40,4 +37,14 @@ func (s *HttpServer) authRoutes() chi.Router {
 	})
 
 	return r
+}
+
+type LoginForm struct {
+	Username string `json:"name"`
+	Password string `json:"password"`
+}
+
+func (l *LoginForm) Bind(r *http.Request) error {
+	// just a post-process after a decode..
+	return nil
 }

@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/goware/jwtauth"
-	"github.com/pressly/chi"
-	"github.com/pressly/chi/render"
+	"github.com/stefanprodan/chi"
+	"github.com/stefanprodan/chi/render"
 	"github.com/stefanprodan/syros/models"
 	"net/http"
 )

@@ -239,22 +239,34 @@
 			"revisionTime": "2016-10-29T09:36:37Z"
 		},
 		{
-			"checksumSHA1": "BvfT3pAC+s5qn5nEDf0N7lxpBNg=",
+			"checksumSHA1": "ZmdW8B6ENm70gvbKNuMHPf2GQiY=",
 			"path": "github.com/pressly/chi",
-			"revision": "57ee7612d4405274628c71d1dc9455a12646f056",
-			"revisionTime": "2017-02-19T07:36:56Z"
+			"revision": "a57b1fbe2989382bdef31d3793d4a50a0e4a1d7c",
+			"revisionTime": "2017-04-14T20:35:15Z"
 		},
 		{
-			"checksumSHA1": "9HdWzw76EiC7Hwn+Y2QgNST1Lqc=",
-			"path": "github.com/pressly/chi/middleware",
-			"revision": "57ee7612d4405274628c71d1dc9455a12646f056",
-			"revisionTime": "2017-02-19T07:36:56Z"
+			"checksumSHA1": "J4wRmIEAO9PpDTbSpi/3MwwepoU=",
+			"path": "github.com/stefanprodan/chi",
+			"revision": "9a6d1064aa4b75fb726a2eee9789ee9e3e421e8c",
+			"revisionTime": "2017-04-19T21:09:44Z",
+			"version": "=patch-1",
+			"versionExact": "patch-1"
 		},
 		{
-			"checksumSHA1": "5AiTC+FkwbriZG4uemAy8Y0/OOI=",
-			"path": "github.com/pressly/chi/render",
-			"revision": "57ee7612d4405274628c71d1dc9455a12646f056",
-			"revisionTime": "2017-02-19T07:36:56Z"
+			"checksumSHA1": "W3DVEsBv4hYPz+vJ6I/eZ5p5qXs=",
+			"path": "github.com/stefanprodan/chi/middleware",
+			"revision": "9a6d1064aa4b75fb726a2eee9789ee9e3e421e8c",
+			"revisionTime": "2017-04-19T21:09:44Z",
+			"version": "=patch-1",
+			"versionExact": "patch-1"
+		},
+		{
+			"checksumSHA1": "RoQX2G9HGb6re8edRbEhoqGMGC8=",
+			"path": "github.com/stefanprodan/chi/render",
+			"revision": "9a6d1064aa4b75fb726a2eee9789ee9e3e421e8c",
+			"revisionTime": "2017-04-19T21:09:44Z",
+			"version": "=patch-1",
+			"versionExact": "patch-1"
 		},
 		{
 			"checksumSHA1": "XQ2GsdTmZgUO2xycRg02vxBYi50=",
@@ -357,6 +369,15 @@
 			"path": "gopkg.in/mgo.v2/internal/scram",
 			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
 			"revisionTime": "2016-08-18T02:01:20Z"
+		},
+		{
+			"path": "https://github.com/stefanprodan/chi",
+			"revision": "=patch-1",
+			"version": "=patch-1"
+		},
+		{
+			"path": "https://github.com/stefanprodan/chi/tree/patch-1",
+			"revision": ""
 		}
 	],
 	"rootPath": "github.com/stefanprodan/syros"
