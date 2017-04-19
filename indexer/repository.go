@@ -162,31 +162,32 @@ func (repo *Repository) SyrosServiceUpsert(service models.SyrosService) {
 // Removes stale records
 func (repo *Repository) RunGarbageCollector(cols []string) {
 	if repo.Config.DatabaseStale > 0 {
+		ticker := time.NewTicker(60 * time.Second)
 		log.Infof("Stating repository GC interval %v minutes", repo.Config.DatabaseStale)
 		go func(stale int) {
-
-			for true {
-				s := repo.Session.Copy()
-				for _, col := range cols {
-					c := s.DB(repo.Config.Database).C(col)
-					info, err := c.RemoveAll(
-						bson.M{
-							"collected": bson.M{
-								"$lt": time.Now().Add(-time.Duration(stale) * time.Minute).UTC(),
-							},
-						})
-					if err != nil {
-						log.Errorf("Repository GC for col %v query failed %v", col, err)
-					} else {
-						if info.Removed > 0 {
-							log.Infof("Repository GC removed %v from %v", info.Removed, col)
+			for {
+				select {
+				case <-ticker.C:
+					s := repo.Session.Copy()
+					for _, col := range cols {
+						c := s.DB(repo.Config.Database).C(col)
+						info, err := c.RemoveAll(
+							bson.M{
+								"collected": bson.M{
+									"$lt": time.Now().Add(-time.Duration(stale) * time.Minute).UTC(),
+								},
+							})
+						if err != nil {
+							log.Errorf("Repository GC for col %v query failed %v", col, err)
+						} else {
+							if info.Removed > 0 {
+								log.Infof("Repository GC removed %v from %v", info.Removed, col)
+							}
 						}
 					}
+					s.Close()
 				}
-				s.Close()
-				time.Sleep(60 * time.Second)
 			}
-
 		}(repo.Config.DatabaseStale)
 	}
 }
