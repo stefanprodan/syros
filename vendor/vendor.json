@@ -335,12 +335,6 @@
 			"revisionTime": "2017-02-10T14:16:29Z"
 		},
 		{
-			"checksumSHA1": "1xrcK4/LiP98awGcvqTL5CClTIc=",
-			"path": "gopkg.in/fatih/pool.v2",
-			"revision": "6e328e67893eb46323ad06f0e92cb9536babbabc",
-			"revisionTime": "2017-01-11T21:10:42Z"
-		},
-		{
 			"checksumSHA1": "1D8GzeoFGUs5FZOoyC2DpQg8c5Y=",
 			"path": "gopkg.in/mgo.v2",
 			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
@@ -369,15 +363,6 @@
 			"path": "gopkg.in/mgo.v2/internal/scram",
 			"revision": "3f83fa5005286a7fe593b055f0d7771a7dce4655",
 			"revisionTime": "2016-08-18T02:01:20Z"
-		},
-		{
-			"path": "https://github.com/stefanprodan/chi",
-			"revision": "=patch-1",
-			"version": "=patch-1"
-		},
-		{
-			"path": "https://github.com/stefanprodan/chi/tree/patch-1",
-			"revision": ""
 		}
 	],
 	"rootPath": "github.com/stefanprodan/syros"

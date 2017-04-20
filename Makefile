@@ -28,6 +28,23 @@ define DURATION
 endef
 
 build: clean
+	@echo ">>> Building syros-services-build image"
+	@docker build -t syros-services-build:$(BUILD_DATE) -f build.golang.dockerfile .
+
+	@echo ">>> building syros-agent"
+	@docker run --rm  -v "$(DIST):/go/dist" syros-services-build:$(BUILD_DATE) \
+		go build -ldflags "-X main.version=$(APP_VERSION)" -o /go/dist/syros-agent github.com/stefanprodan/syros/agent
+
+	@echo ">>> Building syros-indexer"
+	@docker run --rm  -v "$(DIST):/go/dist" syros-services-build:$(BUILD_DATE) \
+		go build -ldflags "-X main.version=$(APP_VERSION)" -o /go/dist/syros-indexer github.com/stefanprodan/syros/indexer
+
+	@echo ">>> Building syros-api"
+	@docker run --rm  -v "$(DIST):/go/dist" syros-services-build:$(BUILD_DATE) \
+		go build -ldflags "-X main.version=$(APP_VERSION)" -o /go/dist/syros-api github.com/stefanprodan/syros/api
+
+	@docker rmi syros-services-build:$(BUILD_DATE)
+
 	@echo ">>> Building syros-ui-build image"
 	@docker build -t syros-ui-build:$(BUILD_DATE) -f build.node.dockerfile .
 
@@ -35,23 +52,6 @@ build: clean
 	@docker run --rm  -v "$(DIST)/ui:/usr/src/app/dist" syros-ui-build:$(BUILD_DATE) \
 		bash -c "npm run build"
 	@docker rmi syros-ui-build:$(BUILD_DATE)
-
-	@echo ">>> Building syros-services-build image"
-	@docker build -t syros-services-build:$(BUILD_DATE) -f build.golang.dockerfile .
-
-	@echo ">>> building syros-agent"
-	@docker run --rm  -v "$(DIST):/go/dist" syros-services-build:$(BUILD_DATE) \
-		go build -race -ldflags "-X main.version=$(APP_VERSION)" -o /go/dist/agent github.com/stefanprodan/syros/agent
-
-	@echo ">>> Building syros-indexer"
-	@docker run --rm  -v "$(DIST):/go/dist" syros-services-build:$(BUILD_DATE) \
-		go build -race -ldflags "-X main.version=$(APP_VERSION)" -o /go/dist/indexer github.com/stefanprodan/syros/indexer
-
-	@echo ">>> Building syros-api"
-	@docker run --rm  -v "$(DIST):/go/dist" syros-services-build:$(BUILD_DATE) \
-		go build -race -ldflags "-X main.version=$(APP_VERSION)" -o /go/dist/api github.com/stefanprodan/syros/api
-
-	@docker rmi syros-services-build:$(BUILD_DATE)
 
 	@echo ">>> Build artifacts:"
 	@find dist -type f -print0 | xargs -0 ls -t
@@ -92,7 +92,7 @@ pack:
 	@docker images | grep syros
 	$(DURATION)
 
-run: pack
+run:
 	@echo ">>> Starting syros-app container"
 	@docker run -dp 8888:8888 --name syros-app-$(APP_VERSION) \
 	    --restart unless-stopped \

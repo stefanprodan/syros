@@ -17,7 +17,7 @@ LABEL syros.version=$APP_VERSION \
 EXPOSE 8888
 
 COPY /dist/ui /syros/dist
-COPY /dist/api /syros/api
+COPY /dist/syros-api /syros/syros-api
 
 #RUN apk add --no-cache --virtual curl && chmod 777 /syros/api
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -30,5 +30,5 @@ HEALTHCHECK --interval=30s --timeout=15s --retries=3\
   CMD curl -f http://localhost:8888/status || exit 1
 
 WORKDIR /syros
-ENTRYPOINT ["/syros/api"]
+ENTRYPOINT ["/syros/syros-api"]
 

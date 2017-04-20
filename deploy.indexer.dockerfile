@@ -16,7 +16,7 @@ LABEL syros.version=$APP_VERSION \
 
 EXPOSE 8887
 
-COPY /dist/indexer /syros/indexer
+COPY /dist/syros-indexer /syros/syros-indexer
 
 #RUN apk add --no-cache --virtual curl && chmod 777 /syros/indexer
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -29,5 +29,5 @@ HEALTHCHECK --interval=30s --timeout=15s --retries=3\
   CMD curl -f http://localhost:8887/status || exit 1
 
 WORKDIR /syros
-ENTRYPOINT ["/syros/indexer"]
+ENTRYPOINT ["/syros/syros-indexer"]
 
