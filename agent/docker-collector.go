@@ -14,22 +14,15 @@ type DockerCollector struct {
 	ApiAddress  string
 	Environment string
 	Topic       string
-	Client      *docker.Client
 	StopChan    chan bool
 }
 
 func NewDockerCollector(address string, env string) (*DockerCollector, error) {
 
-	defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
-	client, err := docker.NewClient(address, "", nil, defaultHeaders)
-	if err != nil {
-		return nil, err
-	}
 	collector := &DockerCollector{
 		ApiAddress:  address,
 		Environment: env,
 		Topic:       "docker",
-		Client:      client,
 		StopChan:    make(chan bool, 1),
 	}
 
@@ -39,15 +32,20 @@ func NewDockerCollector(address string, env string) (*DockerCollector, error) {
 func (col *DockerCollector) Collect() (*models.DockerPayload, error) {
 	start := time.Now().UTC()
 	payload := &models.DockerPayload{}
-
-	host, err := col.Client.Info(context.Background())
+	defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
+	client, err := docker.NewClient(col.ApiAddress, "", nil, defaultHeaders)
+	defer client.Close()
+	if err != nil {
+		return nil, err
+	}
+	host, err := client.Info(context.Background())
 	if err != nil {
 		return nil, err
 	}
 	payload.Host = MapDockerHost(col.Environment, host)
 
 	options := types.ContainerListOptions{All: true}
-	containers, err := col.Client.ContainerList(context.Background(), options)
+	containers, err := client.ContainerList(context.Background(), options)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +53,7 @@ func (col *DockerCollector) Collect() (*models.DockerPayload, error) {
 	payload.Containers = make([]models.DockerContainer, 0)
 
 	for _, container := range containers {
-		containerInfo, err := col.Client.ContainerInspect(context.Background(), container.ID)
+		containerInfo, err := client.ContainerInspect(context.Background(), container.ID)
 		if err != nil {
 			log.Error(err)
 			continue
