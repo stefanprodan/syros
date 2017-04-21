@@ -42,7 +42,7 @@ func (s *HttpServer) Start() {
 		r.Use(middleware.DefaultLogger)
 	}
 
-	r.Mount("/debug", middleware.Profiler())
+	r.Mount("/debug", s.pprofRoutes())
 
 	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 		render.PlainText(w, r, "pong")
