@@ -21,6 +21,7 @@ func (s *HttpServer) authRoutes() chi.Router {
 		credentials := strings.Split(s.Config.Credentials, "@")
 		if data.Username == credentials[0] && data.Password == credentials[1] {
 			var claims = jwtauth.Claims{"role": data.Username}
+			claims = claims.SetIssuedNow()
 			// TODO: set expiry based on role
 			// claims = claims.SetExpiry(time.Now().Add(time.Hour * 48))
 			_, tokenString, err := s.TokenAuth.Encode(claims)

@@ -92,7 +92,7 @@ pack:
 	@docker images | grep syros
 	$(DURATION)
 
-run:
+run: pack
 	@echo ">>> Starting syros-app container"
 	@docker run -dp 8888:8888 --name syros-app-$(APP_VERSION) \
 	    --restart unless-stopped \

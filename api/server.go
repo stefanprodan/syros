@@ -34,6 +34,7 @@ func (s *HttpServer) Start() {
 		MaxAge:           300,
 	})
 	r.Use(corsWare.Handler)
+	r.Use(middleware.RealIP)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.DefaultCompress)
@@ -73,6 +74,10 @@ func (s *HttpServer) Start() {
 		err := errors.New("This is just a test")
 		render.Status(r, http.StatusInternalServerError)
 		render.PlainText(w, r, err.Error())
+	})
+
+	r.Get("/api/panic", func(w http.ResponseWriter, r *http.Request) {
+		panic("This is just a test")
 	})
 
 	r.Mount("/api/auth", s.authRoutes())
