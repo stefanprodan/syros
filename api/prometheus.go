@@ -11,7 +11,46 @@ import (
 	"time"
 )
 
-func PrometheusMiddleware(next http.Handler) http.Handler {
+type Prometheus struct {
+	ignoreWebsockets    bool
+	ignoreMetrics       bool
+	httpRequestsTotal   *prometheus.CounterVec
+	httpRequestsLatency *prometheus.SummaryVec
+}
+
+func NewPrometheus(namespace string, subsystem string, ignoreWebsockets bool, ignoreMetrics bool) *Prometheus {
+	prom := &Prometheus{
+		ignoreMetrics:    ignoreMetrics,
+		ignoreWebsockets: ignoreWebsockets,
+	}
+
+	prom.httpRequestsTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace: namespace,
+			Subsystem: subsystem,
+			Name:      "http_requests_total",
+			Help:      "The number of HTTP requests.",
+		},
+		[]string{"method", "path", "status"},
+	)
+
+	prom.httpRequestsLatency = prometheus.NewSummaryVec(
+		prometheus.SummaryOpts{
+			Namespace: namespace,
+			Subsystem: subsystem,
+			Name:      "http_request_latency",
+			Help:      "The latency of HTTP requests.",
+		},
+		[]string{"method", "path", "status"},
+	)
+
+	prometheus.MustRegister(prom.httpRequestsTotal)
+	prometheus.MustRegister(prom.httpRequestsLatency)
+
+	return prom
+}
+
+func (p *Prometheus) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
 
@@ -19,9 +58,9 @@ func PrometheusMiddleware(next http.Handler) http.Handler {
 		defer func() {
 			t2 := time.Now()
 			// ignore websockets and the /metrics endpoint
-			if !isWSRequest(r) && !isPrometheusRequest(r) {
-				http_requests_total.WithLabelValues(r.Method, r.URL.Path, strconv.Itoa(ww.Status())).Inc()
-				http_requests_latency.WithLabelValues(r.Method, r.URL.Path, strconv.Itoa(ww.Status())).Observe(t2.Sub(t1).Seconds())
+			if !p.isWSRequest(r) && !p.isPrometheusRequest(r) {
+				p.httpRequestsTotal.WithLabelValues(r.Method, r.URL.Path, strconv.Itoa(ww.Status())).Inc()
+				p.httpRequestsLatency.WithLabelValues(r.Method, r.URL.Path, strconv.Itoa(ww.Status())).Observe(t2.Sub(t1).Seconds())
 			}
 		}()
 
@@ -29,51 +68,28 @@ func PrometheusMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func PrometheusRegister() {
-	prometheus.MustRegister(http_requests_total)
-	prometheus.MustRegister(http_requests_latency)
-}
-
-func PrometheusMetrics(next http.Handler) http.Handler {
-	return promhttp.Handler()
-}
-
-func PrometheusRouter() http.Handler {
+func (p *Prometheus) Router() http.Handler {
+	promHandler := func(next http.Handler) http.Handler { return promhttp.Handler() }
+	emptyHandler := func(w http.ResponseWriter, r *http.Request) {}
 	r := chi.NewRouter()
-	r.Use(PrometheusMetrics)
+	r.Use(promHandler)
 	r.Get("/", emptyHandler)
 	return r
 }
 
-func emptyHandler(w http.ResponseWriter, r *http.Request) {
-
+func (p *Prometheus) isWSRequest(req *http.Request) bool {
+	if p.ignoreWebsockets {
+		return strings.ToLower(req.Header.Get("Upgrade")) == "websocket" &&
+			strings.ToLower(req.Header.Get("Connection")) == "upgrade"
+	} else {
+		return false
+	}
 }
 
-var http_requests_total = prometheus.NewCounterVec(
-	prometheus.CounterOpts{
-		Namespace: "syros",
-		Subsystem: "api",
-		Name:      "http_requests_total",
-		Help:      "The number of HTTP requests.",
-	},
-	[]string{"method", "path", "status"},
-)
-
-var http_requests_latency = prometheus.NewSummaryVec(
-	prometheus.SummaryOpts{
-		Namespace: "syros",
-		Subsystem: "api",
-		Name:      "http_request_latency",
-		Help:      "The latency of HTTP requests.",
-	},
-	[]string{"method", "path", "status"},
-)
-
-func isWSRequest(req *http.Request) bool {
-	return strings.ToLower(req.Header.Get("Upgrade")) == "websocket" &&
-		strings.ToLower(req.Header.Get("Connection")) == "upgrade"
-}
-
-func isPrometheusRequest(req *http.Request) bool {
-	return strings.Contains(strings.ToLower(req.URL.Path), "/metrics")
+func (p *Prometheus) isPrometheusRequest(req *http.Request) bool {
+	if p.ignoreMetrics {
+		return strings.Contains(strings.ToLower(req.URL.Path), "/metrics")
+	} else {
+		return false
+	}
 }

@@ -23,7 +23,7 @@ type HttpServer struct {
 
 func (s *HttpServer) Start() {
 
-	PrometheusRegister()
+	prom := NewPrometheus("syros", "api", true, true)
 
 	r := chi.NewRouter()
 
@@ -36,7 +36,7 @@ func (s *HttpServer) Start() {
 		MaxAge:           300,
 	})
 	r.Use(corsWare.Handler)
-	r.Use(PrometheusMiddleware)
+	r.Use(prom.Middleware)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
@@ -45,7 +45,7 @@ func (s *HttpServer) Start() {
 		r.Use(middleware.DefaultLogger)
 	}
 
-	r.Mount("/metrics", PrometheusRouter())
+	r.Mount("/metrics", prom.Router())
 	r.Mount("/debug", s.pprofRoutes())
 
 	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
