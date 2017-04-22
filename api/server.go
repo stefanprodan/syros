@@ -23,6 +23,8 @@ type HttpServer struct {
 
 func (s *HttpServer) Start() {
 
+	PrometheusRegister()
+
 	r := chi.NewRouter()
 
 	corsWare := cors.New(cors.Options{
@@ -34,6 +36,7 @@ func (s *HttpServer) Start() {
 		MaxAge:           300,
 	})
 	r.Use(corsWare.Handler)
+	r.Use(PrometheusMiddleware)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
@@ -42,6 +45,7 @@ func (s *HttpServer) Start() {
 		r.Use(middleware.DefaultLogger)
 	}
 
+	r.Mount("/metrics", PrometheusRouter())
 	r.Mount("/debug", s.pprofRoutes())
 
 	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
