@@ -28,3 +28,23 @@ type Deployment struct {
 	Env         []string          `bson:"env" json:"env"`
 	Log         string            `bson:"log" json:"log"`
 }
+
+type ReleasePlan struct {
+	Id        string    `bson:"_id,omitempty" json:"id"`
+	TicketId  string    `bson:"ticket_id,omitempty" json:"ticket_id"`
+	Name      string    `bson:"name" json:"name"`
+	Timestamp time.Time `bson:"timestamp" json:"timestamp"`
+}
+
+type ReleaseStep struct {
+	Id          string    `bson:"_id,omitempty" json:"id"`
+	ReleaseId   string    `bson:"releaseplan_id,omitempty" json:"releaseplan_id"`
+	TicketId    string    `bson:"ticket_id,omitempty" json:"ticket_id"`
+	Order       int       `bson:"order" json:"order"`
+	Environment string    `bson:"environment" json:"environment"`
+	Command     string    `bson:"command" json:"command"`
+	Status      string    `bson:"status" json:"status"`
+	Log         string    `bson:"log" json:"log"`
+	Begin       time.Time `bson:"begin" json:"begin"`
+	End         time.Time `bson:"end" json:"end"`
+}
