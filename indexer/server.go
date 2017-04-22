@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "expvar"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	unrender "github.com/unrolled/render"
