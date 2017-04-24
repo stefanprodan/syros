@@ -4,6 +4,7 @@ import (
 	_ "expvar"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	unrender "github.com/unrolled/render"
 	"net/http"
 	_ "net/http/pprof"
@@ -22,6 +23,8 @@ func (s *HttpServer) Start() {
 		IndentJSON: true,
 		Layout:     "layout",
 	})
+
+	http.Handle("/metrics", promhttp.Handler())
 
 	http.HandleFunc("/ping", func(w http.ResponseWriter, req *http.Request) {
 		render.Text(w, http.StatusOK, "pong")
