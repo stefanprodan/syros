@@ -1,4 +1,5 @@
-FROM golang:1.8.1
+#FROM golang:1.8.1
+FROM golang:1.8.1-alpine
 
 # services
 ADD /models /go/src/github.com/stefanprodan/syros/models
@@ -13,7 +14,7 @@ ADD /vendor/vendor.json /go/src/github.com/stefanprodan/syros/vendor/vendor.json
 WORKDIR /go/src/github.com/stefanprodan/syros
 
 # pull deps
-# RUN apk add --no-cache --virtual git
+RUN apk add --no-cache --virtual git
 RUN go get -u github.com/kardianos/govendor
 RUN govendor sync
 

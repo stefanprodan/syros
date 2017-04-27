@@ -1,6 +1,6 @@
 SHELL:=/bin/bash
 
-APP_VERSION?=0.3.0
+APP_VERSION?=0.4.0
 
 # build vars
 DIST:=$$(pwd)/dist
@@ -28,6 +28,14 @@ define DURATION
 endef
 
 build: clean
+	@echo ">>> Building syros-ui-build image"
+	@docker build -t syros-ui-build:$(BUILD_DATE) -f build.node.dockerfile .
+
+	@echo ">>> Building syros-ui"
+	@docker run --rm  -v "$(DIST)/ui:/usr/src/app/dist" syros-ui-build:$(BUILD_DATE) \
+		bash -c "npm run build"
+	@docker rmi syros-ui-build:$(BUILD_DATE)
+
 	@echo ">>> Building syros-services-build image"
 	@docker build -t syros-services-build:$(BUILD_DATE) -f build.golang.dockerfile .
 
@@ -44,14 +52,6 @@ build: clean
 		go build -ldflags "-X main.version=$(APP_VERSION)" -o /go/dist/syros-api github.com/stefanprodan/syros/api
 
 	@docker rmi syros-services-build:$(BUILD_DATE)
-
-	@echo ">>> Building syros-ui-build image"
-	@docker build -t syros-ui-build:$(BUILD_DATE) -f build.node.dockerfile .
-
-	@echo ">>> Building syros-ui"
-	@docker run --rm  -v "$(DIST)/ui:/usr/src/app/dist" syros-ui-build:$(BUILD_DATE) \
-		bash -c "npm run build"
-	@docker rmi syros-ui-build:$(BUILD_DATE)
 
 	@echo ">>> Build artifacts:"
 	@find dist -type f -print0 | xargs -0 ls -t
@@ -92,7 +92,7 @@ pack:
 	@docker images | grep syros
 	$(DURATION)
 
-run: pack
+run:
 	@echo ">>> Starting syros-app container"
 	@docker run -dp 8888:8888 --name syros-app-$(APP_VERSION) \
 	    --restart unless-stopped \
