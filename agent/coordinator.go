@@ -56,6 +56,7 @@ func NewCoordinator(config *Config, nc *nats.Conn) (*Coordinator, error) {
 func (cor *Coordinator) StartDockerCollectors() {
 	log.Infof("Starting %v Docker collector(s)", len(cor.DockerCollectors))
 	for _, c := range cor.DockerCollectors {
+		time.Sleep(100 * time.Millisecond)
 		ticker := time.NewTicker(time.Duration(cor.Config.CollectInterval) * time.Second)
 		go func(collector *DockerCollector) {
 			for {

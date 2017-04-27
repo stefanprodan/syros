@@ -1,5 +1,12 @@
 # Syros Changelog
 
+### v0.4.0 (release)
+
+* API instrumentation with Prometheus
+* Indexer instrumentation with Prometheus
+* Collectors refactoring
+* Setup http pprof
+
 ### v0.3.0 (release)
 
 ***Release tracker***
