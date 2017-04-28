@@ -13,6 +13,7 @@ type Coordinator struct {
 	ConsulCollectors []*ConsulCollector
 	NatsConnection   *nats.Conn
 	Config           *Config
+	metrics          *Prometheus
 }
 
 func NewCoordinator(config *Config, nc *nats.Conn) (*Coordinator, error) {
@@ -22,6 +23,8 @@ func NewCoordinator(config *Config, nc *nats.Conn) (*Coordinator, error) {
 		NatsConnection: nc,
 		Config:         config,
 	}
+	co.metrics = NewPrometheus("syros", "agent")
+
 	if len(config.DockerApiAddresses) > 0 {
 		dh := strings.Split(config.DockerApiAddresses, ",")
 		dc := make([]*DockerCollector, len(dh))
@@ -65,6 +68,9 @@ func (cor *Coordinator) StartDockerCollectors() {
 					log.Infof("Collector exited %v", collector.ApiAddress)
 					return
 				case <-ticker.C:
+					status := "200"
+					t1 := time.Now()
+
 					payload, err := collector.Collect()
 					if err != nil {
 						log.Errorf("Docker collector %v error %v", collector.ApiAddress, err)
@@ -79,6 +85,10 @@ func (cor *Coordinator) StartDockerCollectors() {
 							}
 						}
 					}
+
+					t2 := time.Now()
+					cor.metrics.requestsTotal.WithLabelValues("docker", collector.ApiAddress, status).Inc()
+					cor.metrics.requestsLatency.WithLabelValues("docker", collector.ApiAddress, status).Observe(t2.Sub(t1).Seconds())
 				}
 			}
 		}(c)
@@ -96,6 +106,9 @@ func (cor *Coordinator) StartConsulCollectors() {
 					log.Infof("Collector exited %v", collector.ApiAddress)
 					return
 				case <-ticker.C:
+					status := "200"
+					t1 := time.Now()
+
 					payload, err := collector.Collect()
 					if err != nil {
 						log.Errorf("Consul collector %v error %v", collector.ApiAddress, err)
@@ -110,6 +123,10 @@ func (cor *Coordinator) StartConsulCollectors() {
 							}
 						}
 					}
+
+					t2 := time.Now()
+					cor.metrics.requestsTotal.WithLabelValues("consul", collector.ApiAddress, status).Inc()
+					cor.metrics.requestsLatency.WithLabelValues("consul", collector.ApiAddress, status).Observe(t2.Sub(t1).Seconds())
 				}
 			}
 		}(c)
