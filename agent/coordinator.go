@@ -73,6 +73,7 @@ func (cor *Coordinator) StartDockerCollectors() {
 
 					payload, err := collector.Collect()
 					if err != nil {
+						status = "500"
 						log.Errorf("Docker collector %v error %v", collector.ApiAddress, err)
 					} else {
 						jsonPayload, err := json.Marshal(payload)
@@ -111,6 +112,7 @@ func (cor *Coordinator) StartConsulCollectors() {
 
 					payload, err := collector.Collect()
 					if err != nil {
+						status = "500"
 						log.Errorf("Consul collector %v error %v", collector.ApiAddress, err)
 					} else {
 						jsonPayload, err := json.Marshal(payload)
