@@ -1,5 +1,10 @@
 # Syros Changelog
 
+### v0.5.0 (release)
+
+* Agent instrumentation with Prometheus
+* Run collectors with go-cron
+
 ### v0.4.0 (release)
 
 * API instrumentation with Prometheus
