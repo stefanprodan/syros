@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/nats-io/go-nats"
+	"github.com/robfig/cron"
 	"strings"
 	"time"
 )
@@ -13,6 +15,7 @@ type Coordinator struct {
 	ConsulCollectors []*ConsulCollector
 	NatsConnection   *nats.Conn
 	Config           *Config
+	Cron             *cron.Cron
 	metrics          *Prometheus
 }
 
@@ -21,6 +24,7 @@ func NewCoordinator(config *Config, nc *nats.Conn) (*Coordinator, error) {
 	ep := make([]string, 0)
 	co := &Coordinator{
 		NatsConnection: nc,
+		Cron:           cron.New(),
 		Config:         config,
 	}
 	co.metrics = NewPrometheus("syros", "agent")
@@ -54,6 +58,53 @@ func NewCoordinator(config *Config, nc *nats.Conn) (*Coordinator, error) {
 	}
 
 	return co, nil
+}
+
+func (cor *Coordinator) Register() {
+
+	at := fmt.Sprintf("%v * * * * *", cor.Config.CollectInterval)
+	for _, c := range cor.DockerCollectors {
+		cor.Cron.AddJob(at, dockerJob{c, cor.NatsConnection, cor.metrics})
+	}
+	for _, c := range cor.ConsulCollectors {
+		cor.Cron.AddJob(at, consulJob{c, cor.NatsConnection, cor.metrics})
+	}
+	cor.Cron.Start()
+}
+
+func (cor *Coordinator) Deregister() {
+	cor.Cron.Stop()
+}
+
+type dockerJob struct {
+	collector *DockerCollector
+	nats      *nats.Conn
+	metrics   *Prometheus
+}
+
+func (j dockerJob) Run() {
+	status := "200"
+	t1 := time.Now()
+
+	payload, err := j.collector.Collect()
+	if err != nil {
+		status = "500"
+		log.Errorf("Docker collector %v error %v", j.collector.ApiAddress, err)
+	} else {
+		jsonPayload, err := json.Marshal(payload)
+		if err != nil {
+			log.Errorf("Docker collector %v payload marshal error %v", j.collector.ApiAddress, err)
+		} else {
+			err := j.nats.Publish(j.collector.Topic, jsonPayload)
+			if err != nil {
+				log.Errorf("Docker collector %v NATS publish failed %v", j.collector.ApiAddress, err)
+			}
+		}
+	}
+
+	t2 := time.Now()
+	j.metrics.requestsTotal.WithLabelValues("docker", j.collector.ApiAddress, status).Inc()
+	j.metrics.requestsLatency.WithLabelValues("docker", j.collector.ApiAddress, status).Observe(t2.Sub(t1).Seconds())
 }
 
 func (cor *Coordinator) StartDockerCollectors() {
@@ -94,6 +145,37 @@ func (cor *Coordinator) StartDockerCollectors() {
 			}
 		}(c)
 	}
+}
+
+type consulJob struct {
+	collector *ConsulCollector
+	nats      *nats.Conn
+	metrics   *Prometheus
+}
+
+func (j consulJob) Run() {
+	status := "200"
+	t1 := time.Now()
+
+	payload, err := j.collector.Collect()
+	if err != nil {
+		status = "500"
+		log.Errorf("Consul collector %v error %v", j.collector.ApiAddress, err)
+	} else {
+		jsonPayload, err := json.Marshal(payload)
+		if err != nil {
+			log.Errorf("Consul collector %v payload marshal error %v", j.collector.ApiAddress, err)
+		} else {
+			err := j.nats.Publish(j.collector.Topic, jsonPayload)
+			if err != nil {
+				log.Errorf("Consul collector %v NATS publish failed %v", j.collector.ApiAddress, err)
+			}
+		}
+	}
+
+	t2 := time.Now()
+	j.metrics.requestsTotal.WithLabelValues("consul", j.collector.ApiAddress, status).Inc()
+	j.metrics.requestsLatency.WithLabelValues("consul", j.collector.ApiAddress, status).Observe(t2.Sub(t1).Seconds())
 }
 
 func (cor *Coordinator) StartConsulCollectors() {

@@ -41,7 +41,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Coordinator error %v", err)
 	}
-	coordinator.StartCollectors()
+	coordinator.Register()
 
 	server := &HttpServer{
 		Config: config,
@@ -54,7 +54,7 @@ func main() {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	sig := <-sigChan
 	log.Infof("Shuting down %v signal received", sig)
-	coordinator.StopCollectors()
+	coordinator.Deregister()
 	time.Sleep(1 * time.Second)
 }
 
