@@ -5,6 +5,7 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/nats-io/go-nats"
+	"github.com/robfig/cron"
 	"github.com/stefanprodan/syros/models"
 	"os"
 	"runtime"
@@ -16,9 +17,10 @@ type Registry struct {
 	Topic          string
 	Agent          models.SyrosService
 	NatsConnection *nats.Conn
+	Cron           *cron.Cron
 }
 
-func NewRegistry(config *Config, nc *nats.Conn) *Registry {
+func NewRegistry(config *Config, nc *nats.Conn, cron *cron.Cron) *Registry {
 
 	agent := models.SyrosService{
 		Environment: config.Environment,
@@ -41,9 +43,19 @@ func NewRegistry(config *Config, nc *nats.Conn) *Registry {
 		Topic:          "registry",
 		NatsConnection: nc,
 		Agent:          agent,
+		Cron:           cron,
 	}
 
 	return registry
+}
+
+func (r *Registry) Register() {
+	r.Cron.AddFunc("10 * * * *", func() {
+		err := r.RegisterAgent()
+		if err != nil {
+			log.Error(err)
+		}
+	})
 }
 
 func (r *Registry) Start() chan bool {

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	log "github.com/Sirupsen/logrus"
+	"github.com/robfig/cron"
 	"os"
 	"os/signal"
 	"syscall"
@@ -32,12 +33,14 @@ func main() {
 	}
 	log.Infof("Connected to NATS server %v status %v", nc.ConnectedUrl(), nc.Status())
 
-	registry := NewRegistry(config, nc)
+	cronJob := cron.New()
+
+	registry := NewRegistry(config, nc, cronJob)
 	log.Infof("Register service as %v", registry.Agent.Id)
 	registry.RegisterAgent()
-	registry.Start()
+	registry.Register()
 
-	coordinator, err := NewCoordinator(config, nc)
+	coordinator, err := NewCoordinator(config, nc, cronJob)
 	if err != nil {
 		log.Fatalf("Coordinator error %v", err)
 	}

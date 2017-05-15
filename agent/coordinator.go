@@ -19,12 +19,12 @@ type Coordinator struct {
 	metrics          *Prometheus
 }
 
-func NewCoordinator(config *Config, nc *nats.Conn) (*Coordinator, error) {
+func NewCoordinator(config *Config, nc *nats.Conn, cron *cron.Cron) (*Coordinator, error) {
 
 	ep := make([]string, 0)
 	co := &Coordinator{
 		NatsConnection: nc,
-		Cron:           cron.New(),
+		Cron:           cron,
 		Config:         config,
 	}
 	co.metrics = NewPrometheus("syros", "agent")
