@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/nats-io/go-nats"
 	"github.com/robfig/cron"
@@ -18,7 +16,7 @@ type Registry struct {
 	Agent          models.SyrosService
 	NatsConnection *nats.Conn
 	Cron           *cron.Cron
-	Config           *Config
+	Config         *Config
 }
 
 func NewRegistry(config *Config, nc *nats.Conn, cron *cron.Cron) *Registry {
@@ -45,7 +43,7 @@ func NewRegistry(config *Config, nc *nats.Conn, cron *cron.Cron) *Registry {
 		NatsConnection: nc,
 		Agent:          agent,
 		Cron:           cron,
-		Config: config,
+		Config:         config,
 	}
 
 	return registry
@@ -55,7 +53,7 @@ func (r *Registry) Register() {
 	r.Cron.AddFunc("10 * * * *", func() {
 		err := r.RegisterAgent()
 		if err != nil {
-			log.Error(err)
+			log.Error("Registry NATS publish failed %v", err)
 		}
 	})
 }
@@ -70,7 +68,7 @@ func (r *Registry) Start() chan bool {
 			case <-ticker.C:
 				err := r.RegisterAgent()
 				if err != nil {
-					log.Error(err)
+					log.Errorf("Registry NATS publish failed %v", err)
 				}
 			case <-stopped:
 				return
@@ -85,21 +83,19 @@ func (r *Registry) RegisterAgent() error {
 	ag := r.Agent
 	ag.Collected = time.Now().UTC()
 
-	jsonPayload, err := json.Marshal(ag)
+	nc, err := nats.Connect(r.Config.Nats)
 	if err != nil {
-		return fmt.Errorf("Agent payload marshal error %v", err)
-	} else {
-		nc, err := nats.Connect(r.Config.Nats)
-		if err != nil {
-			log.Errorf("Registry NATS publish failed %v", err)
-		}
-		err = nc.Publish(r.Topic, jsonPayload)
-		if err != nil {
-			return fmt.Errorf("Registry NATS publish failed %v", err)
-		}
-		if nc != nil && !nc.IsClosed() {
-			nc.Close()
-		}
+		return err
 	}
+	enc, err := nats.NewEncodedConn(nc, nats.JSON_ENCODER)
+	if err != nil {
+		return err
+	}
+	defer enc.Close()
+	err = enc.Publish(r.Topic, ag)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

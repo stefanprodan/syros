@@ -80,7 +80,7 @@ type dockerJob struct {
 	collector *DockerCollector
 	nats      *nats.Conn
 	metrics   *Prometheus
-	config           *Config
+	config    *Config
 }
 
 func (j dockerJob) Run() {
@@ -92,27 +92,34 @@ func (j dockerJob) Run() {
 		status = "500"
 		log.Errorf("Docker collector %v error %v", j.collector.ApiAddress, err)
 	} else {
-		jsonPayload, err := json.Marshal(payload)
+		err = publish(j.config.Nats, j.collector.Topic, payload)
 		if err != nil {
-			log.Errorf("Docker collector %v payload marshal error %v", j.collector.ApiAddress, err)
-		} else {
-			nc, err := nats.Connect(j.config.Nats)
-			if err != nil {
-				log.Errorf("Docker collector %v NATS publish failed %v", j.collector.ApiAddress, err)
-			}
-			err = nc.Publish(j.collector.Topic, jsonPayload)
-			if err != nil {
-				log.Errorf("Docker collector %v NATS publish failed %v", j.collector.ApiAddress, err)
-			}
-			if nc != nil && !nc.IsClosed() {
-				nc.Close()
-			}
+			status = "500"
+			log.Errorf("Docker collector %v Nats publish error %v", j.collector.ApiAddress, err)
 		}
 	}
 
 	t2 := time.Now()
 	j.metrics.requestsTotal.WithLabelValues("docker", j.collector.ApiAddress, status).Inc()
 	j.metrics.requestsLatency.WithLabelValues("docker", j.collector.ApiAddress, status).Observe(t2.Sub(t1).Seconds())
+}
+
+func publish(natsCon string, subject string, v interface{}) error {
+	nc, err := nats.Connect(natsCon)
+	if err != nil {
+		return err
+	}
+	enc, err := nats.NewEncodedConn(nc, nats.JSON_ENCODER)
+	if err != nil {
+		return err
+	}
+	defer enc.Close()
+	err = enc.Publish(subject, v)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (cor *Coordinator) StartDockerCollectors() {
@@ -159,7 +166,7 @@ type consulJob struct {
 	collector *ConsulCollector
 	nats      *nats.Conn
 	metrics   *Prometheus
-	config           *Config
+	config    *Config
 }
 
 func (j consulJob) Run() {
@@ -171,21 +178,10 @@ func (j consulJob) Run() {
 		status = "500"
 		log.Errorf("Consul collector %v error %v", j.collector.ApiAddress, err)
 	} else {
-		jsonPayload, err := json.Marshal(payload)
+		err = publish(j.config.Nats, j.collector.Topic, payload)
 		if err != nil {
-			log.Errorf("Consul collector %v payload marshal error %v", j.collector.ApiAddress, err)
-		} else {
-			nc, err := nats.Connect(j.config.Nats)
-			if err != nil {
-				log.Errorf("Consul collector %v NATS publish failed %v", j.collector.ApiAddress, err)
-			}
-			err = nc.Publish(j.collector.Topic, jsonPayload)
-			if err != nil {
-				log.Errorf("Consul collector %v NATS publish failed %v", j.collector.ApiAddress, err)
-			}
-			if nc != nil && !nc.IsClosed() {
-				nc.Close()
-			}
+			status = "500"
+			log.Errorf("Consul collector %v Nats publish error %v", j.collector.ApiAddress, err)
 		}
 	}
 
