@@ -64,10 +64,10 @@ func (cor *Coordinator) Register() {
 
 	at := fmt.Sprintf("%v * * * * *", cor.Config.CollectInterval)
 	for _, c := range cor.DockerCollectors {
-		cor.Cron.AddJob(at, dockerJob{c, cor.NatsConnection, cor.metrics})
+		cor.Cron.AddJob(at, dockerJob{c, cor.NatsConnection, cor.metrics, cor.Config})
 	}
 	for _, c := range cor.ConsulCollectors {
-		cor.Cron.AddJob(at, consulJob{c, cor.NatsConnection, cor.metrics})
+		cor.Cron.AddJob(at, consulJob{c, cor.NatsConnection, cor.metrics, cor.Config})
 	}
 	cor.Cron.Start()
 }
@@ -80,6 +80,7 @@ type dockerJob struct {
 	collector *DockerCollector
 	nats      *nats.Conn
 	metrics   *Prometheus
+	config           *Config
 }
 
 func (j dockerJob) Run() {
@@ -95,9 +96,16 @@ func (j dockerJob) Run() {
 		if err != nil {
 			log.Errorf("Docker collector %v payload marshal error %v", j.collector.ApiAddress, err)
 		} else {
-			err := j.nats.Publish(j.collector.Topic, jsonPayload)
+			nc, err := nats.Connect(j.config.Nats)
 			if err != nil {
 				log.Errorf("Docker collector %v NATS publish failed %v", j.collector.ApiAddress, err)
+			}
+			err = nc.Publish(j.collector.Topic, jsonPayload)
+			if err != nil {
+				log.Errorf("Docker collector %v NATS publish failed %v", j.collector.ApiAddress, err)
+			}
+			if nc != nil && !nc.IsClosed() {
+				nc.Close()
 			}
 		}
 	}
@@ -151,6 +159,7 @@ type consulJob struct {
 	collector *ConsulCollector
 	nats      *nats.Conn
 	metrics   *Prometheus
+	config           *Config
 }
 
 func (j consulJob) Run() {
@@ -166,9 +175,16 @@ func (j consulJob) Run() {
 		if err != nil {
 			log.Errorf("Consul collector %v payload marshal error %v", j.collector.ApiAddress, err)
 		} else {
-			err := j.nats.Publish(j.collector.Topic, jsonPayload)
+			nc, err := nats.Connect(j.config.Nats)
 			if err != nil {
 				log.Errorf("Consul collector %v NATS publish failed %v", j.collector.ApiAddress, err)
+			}
+			err = nc.Publish(j.collector.Topic, jsonPayload)
+			if err != nil {
+				log.Errorf("Consul collector %v NATS publish failed %v", j.collector.ApiAddress, err)
+			}
+			if nc != nil && !nc.IsClosed() {
+				nc.Close()
 			}
 		}
 	}

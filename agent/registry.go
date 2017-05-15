@@ -18,6 +18,7 @@ type Registry struct {
 	Agent          models.SyrosService
 	NatsConnection *nats.Conn
 	Cron           *cron.Cron
+	Config           *Config
 }
 
 func NewRegistry(config *Config, nc *nats.Conn, cron *cron.Cron) *Registry {
@@ -44,6 +45,7 @@ func NewRegistry(config *Config, nc *nats.Conn, cron *cron.Cron) *Registry {
 		NatsConnection: nc,
 		Agent:          agent,
 		Cron:           cron,
+		Config: config,
 	}
 
 	return registry
@@ -80,14 +82,23 @@ func (r *Registry) Start() chan bool {
 }
 
 func (r *Registry) RegisterAgent() error {
-	r.Agent.Collected = time.Now().UTC()
-	jsonPayload, err := json.Marshal(r.Agent)
+	ag := r.Agent
+	ag.Collected = time.Now().UTC()
+
+	jsonPayload, err := json.Marshal(ag)
 	if err != nil {
 		return fmt.Errorf("Agent payload marshal error %v", err)
 	} else {
-		err := r.NatsConnection.Publish(r.Topic, jsonPayload)
+		nc, err := nats.Connect(r.Config.Nats)
+		if err != nil {
+			log.Errorf("Registry NATS publish failed %v", err)
+		}
+		err = nc.Publish(r.Topic, jsonPayload)
 		if err != nil {
 			return fmt.Errorf("Registry NATS publish failed %v", err)
+		}
+		if nc != nil && !nc.IsClosed() {
+			nc.Close()
 		}
 	}
 	return nil

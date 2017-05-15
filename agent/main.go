@@ -26,21 +26,20 @@ func main() {
 	setLogLevel(config.LogLevel)
 	log.Infof("Starting with config: %+v", config)
 
-	nc, err := NewNatsConnection(config.Nats)
-	defer nc.Close()
-	if err != nil {
-		log.Fatalf("Nats connection error %v", err)
-	}
-	log.Infof("Connected to NATS server %v status %v", nc.ConnectedUrl(), nc.Status())
+	//nc, err := NewNatsConnection(config.Nats)
+	//defer nc.Close()
+	//if err != nil {
+	//	log.Fatalf("Nats connection error %v", err)
+	//}
+	//log.Infof("Connected to NATS server %v status %v", nc.ConnectedUrl(), nc.Status())
 
 	cronJob := cron.New()
 
-	registry := NewRegistry(config, nc, cronJob)
+	registry := NewRegistry(config, nil, cronJob)
 	log.Infof("Register service as %v", registry.Agent.Id)
-	registry.RegisterAgent()
 	registry.Register()
 
-	coordinator, err := NewCoordinator(config, nc, cronJob)
+	coordinator, err := NewCoordinator(config, nil, cronJob)
 	if err != nil {
 		log.Fatalf("Coordinator error %v", err)
 	}
