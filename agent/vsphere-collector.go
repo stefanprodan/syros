@@ -230,29 +230,9 @@ func getVMs(ctx context.Context, f *find.Finder,
 	}
 
 	for _, vm := range vmt {
-		in := false
-		for _, filter := range include {
-			if strings.Contains(vm.Name, filter) {
-				in = true
-				break
-			}
-		}
-
+		in := applyFilter(vm.Name, include, exclude)
 		if !in {
-			log.Debugf("%v VM excluded by in filter %+v", vm.Name, include)
-			continue
-		}
-
-		in = true
-		for _, filter := range exclude {
-			if strings.Contains(vm.Name, filter) {
-				in = false
-				break
-			}
-		}
-
-		if !in {
-			log.Debugf("%v VM excluded by out filter %+v", vm.Name, exclude)
+			log.Debugf("%v VM excluded by filter", vm.Name)
 			continue
 		}
 
@@ -318,4 +298,28 @@ func getVMs(ctx context.Context, f *find.Finder,
 	}
 
 	return result, nil
+}
+
+func applyFilter(vm string, include []string, exclude []string) bool {
+	if len(exclude) > 0 {
+		for _, filter := range exclude {
+			if strings.Contains(vm, filter) {
+				return false
+			}
+		}
+	}
+
+	in := false
+	if len(include) > 0 {
+		for _, filter := range include {
+			if strings.Contains(vm, filter) {
+				in = true
+				break
+			}
+		}
+	} else {
+		in = true
+	}
+
+	return in
 }
