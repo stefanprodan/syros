@@ -61,7 +61,7 @@ func main() {
 	go server.Start()
 
 	//wait for SIGINT (Ctrl+C) or SIGTERM (docker stop)
-	sigChan := make(chan os.Signal, 1)
+	sigChan := make(chan os.Signal)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	sig := <-sigChan
 	log.Infof("Shuting down %v signal received", sig)
