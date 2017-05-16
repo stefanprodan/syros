@@ -31,14 +31,6 @@ func main() {
 	setLogLevel(config.LogLevel)
 	log.Infof("Starting with config: %+v", config)
 
-	if len(config.VSphereApiAddress) > 0 {
-		vCol, err := NewVSphereCollector(config.VSphereApiAddress, config.VSphereInclude, config.VSphereExclude, config.Environment, config.VSphereCollectInterval)
-		_, err = vCol.Collect()
-		if err != nil {
-			log.Errorf("VSphere error %v", err)
-		}
-	}
-
 	//nc, err := NewNatsConnection(config.Nats)
 	//defer nc.Close()
 	//if err != nil {
