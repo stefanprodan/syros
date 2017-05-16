@@ -1,5 +1,7 @@
 # Syros
 
+[![Build Status](https://travis-ci.org/stefanprodan/syros.svg?branch=master)](https://travis-ci.org/stefanprodan/syros)
+
 A highly available and horizontally scalable DevOps tool for managing microservices across multiple regions and environments. 
 
 Components:

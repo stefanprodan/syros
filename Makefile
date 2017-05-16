@@ -1,13 +1,13 @@
 SHELL:=/bin/bash
 
-APP_VERSION?=0.5.0
+APP_VERSION?=0.6.0
 
 # build vars
 DIST:=$$(pwd)/dist
 BUILD_DATE:=$(shell date -u +%Y-%m-%d_%H.%M.%S)
 GIT_REPOSITORY:=github.com/stefanprodan/syros
 GIT_COMMIT:=$(shell git rev-parse HEAD)
-GIT_BRANCH:=$(shell git symbolic-ref --short HEAD)
+GIT_BRANCH:="master"
 MAINTAINER:="Stefan Prodan"
 
 # go tools
@@ -150,23 +150,24 @@ test:
 	$(DURATION)
 
 push:
+	@docker login -u "$(DOCKER_USER)" -p "$(DOCKER_PASS)"
 	@echo ">>> Pushing syros-app to $(REGISTRY)/$(REPOSITORY)"
-	@docker tag syros-app:$(APP_VERSION) $(REGISTRY)/$(REPOSITORY)/syros-app:$(APP_VERSION)
-	@docker tag syros-app:$(APP_VERSION) $(REGISTRY)/$(REPOSITORY)/syros-app:latest
-	@docker push $(REGISTRY)/$(REPOSITORY)/syros-app:$(APP_VERSION)
-	@docker push $(REGISTRY)/$(REPOSITORY)/syros-app:latest
+	@docker tag syros-app:$(APP_VERSION) $(REPOSITORY)/syros-app:$(APP_VERSION)
+	@docker tag syros-app:$(APP_VERSION) $(REPOSITORY)/syros-app:latest
+	@docker push $(REPOSITORY)/syros-app:$(APP_VERSION)
+	@docker push $(REPOSITORY)/syros-app:latest
 
 	@echo ">>> Pushing syros-indexer to $(REGISTRY)/$(REPOSITORY)"
-	@docker tag syros-indexer:$(APP_VERSION) $(REGISTRY)/$(REPOSITORY)/syros-indexer:$(APP_VERSION)
-	@docker tag syros-indexer:$(APP_VERSION) $(REGISTRY)/$(REPOSITORY)/syros-indexer:latest
-	@docker push $(REGISTRY)/$(REPOSITORY)/syros-indexer:$(APP_VERSION)
-	@docker push $(REGISTRY)/$(REPOSITORY)/syros-indexer:latest
+	@docker tag syros-indexer:$(APP_VERSION) $(REPOSITORY)/syros-indexer:$(APP_VERSION)
+	@docker tag syros-indexer:$(APP_VERSION) $(REPOSITORY)/syros-indexer:latest
+	@docker push $(REPOSITORY)/syros-indexer:$(APP_VERSION)
+	@docker push $(REPOSITORY)/syros-indexer:latest
 
 	@echo ">>> Pushing syros-agent to $(REGISTRY)/$(REPOSITORY)"
-	@docker tag syros-agent:$(APP_VERSION) $(REGISTRY)/$(REPOSITORY)/syros-agent:$(APP_VERSION)
-	@docker tag syros-agent:$(APP_VERSION) $(REGISTRY)/$(REPOSITORY)/syros-agent:latest
-	@docker push $(REGISTRY)/$(REPOSITORY)/syros-agent:$(APP_VERSION)
-	@docker push $(REGISTRY)/$(REPOSITORY)/syros-agent:latest
+	@docker tag syros-agent:$(APP_VERSION) $(REPOSITORY)/syros-agent:$(APP_VERSION)
+	@docker tag syros-agent:$(APP_VERSION) $(REPOSITORY)/syros-agent:latest
+	@docker push $(REPOSITORY)/syros-agent:$(APP_VERSION)
+	@docker push $(REPOSITORY)/syros-agent:latest
 	$(DURATION)
 
 fmt:
