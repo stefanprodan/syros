@@ -371,6 +371,102 @@
 			"revisionTime": "2017-01-09T14:32:44Z"
 		},
 		{
+			"checksumSHA1": "VK+9fon/pJt+ZebKV+iCx3ILZFI=",
+			"path": "github.com/vmware/govmomi",
+			"revision": "35caa01bfa4cbff15d06382021e2028bdf0a77ad",
+			"revisionTime": "2017-05-09T22:59:20Z"
+		},
+		{
+			"checksumSHA1": "L/z6VeAmwdnp4Prod4EAlTcPYRY=",
+			"path": "github.com/vmware/govmomi/find",
+			"revision": "35caa01bfa4cbff15d06382021e2028bdf0a77ad",
+			"revisionTime": "2017-05-09T22:59:20Z"
+		},
+		{
+			"checksumSHA1": "J3JrwZagGYMX6oNMkdsUFf8hHo8=",
+			"path": "github.com/vmware/govmomi/list",
+			"revision": "35caa01bfa4cbff15d06382021e2028bdf0a77ad",
+			"revisionTime": "2017-05-09T22:59:20Z"
+		},
+		{
+			"checksumSHA1": "+Z23VYWTc8XBsdfZFN3C893f5/Q=",
+			"path": "github.com/vmware/govmomi/object",
+			"revision": "35caa01bfa4cbff15d06382021e2028bdf0a77ad",
+			"revisionTime": "2017-05-09T22:59:20Z"
+		},
+		{
+			"checksumSHA1": "INNHeHhLFq+1BzuX/E3el2wZpVs=",
+			"path": "github.com/vmware/govmomi/property",
+			"revision": "35caa01bfa4cbff15d06382021e2028bdf0a77ad",
+			"revisionTime": "2017-05-09T22:59:20Z"
+		},
+		{
+			"checksumSHA1": "eqoHqcnyVN3klOJ89N7xmJhRgu0=",
+			"path": "github.com/vmware/govmomi/session",
+			"revision": "35caa01bfa4cbff15d06382021e2028bdf0a77ad",
+			"revisionTime": "2017-05-09T22:59:20Z"
+		},
+		{
+			"checksumSHA1": "FQR3yNgiShaqUiJREkeqQCKYJ84=",
+			"path": "github.com/vmware/govmomi/task",
+			"revision": "35caa01bfa4cbff15d06382021e2028bdf0a77ad",
+			"revisionTime": "2017-05-09T22:59:20Z"
+		},
+		{
+			"checksumSHA1": "MYhzG/+kOETBvdQCJyWdkOQsrB8=",
+			"path": "github.com/vmware/govmomi/units",
+			"revision": "35caa01bfa4cbff15d06382021e2028bdf0a77ad",
+			"revisionTime": "2017-05-09T22:59:20Z"
+		},
+		{
+			"checksumSHA1": "zLg5y/6xx/yr8swoqdyxISyQfoU=",
+			"path": "github.com/vmware/govmomi/vim25",
+			"revision": "35caa01bfa4cbff15d06382021e2028bdf0a77ad",
+			"revisionTime": "2017-05-09T22:59:20Z"
+		},
+		{
+			"checksumSHA1": "xLvppq0NUD6Hv2GIx1gh75xUzyM=",
+			"path": "github.com/vmware/govmomi/vim25/debug",
+			"revision": "35caa01bfa4cbff15d06382021e2028bdf0a77ad",
+			"revisionTime": "2017-05-09T22:59:20Z"
+		},
+		{
+			"checksumSHA1": "FIwHoeb/lzICWAoECQkmKLJg4PE=",
+			"path": "github.com/vmware/govmomi/vim25/methods",
+			"revision": "35caa01bfa4cbff15d06382021e2028bdf0a77ad",
+			"revisionTime": "2017-05-09T22:59:20Z"
+		},
+		{
+			"checksumSHA1": "kiVMrAiW8EBFQvhDMHdE9SFe3N4=",
+			"path": "github.com/vmware/govmomi/vim25/mo",
+			"revision": "35caa01bfa4cbff15d06382021e2028bdf0a77ad",
+			"revisionTime": "2017-05-09T22:59:20Z"
+		},
+		{
+			"checksumSHA1": "tN9fHudMKhR3LjGw/V0fM4xXUJw=",
+			"path": "github.com/vmware/govmomi/vim25/progress",
+			"revision": "35caa01bfa4cbff15d06382021e2028bdf0a77ad",
+			"revisionTime": "2017-05-09T22:59:20Z"
+		},
+		{
+			"checksumSHA1": "AJtbBqLTzFe75nAfBVZctd6EnR0=",
+			"path": "github.com/vmware/govmomi/vim25/soap",
+			"revision": "35caa01bfa4cbff15d06382021e2028bdf0a77ad",
+			"revisionTime": "2017-05-09T22:59:20Z"
+		},
+		{
+			"checksumSHA1": "POHY24Xq2VlYYrw6xnABPC5DkQA=",
+			"path": "github.com/vmware/govmomi/vim25/types",
+			"revision": "35caa01bfa4cbff15d06382021e2028bdf0a77ad",
+			"revisionTime": "2017-05-09T22:59:20Z"
+		},
+		{
+			"checksumSHA1": "6XLRzLEvncx5ORtvBjp41KfRTjc=",
+			"path": "github.com/vmware/govmomi/vim25/xml",
+			"revision": "35caa01bfa4cbff15d06382021e2028bdf0a77ad",
+			"revisionTime": "2017-05-09T22:59:20Z"
+		},
+		{
 			"checksumSHA1": "C1KKOxFoW7/W/NFNpiXK+boguNo=",
 			"path": "golang.org/x/crypto/curve25519",
 			"revision": "55a552f0823e0d3d54931488a2993ebd2fd0258c",

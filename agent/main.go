@@ -2,12 +2,13 @@ package main
 
 import (
 	"flag"
-	log "github.com/Sirupsen/logrus"
-	"github.com/robfig/cron"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/robfig/cron"
 )
 
 var version = "undefined"
