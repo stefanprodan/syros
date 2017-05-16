@@ -1,5 +1,9 @@
 # Syros Changelog
 
+### v0.6.0 (WIP)
+
+* VMWare vSphere collector
+
 ### v0.5.0 (release)
 
 * Agent instrumentation with Prometheus
