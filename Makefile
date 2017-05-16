@@ -27,7 +27,7 @@ define DURATION
 @time_end=`date +%s` ; time_exec=`awk -v "TS=${TIME_START}" -v "TE=$$time_end" 'BEGIN{TD=TE-TS;printf "%02dm:%02ds\n",TD/(60)%60,TD%60}'` ; echo "$@ duration $${time_exec} "
 endef
 
-build: clean
+build:
 	@echo ">>> Building syros-ui-build image"
 	@docker build -t syros-ui-build:$(BUILD_DATE) -f build.node.dockerfile .
 
@@ -127,7 +127,7 @@ run:
 	@docker logs syros-agent-$(APP_VERSION)
 	$(DURATION)
 
-test: run
+test:
 	@echo ">>> Checking syros-app status"
 	@curl --fail http://localhost:8888/status
 
