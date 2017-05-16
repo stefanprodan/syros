@@ -21,11 +21,23 @@ func main() {
 	flag.IntVar(&config.CollectInterval, "CollectInterval", 10, "Collect interval in seconds")
 	flag.StringVar(&config.DockerApiAddresses, "DockerApiAddresses", "unix:///var/run/docker.sock", "Docker hosts API addresses comma delimited")
 	flag.StringVar(&config.ConsulApiAddresses, "ConsulApiAddresses", "", "Consul hosts API addresses comma delimited")
+	flag.StringVar(&config.VSphereApiAddress, "VSphereApiAddress", "", "VSphere API address")
+	flag.StringVar(&config.VSphereInclude, "VSphereInclude", "", "VM include filter comma delimited")
+	flag.StringVar(&config.VSphereExclude, "VSphereExclude", "", "VM exclude filter comma delimited")
+	flag.IntVar(&config.VSphereCollectInterval, "VSphereCollectInterval", 120, "vSphere collect interval in seconds")
 	flag.StringVar(&config.Nats, "Nats", "nats://localhost:4222", "Nats server addresses comma delimited")
 	flag.Parse()
 
 	setLogLevel(config.LogLevel)
 	log.Infof("Starting with config: %+v", config)
+
+	if len(config.VSphereApiAddress) > 0 {
+		vCol, err := NewVSphereCollector(config.VSphereApiAddress, config.VSphereInclude, config.VSphereExclude, config.Environment, config.VSphereCollectInterval)
+		_, err = vCol.Collect()
+		if err != nil {
+			log.Errorf("VSphere error %v", err)
+		}
+	}
 
 	//nc, err := NewNatsConnection(config.Nats)
 	//defer nc.Close()

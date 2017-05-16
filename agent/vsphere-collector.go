@@ -17,21 +17,23 @@ import (
 )
 
 type VSphereCollector struct {
-	ApiAddress  string
-	Include     []string
-	Exclude     []string
-	Environment string
-	Topic       string
+	ApiAddress      string
+	Include         []string
+	Exclude         []string
+	Environment     string
+	Topic           string
+	CollectInterval int
 }
 
-func NewVSphereCollector(address string, include []string, exclude []string, env string) (*VSphereCollector, error) {
+func NewVSphereCollector(address string, include string, exclude string, env string, interval int) (*VSphereCollector, error) {
 
 	c := &VSphereCollector{
 		ApiAddress:  address,
-		Include:     include,
-		Exclude:     exclude,
+		Include:     strings.Split(include, ","),
+		Exclude:     strings.Split(exclude, ","),
 		Environment: env,
 		Topic:       "vsphere",
+		CollectInterval: interval,
 	}
 
 	return c, nil
