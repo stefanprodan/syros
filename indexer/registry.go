@@ -4,7 +4,6 @@ import (
 	"os"
 	"runtime"
 	"strconv"
-	"sync"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -13,7 +12,6 @@ import (
 )
 
 type Registry struct {
-	mutex          sync.RWMutex
 	NatsConnection *nats.EncodedConn
 	Config         *Config
 	Repository     *Repository
@@ -60,7 +58,7 @@ func (reg *Registry) Start() chan bool {
 	indexer.Id = models.Hash(indexer.Hostname + uuid)
 
 	stopped := make(chan bool, 1)
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(15 * time.Second)
 
 	go func(i models.SyrosService) {
 		for {

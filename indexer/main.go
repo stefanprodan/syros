@@ -2,10 +2,11 @@ package main
 
 import (
 	"flag"
-	log "github.com/Sirupsen/logrus"
 	"os"
 	"os/signal"
 	"syscall"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 var version = "undefined"
@@ -37,7 +38,7 @@ func main() {
 
 	repo.RunGarbageCollector([]string{"containers", "hosts", "checks", "syros_services", "vsphere_hosts", "vsphere_dstores", "vsphere_vms"})
 
-	nc, err := NewNatsConnection(config.Nats)
+	nc, err := NewNatsConnection(config.Nats, "syros-indexer")
 	if err != nil {
 		log.Fatalf("Nats connection error %v", err)
 	}

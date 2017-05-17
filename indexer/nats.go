@@ -1,18 +1,14 @@
 package main
 
 import (
-	"fmt"
-	"os"
-
 	log "github.com/Sirupsen/logrus"
 	"github.com/nats-io/go-nats"
 )
 
-func NewNatsConnection(servers string) (*nats.EncodedConn, error) {
+func NewNatsConnection(servers string, name string) (*nats.EncodedConn, error) {
 	opts := nats.DefaultOptions
 	opts.Url = servers
-	host, _ := os.Hostname()
-	opts.Name = fmt.Sprintf("syros-indexer-%s", host)
+	opts.Name = name
 	opts.DisconnectedCB = func(nc *nats.Conn) {
 		log.Warnf("Got disconnected from NATS %v", servers)
 	}
