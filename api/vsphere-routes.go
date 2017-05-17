@@ -41,14 +41,27 @@ func (s *HttpServer) vsphereRoutes() chi.Router {
 				}
 			}
 
+			ds := make([]models.VSphereDatastore, 0)
+			for _, d := range vsphere.DataStores {
+				if d.VMs > 0 {
+					ds = append(ds, d)
+				}
+			}
+			hs := make([]models.VSphereHost, 0)
+			for _, d := range vsphere.Hosts {
+				if d.VMs > 0 {
+					hs = append(hs, d)
+				}
+			}
+
 			data := struct {
 				Hosts      []models.VSphereHost      `json:"hosts"`
 				DataStores []models.VSphereDatastore `json:"data_stores"`
 				VMs        []models.VSphereVM        `json:"vms"`
 				Chart      models.ChartDto           `json:"chart"`
 			}{
-				Hosts:      vsphere.Hosts,
-				DataStores: vsphere.DataStores,
+				Hosts:      hs,
+				DataStores: ds,
 				VMs:        vsphere.VMs,
 				Chart:      chart,
 			}

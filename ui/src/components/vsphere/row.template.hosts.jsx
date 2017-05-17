@@ -12,7 +12,7 @@ export default {
         return <span class="alert alert-danger text-uppercase">{row.power_state}</span>
     },
     memory: function (h, row) {
-        return <span>{ parseInt(parseFloat((row.memory / Math.pow(1024, 3))).toFixed(0)) }MB</span>
+        return <span>{ parseInt(parseFloat((row.memory / Math.pow(1024, 3))).toFixed(0)) }GB</span>
     },
     boot_time: function (h, row) {
         if (!row.boot_time){
