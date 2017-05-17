@@ -1,25 +1,26 @@
 package main
 
 import (
-	log "github.com/Sirupsen/logrus"
-	"github.com/nats-io/go-nats"
-	"github.com/robfig/cron"
-	"github.com/stefanprodan/syros/models"
 	"os"
 	"runtime"
 	"strconv"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/nats-io/go-nats"
+	"github.com/robfig/cron"
+	"github.com/stefanprodan/syros/models"
 )
 
 type Registry struct {
 	Topic          string
 	Agent          models.SyrosService
-	NatsConnection *nats.Conn
+	NatsConnection *nats.EncodedConn
 	Cron           *cron.Cron
 	Config         *Config
 }
 
-func NewRegistry(config *Config, nc *nats.Conn, cron *cron.Cron) *Registry {
+func NewRegistry(config *Config, nc *nats.EncodedConn, cron *cron.Cron) *Registry {
 
 	agent := models.SyrosService{
 		Environment: config.Environment,
@@ -50,10 +51,10 @@ func NewRegistry(config *Config, nc *nats.Conn, cron *cron.Cron) *Registry {
 }
 
 func (r *Registry) Register() {
-	r.Cron.AddFunc("10 * * * *", func() {
+	r.Cron.AddFunc("@every 15s", func() {
 		err := r.RegisterAgent()
 		if err != nil {
-			log.Error("Registry NATS natsPublish failed %v", err)
+			log.Errorf("Registry NATS natsPublish failed %v", err.Error())
 		}
 	})
 }
@@ -83,16 +84,7 @@ func (r *Registry) RegisterAgent() error {
 	ag := r.Agent
 	ag.Collected = time.Now().UTC()
 
-	nc, err := nats.Connect(r.Config.Nats)
-	if err != nil {
-		return err
-	}
-	enc, err := nats.NewEncodedConn(nc, nats.JSON_ENCODER)
-	if err != nil {
-		return err
-	}
-	defer enc.Close()
-	err = enc.Publish(r.Topic, ag)
+	err := r.NatsConnection.Publish(r.Topic, ag)
 	if err != nil {
 		return err
 	}

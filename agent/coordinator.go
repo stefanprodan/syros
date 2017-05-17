@@ -15,13 +15,13 @@ type Coordinator struct {
 	DockerCollectors []*DockerCollector
 	ConsulCollectors []*ConsulCollector
 	VSphereCollector *VSphereCollector
-	NatsConnection   *nats.Conn
+	NatsConnection   *nats.EncodedConn
 	Config           *Config
 	Cron             *cron.Cron
 	metrics          *Prometheus
 }
 
-func NewCoordinator(config *Config, nc *nats.Conn, cron *cron.Cron) (*Coordinator, error) {
+func NewCoordinator(config *Config, nc *nats.EncodedConn, cron *cron.Cron) (*Coordinator, error) {
 
 	ep := make([]string, 0)
 	co := &Coordinator{

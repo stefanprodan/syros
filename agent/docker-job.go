@@ -9,7 +9,7 @@ import (
 
 type dockerJob struct {
 	collector *DockerCollector
-	nats      *nats.Conn
+	nats      *nats.EncodedConn
 	metrics   *Prometheus
 	config    *Config
 }
@@ -23,7 +23,7 @@ func (j dockerJob) Run() {
 		status = "500"
 		log.Errorf("Docker collector %v error %v", j.collector.ApiAddress, err)
 	} else {
-		err = natsPublish(j.config.Nats, j.collector.Topic, payload)
+		err = j.nats.Publish(j.collector.Topic, payload)
 		if err != nil {
 			status = "500"
 			log.Errorf("Docker collector %v Nats natsPublish error %v", j.collector.ApiAddress, err)

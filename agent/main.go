@@ -31,24 +31,24 @@ func main() {
 	setLogLevel(config.LogLevel)
 	log.Infof("Starting with config: %+v", config)
 
-	//nc, err := NewNatsConnection(config.Nats)
-	//defer nc.Close()
-	//if err != nil {
-	//	log.Fatalf("Nats connection error %v", err)
-	//}
-	//log.Infof("Connected to NATS server %v status %v", nc.ConnectedUrl(), nc.Status())
+	nc, err := NewNatsConnection(config.Nats, "syros-agent-"+config.Environment)
+	if err != nil {
+		log.Fatalf("Nats connection error %v", err)
+	}
+	defer nc.Close()
 
 	cronJob := cron.New()
 
-	registry := NewRegistry(config, nil, cronJob)
+	registry := NewRegistry(config, nc, cronJob)
 	log.Infof("Register service as %v", registry.Agent.Id)
 	registry.Register()
 
-	coordinator, err := NewCoordinator(config, nil, cronJob)
+	coordinator, err := NewCoordinator(config, nc, cronJob)
 	if err != nil {
 		log.Fatalf("Coordinator error %v", err)
 	}
 	coordinator.Register()
+	defer coordinator.Deregister()
 
 	server := &HttpServer{
 		Config: config,
@@ -61,8 +61,6 @@ func main() {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	sig := <-sigChan
 	log.Infof("Shutting down %v signal received", sig)
-	coordinator.Deregister()
-	time.Sleep(1 * time.Second)
 }
 
 func setLogLevel(levelName string) {
