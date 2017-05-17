@@ -79,11 +79,11 @@
           perPageValues: [10, 20, 30, 50],
           templates: rowTemplateStore
         },
-        hostsColumns: ['n', 'name', 'power_state', 'vms', 'ncpu', 'memory', 'boot_time'],
+        hostsColumns: ['n', 'name', 'power_state', 'vms', 'cluster', 'ncpu', 'memory', 'boot_time'],
         hostsData: [],
         hostsOptions: {
           skin: 'table-hover',
-          sortable: ['name', 'power_state', 'ncpu', 'memory', 'boot_time'],
+          sortable: ['name', 'power_state', 'vms', 'cluster', 'ncpu', 'memory', 'boot_time'],
           dateColumns: ['boot_time'],
           toMomentFormat: 'YYYY-MM-DDTHH:mm:ssZ',
           uniqueKey: 'id',
