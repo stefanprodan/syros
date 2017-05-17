@@ -450,7 +450,7 @@ func (repo *Repository) AllVSphere() (*models.VSpherePayload, error) {
 
 	v := s.DB(repo.Config.Database).C("vsphere_vms")
 	vms := []models.VSphereVM{}
-	err = v.Find(nil).Sort("-collected").All(&vms)
+	err = v.Find(nil).Sort("name").All(&vms)
 	if err != nil {
 		log.Errorf("Repository AllVSphere vsphere_vms cursor failed %v", err)
 		return nil, err

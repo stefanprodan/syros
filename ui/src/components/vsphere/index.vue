@@ -18,6 +18,16 @@
         <h2>{{ stats.ram }}</h2><small class="text-uppercase">Memory</small></div>
     </div>
   </div>
+  <div class="charts">
+    <div class="row" v-if="loaded">
+      <div class="col-md-16">
+        <div class="line-chart">
+          <vm-chart ref="vmChart" :chartData="vmChartData" :height="chartHeight"></vm-chart>
+          <small class="text-uppercase">VMs Distribution</small>
+        </div>      
+      </div>
+    </div>
+  </div>
   <v-client-table ref="vmsTabel" :data="tableData" :columns="columns" :options="options"></v-client-table>  
   <v-client-table ref="storesTabel" :data="storesData" :columns="storesColumns" :options="storesOptions"></v-client-table> 
   <v-client-table ref="hostsTabel" :data="hostsData" :columns="hostsColumns" :options="hostsOptions"></v-client-table> 
@@ -31,12 +41,16 @@
   import rowChild from 'components/vsphere/row-child.template.jsx'
   import rowTemplateStore from 'components/vsphere/row.template.ds.jsx'
   import rowTemplateHost from 'components/vsphere/row.template.hosts.jsx'
+  import VmChart from 'components/vsphere/vm.chart.vue'
 
   export default {
     name: 'vsphere',
     data () {
       return {
         timer: null,
+        loaded: false,
+        chartHeight: 180,
+        vmChartData: null,
         stats: {hosts: '0', vms: '0', cpus: '0', ram: '0 MB'},
         columns: ['name', 'power_state', 'ip', 'host_name', 'ncpu', 'memory', 'storage', 'boot_time'],
         tableData: [],
@@ -80,6 +94,9 @@
         }
       }
     },
+    components: {
+      VmChart
+    },
     methods: {
       loadData () {
         this.$Progress.start()
@@ -89,6 +106,8 @@
               this.tableData = response.data.vms
               this.storesData = response.data.data_stores
               this.hostsData = response.data.hosts
+              this.vmChartData = this.fillChart(response.data.chart)
+              this.loaded = true
               var statsCpus = 0
               var statsRam = 0
               for (var i = 0, len = response.data.hosts.length; i < len; i++) {
@@ -127,6 +146,23 @@
         // enqueue new call after 60 seconds
         if (this.timer) clearTimeout(this.timer)
         this.timer = setTimeout(this.refreshData, 60000)
+      },
+      fillChart (data) {
+        var backgroundColors = []
+        for (var i = 0, len = data.labels.length; i < len; i++) {
+          backgroundColors.push('#309292')
+        }
+        return {
+          labels: data.labels,
+          datasets: [
+            {
+              label: 'vms',
+              backgroundColor: backgroundColors,
+              borderWidth: 0,
+              data: data.values
+            }
+          ]
+        }
       }
     },
     created: function () {
