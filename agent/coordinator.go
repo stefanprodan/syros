@@ -72,7 +72,7 @@ func NewCoordinator(config *Config, nc *nats.Conn, cron *cron.Cron) (*Coordinato
 
 func (cor *Coordinator) Register() {
 
-	at := fmt.Sprintf("%v * * * * *", cor.Config.CollectInterval)
+	at := fmt.Sprintf("@every %vs", cor.Config.CollectInterval)
 	for _, c := range cor.DockerCollectors {
 		cor.Cron.AddJob(at, dockerJob{c, cor.NatsConnection, cor.metrics, cor.Config})
 	}
@@ -80,7 +80,7 @@ func (cor *Coordinator) Register() {
 		cor.Cron.AddJob(at, consulJob{c, cor.NatsConnection, cor.metrics, cor.Config})
 	}
 
-	vsphereAt := fmt.Sprintf("%v * * * * *", cor.Config.VSphereCollectInterval)
+	vsphereAt := fmt.Sprintf("@every %vs", cor.Config.VSphereCollectInterval)
 	cor.Cron.AddJob(vsphereAt, vsphereJob{cor.VSphereCollector, cor.NatsConnection, cor.metrics, cor.Config})
 
 	cor.Cron.Start()

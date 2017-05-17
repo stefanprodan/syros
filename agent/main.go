@@ -18,7 +18,7 @@ func main() {
 	flag.StringVar(&config.Environment, "Environment", "dev", "Environment dev|int|stg|test|prep|prod")
 	flag.StringVar(&config.LogLevel, "LogLevel", "debug", "logging threshold level: debug|info|warn|error|fatal|panic")
 	flag.IntVar(&config.Port, "Port", 8886, "HTTP port to listen on")
-	flag.IntVar(&config.CollectInterval, "CollectInterval", 10, "Collect interval in seconds")
+	flag.IntVar(&config.CollectInterval, "CollectInterval", 30, "Collect interval in seconds")
 	flag.StringVar(&config.DockerApiAddresses, "DockerApiAddresses", "unix:///var/run/docker.sock", "Docker hosts API addresses comma delimited")
 	flag.StringVar(&config.ConsulApiAddresses, "ConsulApiAddresses", "", "Consul hosts API addresses comma delimited")
 	flag.StringVar(&config.VSphereApiAddress, "VSphereApiAddress", "", "VSphere API address")
