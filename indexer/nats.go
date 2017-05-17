@@ -20,11 +20,12 @@ func NewNatsConnection(servers string) (*nats.EncodedConn, error) {
 		log.Infof("Got reconnected to NATS %v", nc.ConnectedUrl())
 	}
 	opts.ClosedCB = func(nc *nats.Conn) {
-		reason := "shutting down"
 		if nc.LastError() != nil {
-			reason = nc.LastError().Error()
+			log.Errorf("NATS connection closed. Reason: %v", nc.LastError().Error())
 		}
-		log.Errorf("NATS connection closed. Reason: %v", reason)
+	}
+	opts.AsyncErrorCB = func(c *nats.Conn, s *nats.Subscription, err error) {
+		log.Error(err)
 	}
 
 	nc, err := opts.Connect()

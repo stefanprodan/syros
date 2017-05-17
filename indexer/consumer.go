@@ -13,13 +13,19 @@ type Consumer struct {
 	NatsConnection *nats.EncodedConn
 	Repository     *Repository
 	metrics        *Prometheus
+	dockerChan     chan *models.DockerPayload
+	consulChan     chan *models.ConsulPayload
+	vsphereChan    chan *models.VSpherePayload
 }
 
-func NewConsumer(config *Config, nc *nats.EncodedConn, repo *Repository) (*Consumer, error) {
+func NewConsumer(config *Config, nc *nats.EncodedConn, repo *Repository, buffer int) (*Consumer, error) {
 	consumer := &Consumer{
 		Config:         config,
 		NatsConnection: nc,
 		Repository:     repo,
+		dockerChan:     make(chan *models.DockerPayload, buffer),
+		consulChan:     make(chan *models.ConsulPayload, buffer),
+		vsphereChan:    make(chan *models.VSpherePayload, buffer),
 	}
 
 	consumer.metrics = NewPrometheus("syros", "indexer")
@@ -34,9 +40,15 @@ func (c *Consumer) Consume() {
 }
 
 func (c *Consumer) DockerConsume() {
-	c.NatsConnection.QueueSubscribe("docker", c.Config.CollectorQueue, func(payload *models.DockerPayload) {
-		go dockerSave(payload, c)
-	})
+	c.NatsConnection.BindRecvQueueChan("docker", c.Config.CollectorQueue, c.dockerChan)
+	go func() {
+		for {
+			select {
+			case payload := <-c.dockerChan:
+				dockerSave(payload, c)
+			}
+		}
+	}()
 }
 
 func dockerSave(payload *models.DockerPayload, c *Consumer) {
@@ -56,9 +68,15 @@ func dockerSave(payload *models.DockerPayload, c *Consumer) {
 }
 
 func (c *Consumer) ConsulConsume() {
-	c.NatsConnection.QueueSubscribe("consul", c.Config.CollectorQueue, func(payload *models.ConsulPayload) {
-		go consulSave(payload, c)
-	})
+	c.NatsConnection.BindRecvQueueChan("consul", c.Config.CollectorQueue, c.consulChan)
+	go func() {
+		for {
+			select {
+			case payload := <-c.consulChan:
+				consulSave(payload, c)
+			}
+		}
+	}()
 }
 
 func consulSave(payload *models.ConsulPayload, c *Consumer) {
@@ -76,9 +94,15 @@ func consulSave(payload *models.ConsulPayload, c *Consumer) {
 }
 
 func (c *Consumer) VSphereConsume() {
-	c.NatsConnection.QueueSubscribe("vsphere", c.Config.CollectorQueue, func(payload *models.VSpherePayload) {
-		vsphereSave(payload, c)
-	})
+	c.NatsConnection.BindRecvQueueChan("vsphere", c.Config.CollectorQueue, c.vsphereChan)
+	go func() {
+		for {
+			select {
+			case payload := <-c.vsphereChan:
+				vsphereSave(payload, c)
+			}
+		}
+	}()
 }
 
 func vsphereSave(payload *models.VSpherePayload, c *Consumer) {

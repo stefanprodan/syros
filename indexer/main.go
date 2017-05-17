@@ -21,6 +21,7 @@ func main() {
 	flag.StringVar(&config.MongoDB, "MongoDB", "localhost:27017", "MongoDB server addresses comma delimited")
 	flag.StringVar(&config.Database, "Database", "syros", "MongoDB database name")
 	flag.IntVar(&config.DatabaseStale, "DatabaseStale", 5, "Deletes database records older than specified value in minutes, set 0 to disable")
+	flag.IntVar(&config.BufferSize, "BufferSize", 150, "Consumer in memory buffer size")
 	flag.Parse()
 
 	setLogLevel(config.LogLevel)
@@ -48,7 +49,7 @@ func main() {
 	registry.WatchForAgents()
 	registry.Start()
 
-	consumer, err := NewConsumer(config, nc, repo)
+	consumer, err := NewConsumer(config, nc, repo, config.BufferSize)
 	if err != nil {
 		log.Fatalf("Consumer init error %v", err)
 	}

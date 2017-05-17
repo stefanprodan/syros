@@ -11,4 +11,5 @@ type Config struct {
 	MongoDB        string `m:"MongoDB"`
 	Database       string `m:"Database"`
 	DatabaseStale  int    `m:"DatabaseStale"`
+	BufferSize     int    `m:"BufferSize"`
 }
