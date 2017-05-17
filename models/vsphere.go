@@ -16,6 +16,7 @@ type VSphereDatastore struct {
 	Free        int64     `bson:"free" json:"free"`
 	Collected   time.Time `bson:"collected" json:"collected"`
 	Environment string    `bson:"environment" json:"environment"`
+	VMs         int       `bson:"vms" json:"vms"`
 }
 
 type VSphereHost struct {
@@ -28,6 +29,7 @@ type VSphereHost struct {
 	Memory      int64      `bson:"memory" json:"memory"`
 	Collected   time.Time  `bson:"collected" json:"collected"`
 	Environment string     `bson:"environment" json:"environment"`
+	VMs         int        `bson:"vms" json:"vms"`
 }
 
 type VSphereVM struct {

@@ -69,7 +69,6 @@ func (col *VSphereCollector) Collect() (*models.VSpherePayload, error) {
 	if err != nil {
 		return nil, err
 	}
-	payload.DataStores = datastores
 
 	clusters, err := getClusters(ctx, f, pc)
 	if err != nil {
@@ -80,12 +79,28 @@ func (col *VSphereCollector) Collect() (*models.VSpherePayload, error) {
 	if err != nil {
 		return nil, err
 	}
-	payload.Hosts = hosts
 
 	vms, err := getVMs(ctx, f, pc, hosts, datastores, col.Include, col.Exclude)
 	if err != nil {
 		return nil, err
 	}
+
+	for _, vm := range vms {
+		for i, host := range hosts {
+			if vm.HostId == host.Id {
+				hosts[i].VMs++
+			}
+		}
+
+		for i, ds := range datastores {
+			if vm.DatastoreId == ds.Id {
+				datastores[i].VMs++
+			}
+		}
+	}
+
+	payload.DataStores = datastores
+	payload.Hosts = hosts
 	payload.VMs = vms
 
 	log.Debugf("%v collect duration: %v vms %v", col.ApiAddress, time.Now().UTC().Sub(start), len(payload.VMs))

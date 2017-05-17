@@ -66,11 +66,11 @@
           childRow: rowChild,
           templates: rowTemplate
         },
-        storesColumns: ['n', 'name', 'status', 'type', 'capacity', 'free', 'collected'],
+        storesColumns: ['n', 'name', 'status', 'vms', 'type', 'capacity', 'free', 'collected'],
         storesData: [],
         storesOptions: {
           skin: 'table-hover',
-          sortable: ['name', 'type', 'capacity', 'free', 'collected'],
+          sortable: ['name', 'type', 'vms', 'capacity', 'free', 'collected'],
           dateColumns: ['collected'],
           toMomentFormat: 'YYYY-MM-DDTHH:mm:ssZ',
           uniqueKey: 'id',
@@ -79,7 +79,7 @@
           perPageValues: [10, 20, 30, 50],
           templates: rowTemplateStore
         },
-        hostsColumns: ['n', 'name', 'power_state', 'ncpu', 'memory', 'boot_time'],
+        hostsColumns: ['n', 'name', 'power_state', 'vms', 'ncpu', 'memory', 'boot_time'],
         hostsData: [],
         hostsOptions: {
           skin: 'table-hover',

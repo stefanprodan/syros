@@ -45,7 +45,7 @@ func (s *HttpServer) vsphereRoutes() chi.Router {
 				Hosts      []models.VSphereHost      `json:"hosts"`
 				DataStores []models.VSphereDatastore `json:"data_stores"`
 				VMs        []models.VSphereVM        `json:"vms"`
-				Chart       models.ChartDto  `json:"chart"`
+				Chart      models.ChartDto           `json:"chart"`
 			}{
 				Hosts:      vsphere.Hosts,
 				DataStores: vsphere.DataStores,
