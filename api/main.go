@@ -59,7 +59,7 @@ func main() {
 	sigChan := make(chan os.Signal)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	sig := <-sigChan
-	log.Infof("Shuting down %v signal received", sig)
+	log.Infof("Shutting down %v signal received", sig)
 }
 
 func setLogLevel(levelName string) {

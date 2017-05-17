@@ -1,12 +1,13 @@
 package main
 
 import (
+	"strings"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/stefanprodan/syros/models"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"strings"
-	"time"
 )
 
 type Repository struct {
@@ -54,6 +55,9 @@ func (repo *Repository) Initialize() {
 	repo.CreateIndex("syros_services", "collected")
 	repo.CreateIndex("releases", "ticket_id")
 	repo.CreateIndex("deployments", "release_id")
+	repo.CreateIndex("vsphere_hosts", "collected")
+	repo.CreateIndex("vsphere_dstores", "collected")
+	repo.CreateIndex("vsphere_vms", "collected")
 }
 
 func (repo *Repository) CreateIndex(col string, index string) {
@@ -156,6 +160,48 @@ func (repo *Repository) SyrosServiceUpsert(service models.SyrosService) {
 	_, err := c.UpsertId(service.Id, &service)
 	if err != nil {
 		log.Errorf("Repository syros_services upsert failed %v", err)
+	}
+}
+
+func (repo *Repository) VSphereDatastoresUpsert(stores []models.VSphereDatastore) {
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	c := s.DB(repo.Config.Database).C("vsphere_dstores")
+
+	for _, store := range stores {
+		_, err := c.UpsertId(store.Id, &store)
+		if err != nil {
+			log.Errorf("Repository vsphere_dstores upsert failed %v", err)
+		}
+	}
+}
+
+func (repo *Repository) VSphereHostsUpsert(hosts []models.VSphereHost) {
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	c := s.DB(repo.Config.Database).C("vsphere_hosts")
+
+	for _, host := range hosts {
+		_, err := c.UpsertId(host.Id, &host)
+		if err != nil {
+			log.Errorf("Repository vsphere_hosts upsert failed %v", err)
+		}
+	}
+}
+
+func (repo *Repository) VSphereVMsUpsert(vms []models.VSphereVM) {
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	c := s.DB(repo.Config.Database).C("vsphere_vms")
+
+	for _, vm := range vms {
+		_, err := c.UpsertId(vm.Id, &vm)
+		if err != nil {
+			log.Errorf("Repository vsphere_vms upsert failed %v", err)
+		}
 	}
 }
 

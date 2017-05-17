@@ -30,6 +30,7 @@ func NewConsumer(config *Config, nc *nats.Conn, repo *Repository) (*Consumer, er
 func (c *Consumer) Consume() {
 	c.DockerConsume()
 	c.ConsulConsume()
+	c.VSphereConsume()
 }
 
 func (c *Consumer) DockerConsume() {
@@ -71,5 +72,29 @@ func (c *Consumer) ConsulConsume() {
 		t2 := time.Now()
 		c.metrics.requestsTotal.WithLabelValues("consul", c.Config.CollectorQueue, status).Inc()
 		c.metrics.requestsLatency.WithLabelValues("consul", c.Config.CollectorQueue, status).Observe(t2.Sub(t1).Seconds())
+	})
+}
+
+func (c *Consumer) VSphereConsume() {
+	c.NatsConnection.QueueSubscribe("vsphere", c.Config.CollectorQueue, func(m *nats.Msg) {
+		status := "200"
+		t1 := time.Now()
+
+		var payload models.VSpherePayload
+		err := json.Unmarshal(m.Data, &payload)
+		if err != nil {
+			log.Errorf("VSphere payload unmarshal error %v", err)
+			status = "500"
+		} else {
+			log.Debugf("VSphere payload received %v vms %v hosts %v datastores",
+				len(payload.VMs), len(payload.Hosts), len(payload.DataStores))
+			c.Repository.VSphereDatastoresUpsert(payload.DataStores)
+			c.Repository.VSphereHostsUpsert(payload.Hosts)
+			c.Repository.VSphereVMsUpsert(payload.VMs)
+		}
+
+		t2 := time.Now()
+		c.metrics.requestsTotal.WithLabelValues("vsphere", c.Config.CollectorQueue, status).Inc()
+		c.metrics.requestsLatency.WithLabelValues("vsphere", c.Config.CollectorQueue, status).Observe(t2.Sub(t1).Seconds())
 	})
 }

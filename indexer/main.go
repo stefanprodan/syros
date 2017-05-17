@@ -34,7 +34,7 @@ func main() {
 	repo.Initialize()
 	log.Infof("Connected to MongoDB cluster %v database initialization done", config.MongoDB)
 
-	repo.RunGarbageCollector([]string{"containers", "hosts", "checks", "syros_services"})
+	repo.RunGarbageCollector([]string{"containers", "hosts", "checks", "syros_services", "vsphere_hosts", "vsphere_dstores", "vsphere_vms"})
 
 	nc, err := NewNatsConnection(config.Nats)
 	if err != nil {
@@ -64,7 +64,7 @@ func main() {
 	sigChan := make(chan os.Signal)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	sig := <-sigChan
-	log.Infof("Shuting down %v signal received", sig)
+	log.Infof("Shutting down %v signal received", sig)
 }
 
 func setLogLevel(levelName string) {
