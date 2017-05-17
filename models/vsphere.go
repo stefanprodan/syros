@@ -42,7 +42,7 @@ type VSphereVM struct {
 	BootTime      *time.Time `bson:"boot_time" json:"boot_time"`
 	NCPU          int        `bson:"ncpu" json:"ncpu"`
 	Memory        int64      `bson:"memory" json:"memory"`
-	Storage       int64      `bson:"mem_total" json:"mem_total"`
+	Storage       int64      `bson:"storage" json:"storage"`
 	IP            string     `json:"ip"`
 	Collected     time.Time  `bson:"collected" json:"collected"`
 	Environment   string     `bson:"environment" json:"environment"`

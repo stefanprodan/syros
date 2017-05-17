@@ -28,11 +28,11 @@ type VSphereCollector struct {
 func NewVSphereCollector(address string, include string, exclude string, env string, interval int) (*VSphereCollector, error) {
 
 	c := &VSphereCollector{
-		ApiAddress:  address,
-		Include:     strings.Split(include, ","),
-		Exclude:     strings.Split(exclude, ","),
-		Environment: env,
-		Topic:       "vsphere",
+		ApiAddress:      address,
+		Include:         strings.Split(include, ","),
+		Exclude:         strings.Split(exclude, ","),
+		Environment:     env,
+		Topic:           "vsphere",
 		CollectInterval: interval,
 	}
 
@@ -284,6 +284,7 @@ func getVMs(ctx context.Context, f *find.Finder,
 			HostId:        host.Id,
 			DatastoreId:   datastore.Id,
 			DatastoreName: datastore.Name,
+			Environment:   strings.Split(vm.Name, "-")[0],
 		}
 
 		if vm.Guest != nil {

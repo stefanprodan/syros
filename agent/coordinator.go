@@ -3,16 +3,18 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/nats-io/go-nats"
 	"github.com/robfig/cron"
-	"strings"
-	"time"
 )
 
 type Coordinator struct {
 	DockerCollectors []*DockerCollector
 	ConsulCollectors []*ConsulCollector
+	VSphereCollector *VSphereCollector
 	NatsConnection   *nats.Conn
 	Config           *Config
 	Cron             *cron.Cron
@@ -57,6 +59,14 @@ func NewCoordinator(config *Config, nc *nats.Conn, cron *cron.Cron) (*Coordinato
 		co.ConsulCollectors = cc
 	}
 
+	if len(config.VSphereApiAddress) > 0 {
+		co.VSphereCollector, _ = NewVSphereCollector(config.VSphereApiAddress,
+			config.VSphereInclude,
+			config.VSphereExclude,
+			config.Environment,
+			config.VSphereCollectInterval)
+	}
+
 	return co, nil
 }
 
@@ -69,57 +79,15 @@ func (cor *Coordinator) Register() {
 	for _, c := range cor.ConsulCollectors {
 		cor.Cron.AddJob(at, consulJob{c, cor.NatsConnection, cor.metrics, cor.Config})
 	}
+
+	vsphereAt := fmt.Sprintf("%v * * * * *", cor.Config.VSphereCollectInterval)
+	cor.Cron.AddJob(vsphereAt, vsphereJob{cor.VSphereCollector, cor.NatsConnection, cor.metrics, cor.Config})
+
 	cor.Cron.Start()
 }
 
 func (cor *Coordinator) Deregister() {
 	cor.Cron.Stop()
-}
-
-type dockerJob struct {
-	collector *DockerCollector
-	nats      *nats.Conn
-	metrics   *Prometheus
-	config    *Config
-}
-
-func (j dockerJob) Run() {
-	status := "200"
-	t1 := time.Now()
-
-	payload, err := j.collector.Collect()
-	if err != nil {
-		status = "500"
-		log.Errorf("Docker collector %v error %v", j.collector.ApiAddress, err)
-	} else {
-		err = publish(j.config.Nats, j.collector.Topic, payload)
-		if err != nil {
-			status = "500"
-			log.Errorf("Docker collector %v Nats publish error %v", j.collector.ApiAddress, err)
-		}
-	}
-
-	t2 := time.Now()
-	j.metrics.requestsTotal.WithLabelValues("docker", j.collector.ApiAddress, status).Inc()
-	j.metrics.requestsLatency.WithLabelValues("docker", j.collector.ApiAddress, status).Observe(t2.Sub(t1).Seconds())
-}
-
-func publish(natsCon string, subject string, v interface{}) error {
-	nc, err := nats.Connect(natsCon)
-	if err != nil {
-		return err
-	}
-	enc, err := nats.NewEncodedConn(nc, nats.JSON_ENCODER)
-	if err != nil {
-		return err
-	}
-	defer enc.Close()
-	err = enc.Publish(subject, v)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (cor *Coordinator) StartDockerCollectors() {
@@ -148,7 +116,7 @@ func (cor *Coordinator) StartDockerCollectors() {
 						} else {
 							err := cor.NatsConnection.Publish(collector.Topic, jsonPayload)
 							if err != nil {
-								log.Errorf("Docker collector %v NATS publish failed %v", collector.ApiAddress, err)
+								log.Errorf("Docker collector %v NATS natsPublish failed %v", collector.ApiAddress, err)
 							}
 						}
 					}
@@ -160,34 +128,6 @@ func (cor *Coordinator) StartDockerCollectors() {
 			}
 		}(c)
 	}
-}
-
-type consulJob struct {
-	collector *ConsulCollector
-	nats      *nats.Conn
-	metrics   *Prometheus
-	config    *Config
-}
-
-func (j consulJob) Run() {
-	status := "200"
-	t1 := time.Now()
-
-	payload, err := j.collector.Collect()
-	if err != nil {
-		status = "500"
-		log.Errorf("Consul collector %v error %v", j.collector.ApiAddress, err)
-	} else {
-		err = publish(j.config.Nats, j.collector.Topic, payload)
-		if err != nil {
-			status = "500"
-			log.Errorf("Consul collector %v Nats publish error %v", j.collector.ApiAddress, err)
-		}
-	}
-
-	t2 := time.Now()
-	j.metrics.requestsTotal.WithLabelValues("consul", j.collector.ApiAddress, status).Inc()
-	j.metrics.requestsLatency.WithLabelValues("consul", j.collector.ApiAddress, status).Observe(t2.Sub(t1).Seconds())
 }
 
 func (cor *Coordinator) StartConsulCollectors() {
@@ -215,7 +155,7 @@ func (cor *Coordinator) StartConsulCollectors() {
 						} else {
 							err := cor.NatsConnection.Publish(collector.Topic, jsonPayload)
 							if err != nil {
-								log.Errorf("Consul collector %v NATS publish failed %v", collector.ApiAddress, err)
+								log.Errorf("Consul collector %v NATS natsPublish failed %v", collector.ApiAddress, err)
 							}
 						}
 					}

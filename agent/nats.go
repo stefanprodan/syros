@@ -19,3 +19,21 @@ func NewNatsConnection(servers string) (*nats.Conn, error) {
 	)
 	return nc, err
 }
+
+func natsPublish(natsCon string, subject string, v interface{}) error {
+	nc, err := nats.Connect(natsCon)
+	if err != nil {
+		return err
+	}
+	enc, err := nats.NewEncodedConn(nc, nats.JSON_ENCODER)
+	if err != nil {
+		return err
+	}
+	defer enc.Close()
+	err = enc.Publish(subject, v)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

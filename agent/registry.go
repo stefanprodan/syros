@@ -53,7 +53,7 @@ func (r *Registry) Register() {
 	r.Cron.AddFunc("10 * * * *", func() {
 		err := r.RegisterAgent()
 		if err != nil {
-			log.Error("Registry NATS publish failed %v", err)
+			log.Error("Registry NATS natsPublish failed %v", err)
 		}
 	})
 }
@@ -68,7 +68,7 @@ func (r *Registry) Start() chan bool {
 			case <-ticker.C:
 				err := r.RegisterAgent()
 				if err != nil {
-					log.Errorf("Registry NATS publish failed %v", err)
+					log.Errorf("Registry NATS natsPublish failed %v", err)
 				}
 			case <-stopped:
 				return

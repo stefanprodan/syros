@@ -24,7 +24,7 @@ func main() {
 	flag.StringVar(&config.VSphereApiAddress, "VSphereApiAddress", "", "VSphere API address")
 	flag.StringVar(&config.VSphereInclude, "VSphereInclude", "", "VM include filter comma delimited")
 	flag.StringVar(&config.VSphereExclude, "VSphereExclude", "", "VM exclude filter comma delimited")
-	flag.IntVar(&config.VSphereCollectInterval, "VSphereCollectInterval", 120, "vSphere collect interval in seconds")
+	flag.IntVar(&config.VSphereCollectInterval, "VSphereCollectInterval", 55, "vSphere collect interval in seconds")
 	flag.StringVar(&config.Nats, "Nats", "nats://localhost:4222", "Nats server addresses comma delimited")
 	flag.Parse()
 
@@ -60,7 +60,7 @@ func main() {
 	sigChan := make(chan os.Signal)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	sig := <-sigChan
-	log.Infof("Shuting down %v signal received", sig)
+	log.Infof("Shutting down %v signal received", sig)
 	coordinator.Deregister()
 	time.Sleep(1 * time.Second)
 }
