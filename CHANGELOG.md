@@ -1,8 +1,9 @@
 # Syros Changelog
 
-### v0.6.0 (WIP)
+### v0.6.0 (release)
 
-* VMWare vSphere collector
+* vSphere collector
+* vSphere dashboard (Host, Datastores, VMs)
 
 ### v0.5.0 (release)
 
