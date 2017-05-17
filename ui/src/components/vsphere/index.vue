@@ -1,0 +1,147 @@
+<template>
+<div>
+  <div>
+    <ol class="breadcrumb">
+      <li><router-link class="text-uppercase" :to="{ name: 'home'}">home</router-link></li>
+      <li>vsphere</li>
+    </ol>
+  </div>
+  <div class="stats">
+    <div class="row">
+      <div class="col-md-3 text-center">
+        <h2>{{ stats.hosts }}</h2><small class="text-uppercase">Hosts</small></div>
+      <div class="col-md-3 text-center">
+        <h2>{{ stats.vms }}</h2><small class="text-uppercase">VMs</small></div>
+      <div class="col-md-3 text-center">
+        <h2>{{ stats.cpus }}</h2><small class="text-uppercase">CPU Cores</small></div>
+      <div class="col-md-3 text-center">
+        <h2>{{ stats.ram }}</h2><small class="text-uppercase">Memory</small></div>
+    </div>
+  </div>
+  <v-client-table ref="vmsTabel" :data="tableData" :columns="columns" :options="options"></v-client-table>  
+  <v-client-table ref="storesTabel" :data="storesData" :columns="storesColumns" :options="storesOptions"></v-client-table> 
+  <v-client-table ref="hostsTabel" :data="hostsData" :columns="hostsColumns" :options="hostsOptions"></v-client-table> 
+</div>
+</template>
+
+<script>
+  import Vue from 'vue'
+  import bus from 'components/bus.vue'
+  import rowTemplate from 'components/vsphere/row.template.jsx'
+  import rowChild from 'components/vsphere/row-child.template.jsx'
+  import rowTemplateStore from 'components/vsphere/row.template.ds.jsx'
+  import rowTemplateHost from 'components/vsphere/row.template.hosts.jsx'
+
+  export default {
+    name: 'vsphere',
+    data () {
+      return {
+        timer: null,
+        stats: {hosts: '0', vms: '0', cpus: '0', ram: '0 MB'},
+        columns: ['name', 'power_state', 'ip', 'host_name', 'ncpu', 'memory', 'storage', 'boot_time'],
+        tableData: [],
+        options: {
+          skin: 'table-hover',
+          sortable: ['name', 'power_state', 'ip', 'host_name', 'ncpu', 'memory', 'storage', 'boot_time'],
+          dateColumns: ['boot_time'],
+          toMomentFormat: 'YYYY-MM-DDTHH:mm:ssZ',
+          uniqueKey: 'id',
+          orderBy: {column: 'name', ascending: true},
+          perPage: 10,
+          perPageValues: [10, 20, 30, 50],
+          childRow: rowChild,
+          templates: rowTemplate
+        },
+        storesColumns: ['n', 'name', 'status', 'type', 'capacity', 'free', 'collected'],
+        storesData: [],
+        storesOptions: {
+          skin: 'table-hover',
+          sortable: ['name', 'type', 'capacity', 'free', 'collected'],
+          dateColumns: ['collected'],
+          toMomentFormat: 'YYYY-MM-DDTHH:mm:ssZ',
+          uniqueKey: 'id',
+          orderBy: {column: 'name', ascending: true},
+          perPage: 10,
+          perPageValues: [10, 20, 30, 50],
+          templates: rowTemplateStore
+        },
+        hostsColumns: ['n', 'name', 'power_state', 'ncpu', 'memory', 'boot_time'],
+        hostsData: [],
+        hostsOptions: {
+          skin: 'table-hover',
+          sortable: ['name', 'power_state', 'ncpu', 'memory', 'boot_time'],
+          dateColumns: ['boot_time'],
+          toMomentFormat: 'YYYY-MM-DDTHH:mm:ssZ',
+          uniqueKey: 'id',
+          orderBy: {column: 'name', ascending: true},
+          perPage: 10,
+          perPageValues: [10, 20, 30, 50],
+          templates: rowTemplateHost
+        }
+      }
+    },
+    methods: {
+      loadData () {
+        this.$Progress.start()
+        Vue.$http.get('/vsphere')
+          .then((response) => {
+            if (response != null) {
+              this.tableData = response.data.vms
+              this.storesData = response.data.data_stores
+              this.hostsData = response.data.hosts
+              var statsCpus = 0
+              var statsRam = 0
+              for (var i = 0, len = response.data.hosts.length; i < len; i++) {
+                statsCpus += response.data.hosts[i].ncpu
+                statsRam += response.data.hosts[i].memory
+              }
+              this.stats = {
+                hosts: response.data.hosts.length.toString(),
+                vms: response.data.vms.length.toString(),
+                cpus: statsCpus.toString(),
+                ram: parseInt(parseFloat((statsRam / Math.pow(1024, 4))).toFixed(0)) + 'TB'
+              }
+              this.$Progress.finish()
+            } else {
+              this.$Progress.fail()
+            }
+          })
+          .catch((error) => {
+            if (!error.response) {
+              bus.$emit('flashMessage', {
+                type: 'warning',
+                message: 'Network error! Could not connect to the server'
+              })
+            } else {
+              bus.$emit('flashMessage', {
+                type: 'warning',
+                message: `${error.response.statusText}! ${error.response.data}`
+              })
+            }
+            this.$Progress.fail()
+          })
+      },
+      refreshData () {
+        this.loadData()
+        console.log('Refresh data: ' + this.$options.name)
+        // enqueue new call after 60 seconds
+        if (this.timer) clearTimeout(this.timer)
+        this.timer = setTimeout(this.refreshData, 60000)
+      }
+    },
+    created: function () {
+      console.log('Created: ' + this.$options.name)
+    },
+    mounted: function () {
+      console.log('Mounted: ' + this.$options.name)
+      this.refreshData()
+    },
+    destroyed: function () {
+      if (this.timer) {
+        clearTimeout(this.timer)
+        console.log('Destroyed: ' + this.$options.name)
+      }
+    }
+}
+
+</script>

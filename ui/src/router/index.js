@@ -54,6 +54,14 @@ export default new Router({
       }
     },
     {
+      path: '/vsphere',
+      name: 'vsphere',
+      component: require('components/vsphere/index.vue'),
+      meta: {
+        auth: true
+      }
+    },
+    {
       path: '/host/:id',
       name: 'host',
       component: require('components/host/index.vue'),

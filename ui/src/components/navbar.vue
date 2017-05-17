@@ -21,6 +21,9 @@
         <router-link :to="{ name: 'releases' }" active-class="active" tag="li">
             <a><i class="fa fa-play-circle-o"></i> Releases</a>
         </router-link>
+        <router-link :to="{ name: 'vsphere' }" active-class="active" tag="li">
+            <a><i class="fa fa-sitemap"></i> vSphere</a>
+        </router-link>
         </ul>
         <ul v-if="environments" class="nav navbar-nav navbar-indent">
             <li class="dropdown-header">Environments</li>
@@ -30,7 +33,7 @@
         </ul>
         <ul class="nav navbar-nav">
             <router-link :to="{ name: 'hosts' }" active-class="active" tag="li">
-                <a><i class="fa fa-h-square"></i> Hosts</a>
+                <a><i class="fa fa-h-square"></i> Docker Hosts</a>
             </router-link>    
             <router-link :to="{ name: 'admin' }" active-class="active" tag="li">
                 <a><i class="fa fa-circle-o-notch"></i> Admin</a>
