@@ -1,25 +1,25 @@
 package main
 
 import (
-	"encoding/json"
-	log "github.com/Sirupsen/logrus"
-	"github.com/nats-io/go-nats"
-	"github.com/stefanprodan/syros/models"
 	"os"
 	"runtime"
 	"strconv"
 	"sync"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/nats-io/go-nats"
+	"github.com/stefanprodan/syros/models"
 )
 
 type Registry struct {
 	mutex          sync.RWMutex
-	NatsConnection *nats.Conn
+	NatsConnection *nats.EncodedConn
 	Config         *Config
 	Repository     *Repository
 }
 
-func NewRegistry(config *Config, nc *nats.Conn, repo *Repository) *Registry {
+func NewRegistry(config *Config, nc *nats.EncodedConn, repo *Repository) *Registry {
 	registry := &Registry{
 		NatsConnection: nc,
 		Config:         config,
@@ -31,14 +31,12 @@ func NewRegistry(config *Config, nc *nats.Conn, repo *Repository) *Registry {
 
 func (reg *Registry) WatchForAgents() {
 
-	reg.NatsConnection.QueueSubscribe(reg.Config.RegistryTopic, reg.Config.RegistryQueue, func(m *nats.Msg) {
-		var payload models.SyrosService
-		err := json.Unmarshal(m.Data, &payload)
-		if err != nil {
-			log.Errorf("Agent payload unmarshal error %v", err)
+	reg.NatsConnection.QueueSubscribe(reg.Config.RegistryTopic, reg.Config.RegistryQueue, func(payload *models.SyrosService) {
+		if payload == nil {
+			log.Error("Agent payload is nil")
 		} else {
 			log.Debugf("Agent payload received from %v", payload.Hostname)
-			reg.Repository.SyrosServiceUpsert(payload)
+			go reg.Repository.SyrosServiceUpsert(*payload)
 		}
 	})
 }

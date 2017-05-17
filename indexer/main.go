@@ -42,7 +42,7 @@ func main() {
 	}
 	defer nc.Close()
 
-	log.Infof("Connected to NATS server %v status %v", nc.ConnectedUrl(), nc.Status())
+	log.Infof("Connected to NATS server %v status %v", nc.Conn.ConnectedUrl(), nc.Conn.Status())
 
 	registry := NewRegistry(config, nc, repo)
 	registry.WatchForAgents()
