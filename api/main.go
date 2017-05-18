@@ -2,12 +2,14 @@ package main
 
 import (
 	"flag"
-	log "github.com/Sirupsen/logrus"
-	"github.com/goware/jwtauth"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"syscall"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/goware/jwtauth"
+	"github.com/robfig/cron"
 )
 
 var version = "undefined"
@@ -21,11 +23,24 @@ func main() {
 	flag.StringVar(&config.JwtSecret, "JwtSecret", "syros", "JWT secret")
 	flag.StringVar(&config.Credentials, "Credentials", "admin@admin", "Credentials format user@password")
 	flag.StringVar(&config.AppPath, "AppPath", "", "Path to dist dir")
+	flag.StringVar(&config.Nats, "Nats", "nats://localhost:4222", "Nats server addresses comma delimited")
 	flag.Parse()
 
 	setLogLevel(config.LogLevel)
 
 	log.Infof("Starting with config: %+v", config)
+
+	nc, err := NewNatsConnection(config.Nats, "syros-app")
+	if err != nil {
+		log.Fatalf("Nats connection error %v", err)
+	}
+	defer nc.Close()
+
+	cronJob := cron.New()
+	cronJob.Start()
+	registry := NewRegistry(config, nc, cronJob)
+	log.Infof("Register service as %v", registry.Agent.Id)
+	registry.Register()
 
 	if config.AppPath == "" {
 		workDir, _ := os.Getwd()

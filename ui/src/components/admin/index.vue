@@ -8,14 +8,12 @@
   </div>
   <div class="stats">
     <div class="row">
-      <div class="col-md-3 text-center">
+      <div class="col-md-4 text-center">
         <h2>{{ stats.agents }}</h2><small class="text-uppercase">Agents</small></div>
-      <div class="col-md-3 text-center">
+      <div class="col-md-4 text-center">
         <h2>{{ stats.indexers }}</h2><small class="text-uppercase">Indexers</small></div>
-      <div class="col-md-3 text-center">
-        <h2>{{ stats.rdb }}</h2><small class="text-uppercase">MongoDB Cluster</small></div>
-      <div class="col-md-3 text-center">
-        <h2>{{ stats.nats }}</h2><small class="text-uppercase">NATS Cluster</small></div>
+      <div class="col-md-4 text-center">
+        <h2>{{ stats.apps }}</h2><small class="text-uppercase">Apps</small></div>
     </div>
   </div>
   <v-client-table ref="servicesTabel" :data="tableData" :columns="columns" :options="options"></v-client-table>  
@@ -57,11 +55,13 @@
           .then((response) => {
             if (response != null) {
               this.tableData = response.data
+              var apps = 0
               var agents = 0
               var indexers = 0
-              var rdb = 1
-              var nats = 1
               for (var i = 0, len = response.data.length; i < len; i++) {
+                if (response.data[i].type === 'app') {
+                  apps++
+                }
                 if (response.data[i].type === 'agent') {
                   agents++
                 }
@@ -72,8 +72,7 @@
               this.stats = {
                 agents: agents.toString(),
                 indexers: indexers.toString(),
-                rdb: rdb.toString(),
-                nats: nats.toString()
+                apps: apps.toString()
               }
               this.$Progress.finish()
             } else {

@@ -9,4 +9,5 @@ type Config struct {
 	JwtSecret   string `m:"JwtSecret"`
 	Credentials string `m:"Credentials"`
 	AppPath     string `m:"AppPath"`
+	Nats        string `m:"Nats"`
 }
