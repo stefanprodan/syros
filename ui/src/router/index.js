@@ -109,5 +109,8 @@ export default new Router({
       path: '/*',
       redirect: '/home'
     }
-  ]
+  ],
+  scrollBehavior (to, from, savedPosition) {
+    return { x: 0, y: 0 }
+  }
 })

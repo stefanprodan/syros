@@ -127,7 +127,6 @@
               this.storesData = response.data.data_stores
               this.hostsData = response.data.hosts
               this.vmChartData = this.fillChart(response.data.chart)
-              this.loaded = true
               var statsVcpus = 0
               var statsVdisk = 0
               var statsVram = 0
@@ -160,6 +159,7 @@
                 dcap: parseInt(parseFloat((statsDcap / Math.pow(1024, 4))).toFixed(0)) + 'TB',
                 dfree: parseInt(parseFloat((statsDfree / Math.pow(1024, 4))).toFixed(0)) + 'TB'
               }
+              this.loaded = true
               this.$Progress.finish()
             } else {
               this.$Progress.fail()
@@ -205,16 +205,9 @@
         }
       }
     },
-    watch: {
-      '$route' (to, from) {
-        if (from.params.id !== to.params.id) {
-          this.id = to.params.id
-          return this.refreshData()
-        }
-      }
-    },
     created: function () {
       console.log('Created: ' + this.$options.name)
+      window.scrollTo(0, 0)
     },
     mounted: function () {
       console.log('Mounted: ' + this.$options.name)

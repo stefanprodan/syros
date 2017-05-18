@@ -46,7 +46,7 @@
         <h2>{{ stats.vram }}</h2><small class="text-uppercase">Memory</small></div>
     </div>
   </div>
-  <v-client-table ref="hostsTabel" :data="hostsData" :columns="hostsColumns" :options="hostsOptions" v-if="vsloaded"></v-client-table> 
+  <v-client-table ref="hostsTabel" :data="hostsData" :columns="hostsColumns" :options="hostsOptions"></v-client-table> 
 </div>
 </template>
 
