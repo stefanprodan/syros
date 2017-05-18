@@ -1,5 +1,10 @@
 # Syros Changelog
 
+### v0.7.0 (release)
+
+* vSphere dashboard stats and graph
+* NATS pub/sub refactoring
+
 ### v0.6.0 (release)
 
 * vSphere collector
