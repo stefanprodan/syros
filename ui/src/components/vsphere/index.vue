@@ -151,13 +151,13 @@
                 hosts: response.data.hosts.length.toString(),
                 vms: response.data.vms.length.toString(),
                 vcpus: statsVcpus.toString(),
-                vram: parseInt(parseFloat((statsVram / Math.pow(1024, 2))).toFixed(0)) + 'TB',
+                vram: parseFloat((statsVram / Math.pow(1024, 2))).toFixed(2) + 'TB',
                 vdisk: parseInt(parseFloat((statsVdisk / Math.pow(1024, 4))).toFixed(0)) + 'TB',
                 hthreads: statsHthreads.toString(),
-                hram: parseInt(parseFloat((statsHram / Math.pow(1024, 4))).toFixed(0)) + 'TB',
+                hram: parseFloat((statsHram / Math.pow(1024, 4))).toFixed(2) + 'TB',
                 dstores: response.data.data_stores.length.toString(),
-                dcap: parseInt(parseFloat((statsDcap / Math.pow(1024, 4))).toFixed(0)) + 'TB',
-                dfree: parseInt(parseFloat((statsDfree / Math.pow(1024, 4))).toFixed(0)) + 'TB'
+                dcap: parseFloat((statsDcap / Math.pow(1024, 4))).toFixed(2) + 'TB',
+                dfree: parseFloat((statsDfree / Math.pow(1024, 4))).toFixed(2) + 'TB'
               }
               this.loaded = true
               this.$Progress.finish()

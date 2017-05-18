@@ -41,7 +41,7 @@
       <div class="col-md-3 text-center">
         <h2>{{ stats.vms }}</h2><small class="text-uppercase">VMS</small></div>
       <div class="col-md-3 text-center">
-        <h2>{{ stats.vcpus }}</h2><small class="text-uppercase">vCPUs</small></div>
+        <h2>{{ stats.vcpus }}</h2><small class="text-uppercase">CPU Threads</small></div>
       <div class="col-md-3 text-center">
         <h2>{{ stats.vram }}</h2><small class="text-uppercase">Memory</small></div>
     </div>
@@ -142,7 +142,7 @@
                 ram: statsRam.toString() + 'GB',
                 vms: statsVms.toString(),
                 vcpus: statsVcpus.toString(),
-                vram: parseInt(parseFloat((statsVram / Math.pow(1024, 4))).toFixed(0)) + 'TB',
+                vram: parseFloat((statsVram / Math.pow(1024, 4))).toFixed(2) + 'TB',
                 vhosts: response.data.vsphere.length.toString()
               }
               this.$Progress.finish()
