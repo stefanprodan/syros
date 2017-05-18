@@ -1,11 +1,12 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/goware/jwtauth"
 	"github.com/stefanprodan/chi"
 	"github.com/stefanprodan/chi/render"
 	"github.com/stefanprodan/syros/models"
-	"net/http"
 )
 
 func (s *HttpServer) dockerRoutes() chi.Router {
@@ -104,16 +105,6 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 			render.JSON(w, r, payload)
 		})
 
-		r.Get("/environments/stats", func(w http.ResponseWriter, r *http.Request) {
-			environments, err := s.Repository.EnvironmentHostContainerSum()
-			if err != nil {
-				render.Status(r, http.StatusInternalServerError)
-				render.PlainText(w, r, err.Error())
-				return
-			}
-			render.JSON(w, r, environments)
-		})
-
 		r.Get("/syrosservices", func(w http.ResponseWriter, r *http.Request) {
 			services, err := s.Repository.AllSyrosServices()
 			if err != nil {
@@ -154,16 +145,6 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 			render.JSON(w, r, data)
 		})
 
-	})
-
-	r.Get("/environments", func(w http.ResponseWriter, r *http.Request) {
-		environments, err := s.Repository.AllEnvironments()
-		if err != nil {
-			render.Status(r, http.StatusInternalServerError)
-			render.PlainText(w, r, err.Error())
-			return
-		}
-		render.JSON(w, r, environments)
 	})
 
 	return r

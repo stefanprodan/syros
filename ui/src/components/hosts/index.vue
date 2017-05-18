@@ -3,13 +3,13 @@
   <div>
     <ol class="breadcrumb">
       <li><router-link class="text-uppercase" :to="{ name: 'home'}">home</router-link></li>
-      <li>hosts</li>
+      <li>Docker Hosts</li>
     </ol>
   </div>
   <div class="stats">
     <div class="row">
       <div class="col-md-3 text-center">
-        <h2>{{ stats.hosts }}</h2><small class="text-uppercase">Hosts</small></div>
+        <h2>{{ stats.hosts }}</h2><small class="text-uppercase">Docker Hosts</small></div>
       <div class="col-md-3 text-center">
         <h2>{{ stats.containers }}</h2><small class="text-uppercase">Containers up</small></div>
       <div class="col-md-3 text-center">

@@ -24,6 +24,9 @@
         <router-link :to="{ name: 'vsphere' }" active-class="active" tag="li">
             <a><i class="fa fa-sitemap"></i> vSphere</a>
         </router-link>
+        <router-link :to="{ name: 'hosts' }" active-class="active" tag="li">
+            <a><i class="fa fa-h-square"></i> Docker Hosts</a>
+        </router-link> 
         </ul>
         <ul v-if="environments" class="nav navbar-nav navbar-indent">
             <li class="dropdown-header">Environments</li>
@@ -31,17 +34,14 @@
             <a>{{ env }}</a>
             </router-link>
         </ul>
-        <ul class="nav navbar-nav">
-            <router-link :to="{ name: 'hosts' }" active-class="active" tag="li">
-                <a><i class="fa fa-h-square"></i> Docker Hosts</a>
-            </router-link>    
+        <ul class="nav navbar-nav">   
             <router-link :to="{ name: 'admin' }" active-class="active" tag="li">
                 <a><i class="fa fa-circle-o-notch"></i> Admin</a>
             </router-link>  
             <li><a href="#" @click="logout()"><i class="fa fa-sign-out"></i> Logout</a></li>
         </ul>
         <p class="navbar-text">
-            Syros is an OSS project MIT licensed hosted on <a href="https://github.com/stefanprodan/syros">GitHub</a> made by <a href="http://www.stefanprodan.com">Stefan</a>
+            <a href="https://github.com/stefanprodan/syros">Syros v0.6</a> open-source software by <a href="http://www.stefanprodan.com">Stefan</a>
         </p>
         </div>  
     </nav>
@@ -62,7 +62,7 @@
     },
     methods: {
       loadData () {
-        Vue.$http.get('/docker/environments')
+        Vue.$http.get('/home/environments')
           .then((response) => {
             if (response != null) {
               this.environments = response.data

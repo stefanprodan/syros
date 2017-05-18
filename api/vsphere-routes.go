@@ -19,6 +19,11 @@ func (s *HttpServer) vsphereRoutes() chi.Router {
 
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			vsphere, err := s.Repository.AllVSphere()
+			if err != nil {
+				render.Status(r, http.StatusInternalServerError)
+				render.PlainText(w, r, err.Error())
+				return
+			}
 
 			chart := models.ChartDto{
 				Labels: make([]string, 0),
@@ -66,11 +71,6 @@ func (s *HttpServer) vsphereRoutes() chi.Router {
 				Chart:      chart,
 			}
 
-			if err != nil {
-				render.Status(r, http.StatusInternalServerError)
-				render.PlainText(w, r, err.Error())
-				return
-			}
 			render.JSON(w, r, data)
 		})
 

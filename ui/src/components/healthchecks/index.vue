@@ -161,6 +161,14 @@
         }
       }
     },
+    watch: {
+      '$route' (to, from) {
+        if (from.params.id !== to.params.id) {
+          this.id = to.params.id
+          return this.refreshData()
+        }
+      }
+    },
     created: function () {
       console.log('Created: ' + this.$options.name)
     },

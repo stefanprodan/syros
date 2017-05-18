@@ -2,17 +2,18 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+	"path/filepath"
+	"runtime"
+	"strconv"
+
 	"github.com/goware/cors"
 	"github.com/goware/jwtauth"
 	"github.com/pkg/errors"
 	"github.com/stefanprodan/chi"
 	"github.com/stefanprodan/chi/middleware"
 	"github.com/stefanprodan/chi/render"
-	"log"
-	"net/http"
-	"path/filepath"
-	"runtime"
-	"strconv"
 )
 
 type HttpServer struct {
@@ -85,6 +86,7 @@ func (s *HttpServer) Start() {
 	})
 
 	r.Mount("/api/auth", s.authRoutes())
+	r.Mount("/api/home", s.homeRoutes())
 	r.Mount("/api/docker", s.dockerRoutes())
 	r.Mount("/api/deployment", s.deploymentApiRoutes())
 	r.Mount("/api/release", s.releaseRoutes())

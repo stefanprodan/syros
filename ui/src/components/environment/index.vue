@@ -9,7 +9,7 @@
   <div class="stats">
     <div class="row">
       <div class="col-md-3 text-center">
-        <h2>{{ stats.hosts }}</h2><small class="text-uppercase">Hosts</small></div>
+        <h2>{{ stats.hosts }}</h2><small class="text-uppercase">Docker Hosts</small></div>
       <div class="col-md-3 text-center">
         <h2>{{ stats.containers }}</h2><small class="text-uppercase">Containers up</small></div>
       <div class="col-md-3 text-center">
