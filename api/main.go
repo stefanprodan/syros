@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"syscall"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/goware/jwtauth"
 	"github.com/robfig/cron"
+	log "github.com/sirupsen/logrus"
 )
 
 var version = "undefined"

@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/nats-io/go-nats"
 	"github.com/robfig/cron"
+	log "github.com/sirupsen/logrus"
 	"github.com/stefanprodan/syros/models"
 )
 

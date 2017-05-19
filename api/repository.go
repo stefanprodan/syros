@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	log "github.com/Sirupsen/logrus"
+	"strings"
+	"time"
+
+	log "github.com/sirupsen/logrus"
 	"github.com/stefanprodan/syros/models"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"strings"
-	"time"
 )
 
 type Repository struct {

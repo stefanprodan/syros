@@ -1,14 +1,15 @@
 package main
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/stefanprodan/chi"
-	"github.com/stefanprodan/chi/middleware"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/stefanprodan/chi"
+	"github.com/stefanprodan/chi/middleware"
 )
 
 type Prometheus struct {

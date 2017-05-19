@@ -1,11 +1,12 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/goware/jwtauth"
 	"github.com/stefanprodan/chi"
 	"github.com/stefanprodan/chi/render"
 	"github.com/stefanprodan/syros/models"
-	"net/http"
 )
 
 func (s *HttpServer) releaseRoutes() chi.Router {

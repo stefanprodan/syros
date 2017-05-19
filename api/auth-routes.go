@@ -1,11 +1,12 @@
 package main
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/goware/jwtauth"
 	"github.com/stefanprodan/chi"
 	"github.com/stefanprodan/chi/render"
-	"net/http"
-	"strings"
 )
 
 func (s *HttpServer) authRoutes() chi.Router {

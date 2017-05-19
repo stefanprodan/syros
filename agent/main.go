@@ -6,8 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/robfig/cron"
+	log "github.com/sirupsen/logrus"
 )
 
 var version = "undefined"
