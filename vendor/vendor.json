@@ -9,6 +9,12 @@
 			"revisionTime": "2017-04-26T02:53:07Z"
 		},
 		{
+			"checksumSHA1": "ZKxETlJdB2XubMrZnXB0FQimVA8=",
+			"path": "github.com/Sirupsen/logrus",
+			"revision": "10f801ebc38b33738c9d17d50860f484a0988ff5",
+			"revisionTime": "2017-03-17T14:32:14Z"
+		},
+		{
 			"checksumSHA1": "spyv5/YFBjYyZLZa1U2LBfDR8PM=",
 			"path": "github.com/beorn7/perks/quantile",
 			"revision": "4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9",
@@ -333,12 +339,6 @@
 			"path": "github.com/robfig/cron",
 			"revision": "df38d32658d8788cd446ba74db4bb5375c4b0cb3",
 			"revisionTime": "2017-03-09T13:24:18Z"
-		},
-		{
-			"checksumSHA1": "x/C9sWJ33glBGKgGvb8VvUQvR8s=",
-			"path": "github.com/sirupsen/logrus",
-			"revision": "5e5dc898656f695e2a086b8e12559febbfc01562",
-			"revisionTime": "2017-05-15T10:45:16Z"
 		},
 		{
 			"checksumSHA1": "J4wRmIEAO9PpDTbSpi/3MwwepoU=",

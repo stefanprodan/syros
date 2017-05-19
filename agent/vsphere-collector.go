@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"github.com/stefanprodan/syros/models"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"

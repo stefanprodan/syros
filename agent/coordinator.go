@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/nats-io/go-nats"
 	"github.com/robfig/cron"
-	log "github.com/sirupsen/logrus"
 )
 
 type Coordinator struct {

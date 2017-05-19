@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
+	consul "github.com/hashicorp/consul/api"
+	"github.com/stefanprodan/syros/models"
 	"strings"
 	"time"
-
-	consul "github.com/hashicorp/consul/api"
-	log "github.com/sirupsen/logrus"
-	"github.com/stefanprodan/syros/models"
 )
 
 type ConsulCollector struct {

@@ -2,13 +2,12 @@ package main
 
 import (
 	"context"
-	"strings"
-	"time"
-
+	log "github.com/Sirupsen/logrus"
 	"github.com/docker/docker/api/types"
 	docker "github.com/docker/docker/client"
-	log "github.com/sirupsen/logrus"
 	"github.com/stefanprodan/syros/models"
+	"strings"
+	"time"
 )
 
 type DockerCollector struct {

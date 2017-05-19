@@ -1,8 +1,8 @@
 package main
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"github.com/nats-io/go-nats"
-	log "github.com/sirupsen/logrus"
 )
 
 func NewNatsConnection(servers string, name string) (*nats.EncodedConn, error) {

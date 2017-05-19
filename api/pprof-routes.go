@@ -3,11 +3,10 @@ package main
 import (
 	"expvar"
 	"fmt"
-	"net/http"
-	"net/http/pprof"
-
 	"github.com/stefanprodan/chi"
 	"github.com/stefanprodan/chi/middleware"
+	"net/http"
+	"net/http/pprof"
 )
 
 func (s *HttpServer) pprofRoutes() chi.Router {
