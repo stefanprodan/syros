@@ -1,5 +1,5 @@
-#FROM golang:1.8.1
-FROM golang:1.8.1-alpine
+#FROM golang:1.8.3
+FROM golang:1.8.3-alpine
 
 ARG APP_VERSION=unkown
 ARG BUILD_DATE=unkown

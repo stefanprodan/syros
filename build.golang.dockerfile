@@ -1,5 +1,5 @@
-#FROM golang:1.8.1
-FROM golang:1.8.1-alpine
+#FROM golang:1.8.3
+FROM golang:1.8.3-alpine
 
 # services
 ADD /models /go/src/github.com/stefanprodan/syros/models
