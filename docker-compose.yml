@@ -41,6 +41,22 @@ services:
     networks:
       - local
 
+  consul:
+    image: consul
+    container_name: syros-consul
+    hostname: syros-consul
+    environment:
+      - "CONSUL_LOCAL_CONFIG={\"disable_update_check\": true}"
+      - "CONSUL_BIND_INTERFACE=eth0"
+      - "CONSUL_HTTP_ADDR=0.0.0.0"
+    ports:
+      - 8400:8400
+      - 8500:8500
+    volumes:
+      - consuldata:/consul/data
+    restart: unless-stopped
+    networks:
+      - local
 
 networks:
   local:
@@ -50,3 +66,4 @@ volumes:
   mongodata: {}
   mongocfg: {}
   mongoclient: {}
+  consuldata: {}
