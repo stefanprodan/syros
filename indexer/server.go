@@ -3,13 +3,14 @@ package main
 import (
 	_ "expvar"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	unrender "github.com/unrolled/render"
 	"net/http"
 	_ "net/http/pprof"
 	"runtime"
 	"strconv"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	unrender "github.com/unrolled/render"
 )
 
 type HttpServer struct {
