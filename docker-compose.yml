@@ -49,8 +49,14 @@ services:
       - "CONSUL_LOCAL_CONFIG={\"disable_update_check\": true}"
       - "CONSUL_BIND_INTERFACE=eth0"
       - "CONSUL_HTTP_ADDR=0.0.0.0"
+    command: [
+                "agent",
+                "-server",
+                "-bootstrap-expect=1",
+                "-client=0.0.0.0",
+                "-ui"
+              ]
     ports:
-      - 8400:8400
       - 8500:8500
     volumes:
       - consuldata:/consul/data
