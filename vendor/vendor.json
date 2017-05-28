@@ -245,22 +245,22 @@
 			"revisionTime": "2016-04-24T11:30:07Z"
 		},
 		{
-			"checksumSHA1": "LrpSkiHU1kiwZZ25HBH1KWIynrc=",
+			"checksumSHA1": "hB44IMVjbi8/5feL31SFs5dG1Lg=",
 			"path": "github.com/nats-io/go-nats",
-			"revision": "54db162ec771decde5eb8b9921e9775d43de9ea0",
-			"revisionTime": "2017-05-12T01:36:29Z"
+			"revision": "9147cfac69833916f9c73353ba43f939815c330a",
+			"revisionTime": "2017-05-27T00:21:41Z"
 		},
 		{
 			"checksumSHA1": "Q2c9uTEIGhSIddv5pntYdFNtUdk=",
 			"path": "github.com/nats-io/go-nats/encoders/builtin",
-			"revision": "54db162ec771decde5eb8b9921e9775d43de9ea0",
-			"revisionTime": "2017-05-12T01:36:29Z"
+			"revision": "9147cfac69833916f9c73353ba43f939815c330a",
+			"revisionTime": "2017-05-27T00:21:41Z"
 		},
 		{
 			"checksumSHA1": "LhbIA/oMWpscEPPK9Wrx5GLcz44=",
 			"path": "github.com/nats-io/go-nats/util",
-			"revision": "54db162ec771decde5eb8b9921e9775d43de9ea0",
-			"revisionTime": "2017-05-12T01:36:29Z"
+			"revision": "9147cfac69833916f9c73353ba43f939815c330a",
+			"revisionTime": "2017-05-27T00:21:41Z"
 		},
 		{
 			"checksumSHA1": "qI+4s7mlYYbB7ppay+Z3Y7+mhik=",
