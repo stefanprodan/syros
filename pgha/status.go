@@ -20,7 +20,7 @@ type Status struct {
 
 func NewStatus() *Status {
 	return &Status{
-		Code:      500,
+		Code:      FaultedCode,
 		Message:   "Initializing",
 		Timestamp: time.Now().UTC(),
 	}

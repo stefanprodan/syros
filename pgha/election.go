@@ -60,8 +60,8 @@ func (e *Election) Start() {
 		default:
 			leader := e.GetLeader()
 			if leader != "" {
-				e.status.SetStatus(FollowerCode, fmt.Sprintf("follower of %s", leader))
 				log.Infof("Entering follower state, leader is %s", leader)
+				e.status.SetStatus(FollowerCode, fmt.Sprintf("follower of %s", leader))
 			} else {
 				log.Info("Entering candidate state, no leader found")
 			}
@@ -94,6 +94,11 @@ func (e *Election) GetLeader() string {
 		}
 	}
 	return ""
+}
+
+func (e *Election) Fallback() error {
+	e.lockChan <- struct{}{}
+	return e.consulLock.Unlock()
 }
 
 func (e *Election) Stop() {

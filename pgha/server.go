@@ -18,9 +18,10 @@ import (
 type HttpServer struct {
 	config *Config
 	status *Status
+	election *Election
 }
 
-func NewHttpServer(config *Config, status *Status) (*HttpServer, error) {
+func NewHttpServer(config *Config, status *Status, election *Election) (*HttpServer, error) {
 	if config.Port < 1 {
 		return nil, errors.New("HTTP Server port is required")
 	}
@@ -28,6 +29,7 @@ func NewHttpServer(config *Config, status *Status) (*HttpServer, error) {
 	server := &HttpServer{
 		config: config,
 		status: status,
+		election: election,
 	}
 
 	return server, nil
@@ -68,6 +70,20 @@ func (s *HttpServer) Start() {
 			"cpu_count":     strconv.FormatInt(int64(runtime.NumCPU()), 10),
 		}
 		render.JSON(w, http.StatusOK, info)
+	})
+	http.HandleFunc("/fallback", func(w http.ResponseWriter, req *http.Request) {
+		err := s.election.Fallback()
+		if err != nil{
+			info := map[string]string{
+				"status":    err.Error(),
+			}
+			render.JSON(w, http.StatusInternalServerError, info)
+		}else {
+			info := map[string]string{
+				"status": "leadership lost",
+			}
+			render.JSON(w, http.StatusOK, info)
+		}
 	})
 
 	log.Error(http.ListenAndServe(fmt.Sprintf(":%v", s.config.Port), http.DefaultServeMux))

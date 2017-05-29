@@ -38,7 +38,7 @@ func main() {
 	}
 	go election.Start()
 
-	server, err := NewHttpServer(config, status)
+	server, err := NewHttpServer(config, status, election)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
