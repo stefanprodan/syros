@@ -6,6 +6,7 @@ ADD /models /go/src/github.com/stefanprodan/syros/models
 ADD /agent /go/src/github.com/stefanprodan/syros/agent
 ADD /indexer /go/src/github.com/stefanprodan/syros/indexer
 ADD /api /go/src/github.com/stefanprodan/syros/api
+ADD /pgha /go/src/github.com/stefanprodan/syros/pgha
 
 # deps
 ADD /vendor/vendor.json /go/src/github.com/stefanprodan/syros/vendor/vendor.json
