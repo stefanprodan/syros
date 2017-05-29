@@ -1,12 +1,14 @@
 package main
 
 import (
+	"errors"
 	_ "expvar"
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
 	"runtime"
 	"strconv"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -14,7 +16,21 @@ import (
 )
 
 type HttpServer struct {
-	Config *Config
+	config *Config
+	status *Status
+}
+
+func NewHttpServer(config *Config, status *Status) (*HttpServer, error) {
+	if config.Port < 1 {
+		return nil, errors.New("HTTP Server port is required")
+	}
+
+	server := &HttpServer{
+		config: config,
+		status: status,
+	}
+
+	return server, nil
 }
 
 // Starts HTTP Server
@@ -31,10 +47,15 @@ func (s *HttpServer) Start() {
 		render.Text(w, http.StatusOK, "pong")
 	})
 	http.HandleFunc("/config", func(w http.ResponseWriter, req *http.Request) {
-		render.JSON(w, http.StatusOK, s.Config)
+		render.JSON(w, http.StatusOK, s.config)
 	})
 	http.HandleFunc("/status", func(w http.ResponseWriter, req *http.Request) {
-		render.Text(w, http.StatusOK, "OK")
+		code, msg, ts := s.status.GetStatus()
+		info := map[string]string{
+			"status":    msg,
+			"timestamp": ts.Format(time.RFC3339),
+		}
+		render.JSON(w, code, info)
 	})
 	http.HandleFunc("/version", func(w http.ResponseWriter, req *http.Request) {
 		info := map[string]string{
@@ -49,5 +70,5 @@ func (s *HttpServer) Start() {
 		render.JSON(w, http.StatusOK, info)
 	})
 
-	log.Error(http.ListenAndServe(fmt.Sprintf(":%v", s.Config.Port), http.DefaultServeMux))
+	log.Error(http.ListenAndServe(fmt.Sprintf(":%v", s.config.Port), http.DefaultServeMux))
 }

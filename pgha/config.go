@@ -1,6 +1,6 @@
 package main
 
-// Config holds global configuration, defaults are provided in main.
+// config holds global configuration, defaults are provided in main.
 type Config struct {
 	Environment string `m:"Environment"`
 	LogLevel    string `m:"LogLevel"`

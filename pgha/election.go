@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -11,14 +12,14 @@ type Election struct {
 	key          string
 	session      string
 	ttl          string
-	isLeader     bool
+	status       *Status
 	consulClient *consul.Client
 	consulLock   *consul.Lock
 	stopChan     chan struct{}
 	lockChan     chan struct{}
 }
 
-func NewElection(consulAddress string, ttl string, prefix string, session string) (*Election, error) {
+func NewElection(consulAddress string, ttl string, prefix string, session string, status *Status) (*Election, error) {
 	key := prefix + "/leader/election"
 	cfg := consul.DefaultConfig()
 	cfg.Address = consulAddress
@@ -40,7 +41,7 @@ func NewElection(consulAddress string, ttl string, prefix string, session string
 	e := &Election{
 		key:          key,
 		session:      session,
-		isLeader:     false,
+		status:       status,
 		consulClient: client,
 		consulLock:   lock,
 		stopChan:     make(chan struct{}, 1),
@@ -59,6 +60,7 @@ func (e *Election) Start() {
 		default:
 			leader := e.GetLeader()
 			if leader != "" {
+				e.status.SetStatus(FollowerCode, fmt.Sprintf("follower of %s", leader))
 				log.Infof("Entering follower state, leader is %s", leader)
 			} else {
 				log.Info("Entering candidate state, no leader found")
@@ -66,17 +68,18 @@ func (e *Election) Start() {
 			electionChan, err := e.consulLock.Lock(e.lockChan)
 			if err != nil {
 				log.Warnf("Failed to acquire election lock %s", err.Error())
+				e.status.SetStatus(FaultedCode, err.Error())
 			}
 			if electionChan != nil {
 				log.Info("Entering leader state")
-				e.isLeader = true
+				e.status.SetStatus(LeaderCode, "leader")
 				<-electionChan
-				e.isLeader = false
 				log.Warn("Leadership lost, releasing lock")
+				e.status.SetStatus(FaultedCode, "leadership lost")
 				e.consulLock.Unlock()
 			} else {
 				log.Info("Retrying election in 5s")
-				time.Sleep(5000 * time.Millisecond)
+				time.Sleep(5 * time.Second)
 			}
 		}
 	}

@@ -30,15 +30,17 @@ func main() {
 		config.Hostname, _ = os.Hostname()
 	}
 
-	election, err := NewElection(config.ConsulURI, config.ConsulTTL, config.ConsulKV, config.Hostname)
+	status := NewStatus()
+
+	election, err := NewElection(config.ConsulURI, config.ConsulTTL, config.ConsulKV, config.Hostname, status)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-
 	go election.Start()
 
-	server := &HttpServer{
-		Config: config,
+	server, err := NewHttpServer(config, status)
+	if err != nil {
+		log.Fatal(err.Error())
 	}
 	log.Infof("Starting HTTP server on port %v", config.Port)
 	go server.Start()
