@@ -8,7 +8,6 @@ import (
 	_ "net/http/pprof"
 	"runtime"
 	"strconv"
-	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -52,12 +51,8 @@ func (s *HttpServer) Start() {
 		render.JSON(w, http.StatusOK, s.config)
 	})
 	http.HandleFunc("/status", func(w http.ResponseWriter, req *http.Request) {
-		code, msg, ts := s.status.GetStatus()
-		info := map[string]string{
-			"status":    msg,
-			"timestamp": ts.Format(time.RFC3339),
-		}
-		render.JSON(w, code, info)
+		status := s.status.GetStatus()
+		render.JSON(w, status.Code, status)
 	})
 	http.HandleFunc("/version", func(w http.ResponseWriter, req *http.Request) {
 		info := map[string]string{

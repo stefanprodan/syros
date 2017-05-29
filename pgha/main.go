@@ -32,6 +32,19 @@ func main() {
 
 	status := NewStatus()
 
+	pgmon, err := NewPGMonitor(config.PostgresURI, status)
+	if err != nil {
+		log.Fatalf("Postgres connection failed %s", err.Error())
+	}
+
+	isMaster, err := pgmon.IsMaster()
+	if err != nil {
+		log.Fatalf("Can't determine Postgres replication status %s", err.Error())
+	} else {
+		log.Infof("Postgres Master %v", isMaster)
+	}
+	go pgmon.Start()
+
 	election, err := NewElection(config.ConsulURI, config.ConsulTTL, config.ConsulKV, config.Hostname, status)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -51,6 +64,7 @@ func main() {
 	sig := <-sigChan
 	log.Infof("Shutting down %v signal received", sig)
 	election.Stop()
+	pgmon.Stop()
 }
 
 func setLogLevel(levelName string) {
