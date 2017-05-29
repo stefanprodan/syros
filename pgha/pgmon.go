@@ -28,9 +28,9 @@ func NewPGMonitor(uri string, status *Status) (*PGMonitor, error) {
 	}
 
 	pg := &PGMonitor{
-		db:     db,
-		status: status,
-		stopChan:     make(chan struct{}, 1),
+		db:       db,
+		status:   status,
+		stopChan: make(chan struct{}, 1),
 	}
 	return pg, nil
 }

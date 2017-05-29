@@ -58,7 +58,12 @@ func (e *Election) Start() {
 		case <-e.stopChan:
 			runElection = false
 		default:
-			leader, _ := e.GetLeader()
+			leader, err := e.GetLeaderWithRetry(5, 1)
+			if err != nil {
+				//TODO: stop pg service
+				log.Warnf("Consul is unreachable %s", err.Error())
+				e.status.SetConsulStatus(false, FaultedCode, err.Error())
+			}
 			if leader != "" {
 				log.Infof("Entering follower state, leader is %s", leader)
 				e.status.SetConsulStatus(false, FollowerCode, fmt.Sprintf("follower of %s", leader))
@@ -74,6 +79,7 @@ func (e *Election) Start() {
 				log.Info("Entering leader state")
 				e.status.SetConsulStatus(true, LeaderCode, "leader")
 				<-electionChan
+				//TODO: switch this pg node to slave mode or keep retrying, maybe this is the only pg node online
 				log.Warn("Leadership lost, releasing lock")
 				e.status.SetConsulStatus(false, FaultedCode, "leadership lost")
 				e.consulLock.Unlock()
@@ -93,11 +99,28 @@ func (e *Election) GetLeader() (string, error) {
 
 	if kv != nil {
 		sessionInfo, _, err := e.consulClient.Session().Info(kv.Session, nil)
-		if err == nil {
+		if sessionInfo != nil && err == nil {
 			return sessionInfo.Name, nil
 		}
 	}
 	return "", nil
+}
+
+func (e *Election) GetLeaderWithRetry(retry int, wait int) (string, error) {
+	var leader string
+	var err error
+	for retry > 0 {
+		leader, err = e.GetLeader()
+		if err != nil {
+			retry--
+			log.Warnf("Consul is unreachable retrying %v after %v seconds", retry, wait)
+			time.Sleep(time.Duration(wait) * time.Second)
+		} else {
+			return leader, nil
+		}
+	}
+
+	return leader, err
 }
 
 func (e *Election) Fallback() error {
