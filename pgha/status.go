@@ -6,9 +6,10 @@ import (
 )
 
 const (
-	LeaderCode   = 200
-	FollowerCode = 409
-	FaultedCode  = 503
+	LeaderCode    = 200
+	FollowerCode  = 409
+	CandidateCode = 500
+	FaultedCode   = 503
 )
 
 type Status struct {
@@ -20,7 +21,7 @@ type Status struct {
 
 func NewStatus() *Status {
 	return &Status{
-		Code:      FaultedCode,
+		Code:      CandidateCode,
 		Message:   "Initializing",
 		Timestamp: time.Now().UTC(),
 	}

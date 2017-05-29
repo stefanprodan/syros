@@ -16,8 +16,8 @@ import (
 )
 
 type HttpServer struct {
-	config *Config
-	status *Status
+	config   *Config
+	status   *Status
 	election *Election
 }
 
@@ -27,8 +27,8 @@ func NewHttpServer(config *Config, status *Status, election *Election) (*HttpSer
 	}
 
 	server := &HttpServer{
-		config: config,
-		status: status,
+		config:   config,
+		status:   status,
 		election: election,
 	}
 
@@ -73,12 +73,12 @@ func (s *HttpServer) Start() {
 	})
 	http.HandleFunc("/fallback", func(w http.ResponseWriter, req *http.Request) {
 		err := s.election.Fallback()
-		if err != nil{
+		if err != nil {
 			info := map[string]string{
-				"status":    err.Error(),
+				"status": err.Error(),
 			}
 			render.JSON(w, http.StatusInternalServerError, info)
-		}else {
+		} else {
 			info := map[string]string{
 				"status": "leadership lost",
 			}
