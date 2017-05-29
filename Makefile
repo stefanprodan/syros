@@ -51,6 +51,10 @@ build:
 	@docker run --rm  -v "$(DIST):/go/dist" syros-services-build:$(BUILD_DATE) \
 		go build -ldflags "-X main.version=$(APP_VERSION)" -o /go/dist/syros-api github.com/stefanprodan/syros/api
 
+	@echo ">>> Building syros-pgha"
+	@docker run --rm  -v "$(DIST):/go/dist" syros-services-build:$(BUILD_DATE) \
+		go build -ldflags "-X main.version=$(APP_VERSION)" -o /go/dist/syros-pgha github.com/stefanprodan/syros/pgha
+
 	@docker rmi syros-services-build:$(BUILD_DATE)
 
 	@echo ">>> Build artifacts:"
