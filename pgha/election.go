@@ -8,8 +8,9 @@ import (
 )
 
 type Election struct {
-	Key          string
-	Session      string
+	key          string
+	session      string
+	ttl          string
 	isLeader     bool
 	consulClient *consul.Client
 	consulLock   *consul.Lock
@@ -17,7 +18,8 @@ type Election struct {
 	lockChan     chan struct{}
 }
 
-func NewElection(consulAddress string, key string, session string) (*Election, error) {
+func NewElection(consulAddress string, ttl string, prefix string, session string) (*Election, error) {
+	key := prefix + "/leader/election"
 	cfg := consul.DefaultConfig()
 	cfg.Address = consulAddress
 	client, err := consul.NewClient(cfg)
@@ -30,14 +32,14 @@ func NewElection(consulAddress string, key string, session string) (*Election, e
 		SessionOpts: &consul.SessionEntry{
 			Name:      session,
 			LockDelay: time.Duration(5 * time.Second),
-			TTL:       "10s",
+			TTL:       ttl,
 		},
 	}
 	lock, _ := client.LockOpts(lockOpt)
 
 	e := &Election{
-		Key:          key,
-		Session:      session,
+		key:          key,
+		session:      session,
 		isLeader:     false,
 		consulClient: client,
 		consulLock:   lock,
@@ -49,11 +51,11 @@ func NewElection(consulAddress string, key string, session string) (*Election, e
 }
 
 func (e *Election) Start() {
-	stop := false
-	for !stop {
+	runElection := true
+	for runElection {
 		select {
 		case <-e.stopChan:
-			stop = true
+			runElection = false
 		default:
 			leader := e.GetLeader()
 			if leader != "" {
@@ -81,7 +83,7 @@ func (e *Election) Start() {
 }
 
 func (e *Election) GetLeader() string {
-	kv, _, err := e.consulClient.KV().Get(e.Key, nil)
+	kv, _, err := e.consulClient.KV().Get(e.key, nil)
 	if kv != nil && err == nil {
 		sessionInfo, _, err := e.consulClient.Session().Info(kv.Session, nil)
 		if err == nil {
