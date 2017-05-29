@@ -9,6 +9,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+var version = "undefined"
+
 func main() {
 	var config = &Config{}
 	flag.StringVar(&config.Environment, "Environment", "dev", "Environment dev|int|stg|test|prep|prod")
@@ -34,6 +36,12 @@ func main() {
 	}
 
 	go election.Start()
+
+	server := &HttpServer{
+		Config: config,
+	}
+	log.Infof("Starting HTTP server on port %v", config.Port)
+	go server.Start()
 
 	//wait for exit signal
 	sigChan := make(chan os.Signal)
