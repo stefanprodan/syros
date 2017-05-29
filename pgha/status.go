@@ -29,7 +29,7 @@ func NewStatus() *Status {
 	}
 }
 
-func (s *Status) GetStatus() (Status) {
+func (s *Status) GetStatus() Status {
 	s.Lock()
 	defer s.Unlock()
 	return *s

@@ -58,7 +58,7 @@ func (e *Election) Start() {
 		case <-e.stopChan:
 			runElection = false
 		default:
-			leader := e.GetLeader()
+			leader, _ := e.GetLeader()
 			if leader != "" {
 				log.Infof("Entering follower state, leader is %s", leader)
 				e.status.SetConsulStatus(false, FollowerCode, fmt.Sprintf("follower of %s", leader))
@@ -85,15 +85,19 @@ func (e *Election) Start() {
 	}
 }
 
-func (e *Election) GetLeader() string {
+func (e *Election) GetLeader() (string, error) {
 	kv, _, err := e.consulClient.KV().Get(e.key, nil)
-	if kv != nil && err == nil {
+	if err != nil {
+		return "", err
+	}
+
+	if kv != nil {
 		sessionInfo, _, err := e.consulClient.Session().Info(kv.Session, nil)
 		if err == nil {
-			return sessionInfo.Name
+			return sessionInfo.Name, nil
 		}
 	}
-	return ""
+	return "", nil
 }
 
 func (e *Election) Fallback() error {

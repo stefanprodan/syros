@@ -39,7 +39,7 @@ func main() {
 
 	isMaster, err := pgmon.IsMaster()
 	if err != nil {
-		log.Fatalf("Can't determine Postgres replication status %s", err.Error())
+		log.Fatalf("Can't determine Postgres cluster state %s", err.Error())
 	} else {
 		log.Infof("Postgres Master %v", isMaster)
 	}
@@ -49,6 +49,26 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+
+	leader, err := election.GetLeader()
+	if err != nil {
+		log.Fatalf("Consul connection failed %s", err.Error())
+	}
+
+	if len(leader) > 0 {
+		if isMaster {
+			log.Warnf("Conflict detected: leader is %v but this pg node %v is master", leader, config.Hostname)
+		} else {
+			log.Infof("Leader is %v joining cluster as follower", leader)
+		}
+	} else {
+		if isMaster {
+			log.Infof("No leader found and this pg node %v is master, joining cluster as leader", config.Hostname)
+		} else {
+			log.Warnf("Conflict detected: no leader found but this pg node %v is slave", config.Hostname)
+		}
+	}
+
 	go election.Start()
 
 	server, err := NewHttpServer(config, status, election)

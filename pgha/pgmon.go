@@ -30,6 +30,7 @@ func NewPGMonitor(uri string, status *Status) (*PGMonitor, error) {
 	pg := &PGMonitor{
 		db:     db,
 		status: status,
+		stopChan:     make(chan struct{}, 1),
 	}
 	return pg, nil
 }
@@ -62,7 +63,6 @@ func (pg *PGMonitor) Start() {
 			time.Sleep(5 * time.Second)
 		}
 	}
-
 }
 
 func (pg *PGMonitor) Stop() {
