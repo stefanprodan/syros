@@ -65,9 +65,11 @@ func (e *Election) Start() {
 				e.status.SetConsulStatus(false, FaultedCode, err.Error())
 			}
 			if leader != "" {
+				//TODO: check pg node is slave, if it's master close pg service and exit
 				log.Infof("Entering follower state, leader is %s", leader)
 				e.status.SetConsulStatus(false, FollowerCode, fmt.Sprintf("follower of %s", leader))
 			} else {
+				//TODO: ensure pg is in master role
 				log.Info("Entering candidate state, no leader found")
 			}
 			electionChan, err := e.consulLock.Lock(e.lockChan)
@@ -77,9 +79,10 @@ func (e *Election) Start() {
 			}
 			if electionChan != nil {
 				log.Info("Entering leader state")
+				//TODO: promote slave to master
 				e.status.SetConsulStatus(true, LeaderCode, "leader")
 				<-electionChan
-				//TODO: switch pg to slave mode or keep retrying, detect shutdown mode, check for new leader
+				//TODO: stop pg service, detect shutdown mode, check for new leader
 				log.Warn("Leadership lost, releasing lock")
 				e.status.SetConsulStatus(false, FaultedCode, "leadership lost")
 				e.consulLock.Unlock()

@@ -52,12 +52,13 @@ func main() {
 
 	leader, err := election.GetLeaderWithRetry(5, 1)
 	if err != nil {
+		//TODO: stop pg service if role is master
 		log.Fatalf("Consul connection failed %s", err.Error())
 	}
 
 	if len(leader) > 0 {
 		if isMaster {
-			//TODO: stop pg service? this should never happen
+			//TODO: stop pg service, this should never happen
 			log.Warnf("Conflict detected: leader is %v but this pg node %v is master", leader, config.Hostname)
 		} else {
 			log.Infof("Leader is %v joining cluster as follower", leader)
@@ -66,7 +67,7 @@ func main() {
 		if isMaster {
 			log.Infof("No leader found and this pg node %v is master, joining cluster as leader", config.Hostname)
 		} else {
-			//TODO: promote salve to master assuming the old master host died while this phha was closed
+			//TODO: wait till the salve is up to date (do not enter election mode)
 			log.Warnf("Conflict detected: no leader found but this pg node %v is slave", config.Hostname)
 		}
 	}
