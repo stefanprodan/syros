@@ -2,16 +2,23 @@ sudo: required
 language: go
 
 go:
-  - 1.8.x
+- 1.8.x
 
 services:
-  - docker
+- docker
 
 script:
-  - make build pack
+- make build pack
+
+after_success:
+- make publish
 
 deploy:
-  provider: script
-  script: make push
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: L4LW6f8QTLKHtt7aND97ikF2dhGa0oybwKjnv0wFbBtznOitnc/MjzD+uMRBOyyhwIJK5FvEVuDIuuFH8NU1MVopJI02PpwkhI23kXhsv+ZFyIb89iXZra0/mZaWLjVB7eifO8FYbSfakdk0WfY0yv2uKknC1Oyq8u0jup/QMMTYSouWpFfrGP6pQccJC8YJ5DifP479fSA2Ia7+eB2PQn5wKj0wiIbPGyIytY3oY5FfQiBKFHHt+w3Q6P3rWqerV9lH/9NScIIYdSN/82gdTNlnRA98DzN4UWR2K0AA2J8l94BvFS1H9//729ROqJ3Ay2iNcVALx+TPmyn7nyl11KfY09tPbjZS2MtM+LWRZyFobRVVuYBqALo564ts6zshLzUM8zuh1+M8pL11JQZvh9YMgLLo+Z/wsGhbesoMO6tmqgtj+HhQQoA8CBuI51pJtUrwFcZ8tM8QbhPsvdHkaM8E8YAfgVaSC4QeimA8390LprkPEaB3HnkjZaaPd0OcsR/1b8bYdtafDPZMzybCaQ6m4zApUsytFmak4RxeUmHFc/X9fQKhbYEEN1/X1TnVEIFWSTb0DhQl2U3iQa4eMXY45hi7b+l9BozMnEdosMG/fS4+Z8IpQI5gmKF2N1fySWJhjYQF1mrWIo8RTPzMhysySlUuyi2hYeDV5G9HjTM=
+  file: dist/pgha
   on:
     branch: master
+    tags: true
