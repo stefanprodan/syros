@@ -49,3 +49,9 @@ func (s *Status) SetPostgresStatus(leader bool) {
 	defer s.Unlock()
 	s.IsPostgresMaster = leader
 }
+
+func (s *Status) IsMaster() bool {
+	s.Lock()
+	defer s.Unlock()
+	return s.IsPostgresMaster
+}

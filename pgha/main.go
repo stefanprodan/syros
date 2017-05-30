@@ -6,6 +6,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 )
 
@@ -40,9 +42,8 @@ func main() {
 	isMaster, err := pgmon.IsMaster()
 	if err != nil {
 		log.Fatalf("Can't determine Postgres cluster state %s", err.Error())
-	} else {
-		log.Infof("Postgres Master %v", isMaster)
 	}
+	status.SetPostgresStatus(isMaster)
 	go pgmon.Start()
 
 	election, err := NewElection(config.ConsulURI, config.ConsulTTL, config.ConsulKV, config.Hostname, status)
@@ -50,25 +51,34 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	leader, err := election.GetLeaderWithRetry(5, 1)
+INIT:
+	leader, err := election.GetLeaderWithRetry(10, 5)
 	if err != nil {
-		//TODO: stop pg service if role is master
+		//stop pg service if is master
+		if isMaster {
+			execPgStop(20)
+			log.Fatal("Stopping postgres service: this pg node is master but Consul is unreachable")
+		}
 		log.Fatalf("Consul connection failed %s", err.Error())
 	}
 
 	if len(leader) > 0 {
 		if isMaster {
-			//TODO: stop pg service, this should never happen
-			log.Warnf("Conflict detected: leader is %v but this pg node %v is master", leader, config.Hostname)
+			//stop pg service, this should never happen
+			execPgStop(20)
+			log.Fatalf("Stopping postgres service: leader is %v but this pg node %v is master", leader, config.Hostname)
 		} else {
-			log.Infof("Leader is %v joining cluster as follower", leader)
+			log.Infof("Should join cluster as follower since leader is %v", leader)
 		}
 	} else {
 		if isMaster {
-			log.Infof("No leader found and this pg node %v is master, joining cluster as leader", config.Hostname)
+			log.Infof("Should join cluster as leader since no leader found and this pg node %v is master", config.Hostname)
 		} else {
-			//TODO: wait till the salve is up to date (do not enter election mode)
-			log.Warnf("Conflict detected: no leader found but this pg node %v is slave", config.Hostname)
+			//retry till there is a master running (do not enter election mode)
+			log.Warnf("Conflict detected: no leader found but this pg node %v is slave, will wait 5sec and retry", config.Hostname)
+			time.Sleep(5 * time.Second)
+			//TODO: better use recursion
+			goto INIT
 		}
 	}
 

@@ -58,18 +58,24 @@ func (e *Election) Start() {
 		case <-e.stopChan:
 			runElection = false
 		default:
-			leader, err := e.GetLeaderWithRetry(5, 1)
+			leader, err := e.GetLeaderWithRetry(10, 1)
 			if err != nil {
-				//TODO: stop pg service if current node is master
+				//stop pg service if is master
+				if e.status.IsMaster() {
+					execPgStop(20)
+				}
 				log.Warnf("Consul is unreachable %s", err.Error())
 				e.status.SetConsulStatus(false, FaultedCode, err.Error())
 			}
 			if leader != "" {
-				//TODO: check pg node is slave, if it's master close pg service and exit
+				//close pg service and exit if is master
+				if e.status.IsMaster() {
+					execPgStop(20)
+					log.Fatalf("Stopping postgres service: leader found %v but this pg node is master", leader)
+				}
 				log.Infof("Entering follower state, leader is %s", leader)
 				e.status.SetConsulStatus(false, FollowerCode, fmt.Sprintf("follower of %s", leader))
 			} else {
-				//TODO: ensure pg is in master role
 				log.Info("Entering candidate state, no leader found")
 			}
 			electionChan, err := e.consulLock.Lock(e.lockChan)
@@ -79,10 +85,13 @@ func (e *Election) Start() {
 			}
 			if electionChan != nil {
 				log.Info("Entering leader state")
-				//TODO: promote slave to master
+				//if slave promote to master
+				if !e.status.IsMaster() {
+					log.Info("Promoting slave to master")
+					execRepmgrPromote(60)
+				}
 				e.status.SetConsulStatus(true, LeaderCode, "leader")
 				<-electionChan
-				//TODO: stop pg service, detect shutdown mode, check for new leader
 				log.Warn("Leadership lost, releasing lock")
 				e.status.SetConsulStatus(false, FaultedCode, "leadership lost")
 				e.consulLock.Unlock()
