@@ -1,5 +1,10 @@
 # Syros Changelog
 
+### v0.8.0 (beta)
+
+* PGHA service
+* Postgres HA automation with repmgr and Consul
+
 ### v0.7.0 (release)
 
 * vSphere dashboard stats and graph

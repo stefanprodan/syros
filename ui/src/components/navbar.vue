@@ -14,7 +14,7 @@
         <ul class="nav navbar-nav">
         <router-link :to="{ name: 'home' }" active-class="active" tag="li">
             <a><i class="fa fa-home"></i> Home</a>
-        </router-link> 
+        </router-link>
         <router-link :to="{ name: 'healthchecks' }" active-class="active" tag="li">
             <a><i class="fa fa-heartbeat"></i> Health</a>
         </router-link>
@@ -26,7 +26,7 @@
         </router-link>
         <router-link :to="{ name: 'hosts' }" active-class="active" tag="li">
             <a><i class="fa fa-h-square"></i> Docker Hosts</a>
-        </router-link> 
+        </router-link>
         </ul>
         <ul v-if="environments" class="nav navbar-nav navbar-indent">
             <li class="dropdown-header">Environments</li>
@@ -34,16 +34,16 @@
             <a>{{ env }}</a>
             </router-link>
         </ul>
-        <ul class="nav navbar-nav">   
+        <ul class="nav navbar-nav">
             <router-link :to="{ name: 'admin' }" active-class="active" tag="li">
                 <a><i class="fa fa-circle-o-notch"></i> Admin</a>
-            </router-link>  
+            </router-link>
             <li><a href="#" @click="logout()"><i class="fa fa-sign-out"></i> Logout</a></li>
         </ul>
         <p class="navbar-text">
-            <a href="https://github.com/stefanprodan/syros">Syros v0.7</a> open-source software by <a href="http://www.stefanprodan.com">Stefan</a>
+            <a href="https://github.com/stefanprodan/syros">Syros v0.8</a> open-source software by <a href="http://www.stefanprodan.com">Stefan</a>
         </p>
-        </div>  
+        </div>
     </nav>
 </div>
 </template>
