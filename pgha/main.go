@@ -57,7 +57,7 @@ func main() {
 
 	if len(leader) > 0 {
 		if isMaster {
-			//TODO: stop pg service or switch to slave mode?
+			//TODO: stop pg service? this should never happen
 			log.Warnf("Conflict detected: leader is %v but this pg node %v is master", leader, config.Hostname)
 		} else {
 			log.Infof("Leader is %v joining cluster as follower", leader)
@@ -66,7 +66,7 @@ func main() {
 		if isMaster {
 			log.Infof("No leader found and this pg node %v is master, joining cluster as leader", config.Hostname)
 		} else {
-			//TODO: exit pgha to avoid having a slave node as leader
+			//TODO: promote salve to master assuming the old master host died while this phha was closed
 			log.Warnf("Conflict detected: no leader found but this pg node %v is slave", config.Hostname)
 		}
 	}

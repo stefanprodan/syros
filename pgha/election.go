@@ -60,7 +60,7 @@ func (e *Election) Start() {
 		default:
 			leader, err := e.GetLeaderWithRetry(5, 1)
 			if err != nil {
-				//TODO: stop pg service
+				//TODO: stop pg service if current node is master
 				log.Warnf("Consul is unreachable %s", err.Error())
 				e.status.SetConsulStatus(false, FaultedCode, err.Error())
 			}
@@ -79,7 +79,7 @@ func (e *Election) Start() {
 				log.Info("Entering leader state")
 				e.status.SetConsulStatus(true, LeaderCode, "leader")
 				<-electionChan
-				//TODO: switch this pg node to slave mode or keep retrying, maybe this is the only pg node online
+				//TODO: switch pg to slave mode or keep retrying, detect shutdown mode, check for new leader
 				log.Warn("Leadership lost, releasing lock")
 				e.status.SetConsulStatus(false, FaultedCode, "leadership lost")
 				e.consulLock.Unlock()
