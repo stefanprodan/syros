@@ -32,6 +32,9 @@ func main() {
 		config.Hostname, _ = os.Hostname()
 	}
 
+	//check if repmgr is installed
+	execRepmgrVersion(2)
+
 	status := NewStatus()
 
 	pgmon, err := NewPGMonitor(config.PostgresURI, status)
