@@ -1,6 +1,11 @@
 # Syros Changelog
 
-### v0.8.0 (beta)
+### v0.9.0 (beta)
+
+* Agent refactoring
+* Collector YAML config 
+
+### v0.8.0 (release)
 
 * PGHA service
 * Postgres HA automation with repmgr and Consul

@@ -10,11 +10,11 @@ import (
 // Config holds global configuration, defaults are provided in main.
 // Agent config is populated from startup flag.
 type Config struct {
-	Environment            string `m:"Environment"`
-	LogLevel               string `m:"LogLevel"`
-	Port                   int    `m:"Port"`
-	Nats                   string `m:"Nats"`
-	CollectorConfig        string `m:"CollectorConfig"`
+	Environment     string `m:"Environment"`
+	LogLevel        string `m:"LogLevel"`
+	Port            int    `m:"Port"`
+	Nats            string `m:"Nats"`
+	CollectorConfig string `m:"CollectorConfig"`
 }
 
 type CollectorConfig struct {
