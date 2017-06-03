@@ -35,6 +35,7 @@ func NewRegistry(config *Config, nc *nats.EncodedConn, cron *cron.Cron) *Registr
 	agent.Config["max_procs"] = strconv.FormatInt(int64(runtime.GOMAXPROCS(0)), 10)
 	agent.Config["goroutines"] = strconv.FormatInt(int64(runtime.NumGoroutine()), 10)
 	agent.Config["cpu_count"] = strconv.FormatInt(int64(runtime.NumCPU()), 10)
+	agent.Config["boot_time"] = time.Now().UTC().Format(time.RFC3339)
 	agent.Hostname, _ = os.Hostname()
 	uuid, _ := models.NewUUID()
 	agent.Id = models.Hash(agent.Hostname + uuid)

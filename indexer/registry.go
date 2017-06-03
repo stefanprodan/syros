@@ -53,6 +53,7 @@ func (reg *Registry) Start() chan bool {
 	indexer.Config["max_procs"] = strconv.FormatInt(int64(runtime.GOMAXPROCS(0)), 10)
 	indexer.Config["goroutines"] = strconv.FormatInt(int64(runtime.NumGoroutine()), 10)
 	indexer.Config["cpu_count"] = strconv.FormatInt(int64(runtime.NumCPU()), 10)
+	indexer.Config["boot_time"] = time.Now().UTC().Format(time.RFC3339)
 	indexer.Hostname, _ = os.Hostname()
 	uuid, _ := models.NewUUID()
 	indexer.Id = models.Hash(indexer.Hostname + uuid)
