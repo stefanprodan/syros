@@ -30,4 +30,4 @@ npm-debug.log
 
 /.idea/
 /vendor/
-cli/
+/test/
