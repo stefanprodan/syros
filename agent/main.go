@@ -25,10 +25,17 @@ func main() {
 	flag.StringVar(&config.VSphereExclude, "VSphereExclude", "", "VM exclude filter comma delimited")
 	flag.IntVar(&config.VSphereCollectInterval, "VSphereCollectInterval", 55, "vSphere collect interval in seconds")
 	flag.StringVar(&config.Nats, "Nats", "nats://localhost:4222", "Nats server addresses comma delimited")
+	flag.StringVar(&config.CollectorConfig, "CollectorConfig", "/config/collector.yml", "Collector config file path")
 	flag.Parse()
 
 	setLogLevel(config.LogLevel)
 	log.Infof("Starting with config: %+v", config)
+
+	colConfig, err := LoadCollectorConfig(config.CollectorConfig)
+	if err != nil {
+		log.Fatalf("Collector config load error %v", err)
+	}
+	log.Infof("Starting with collector config: %+v", colConfig)
 
 	nc, err := NewNatsConnection(config.Nats, "syros-agent-"+config.Environment)
 	if err != nil {
@@ -42,7 +49,7 @@ func main() {
 	log.Infof("Register service as %v", registry.Agent.Id)
 	registry.Register()
 
-	coordinator, err := NewCoordinator(config, nc, cronJob)
+	coordinator, err := NewCoordinator(config, colConfig, nc, cronJob)
 	if err != nil {
 		log.Fatalf("Coordinator error %v", err)
 	}

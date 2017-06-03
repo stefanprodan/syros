@@ -2,9 +2,6 @@ package main
 
 import (
 	"io/ioutil"
-	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -24,6 +21,7 @@ type Config struct {
 	VSphereExclude         string `m:"VSphereExclude"`
 	VSphereCollectInterval int    `m:"VSphereCollectInterval"`
 	Nats                   string `m:"Nats"`
+	CollectorConfig        string `m:"CollectorConfig"`
 }
 
 type CollectorConfig struct {
@@ -39,31 +37,20 @@ type ApiCollectorConfig struct {
 	Cron      string   `json:"cron" yaml:"cron"`
 }
 
-func LoadCollectorConfig(dir string, name string) (*CollectorConfig, error) {
+func LoadCollectorConfig(path string) (*CollectorConfig, error) {
 	cfg := &CollectorConfig{}
-	cfgPath := ""
-	err := filepath.Walk(dir, func(path string, f os.FileInfo, err error) error {
-		if strings.Contains(path, name+".yml") || strings.Contains(path, name+".yaml") {
-			cfgPath = path
-		}
-		return nil
-	})
 
-	if err != nil {
-		return nil, errors.Wrapf(err, "Reading from %v failed", dir)
+	if len(path) < 1 {
+		return nil, errors.Errorf("Collector config %v not found", path)
 	}
 
-	if len(cfgPath) < 1 {
-		return nil, errors.Errorf("Collector config %v not found", name)
-	}
-
-	data, err := ioutil.ReadFile(cfgPath)
+	data, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Reading %v failed", cfgPath)
+		return nil, errors.Wrapf(err, "Reading %v failed", path)
 	}
 
 	if err := yaml.Unmarshal(data, cfg); err != nil {
-		return nil, errors.Wrapf(err, "Parsing %v failed", cfgPath)
+		return nil, errors.Wrapf(err, "Parsing %v failed", path)
 	}
 
 	return cfg, nil

@@ -2,8 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"strings"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -17,71 +15,54 @@ type Coordinator struct {
 	VSphereCollector *VSphereCollector
 	NatsConnection   *nats.EncodedConn
 	Config           *Config
+	CollectorConfig  *CollectorConfig
 	Cron             *cron.Cron
 	metrics          *Prometheus
 }
 
-func NewCoordinator(config *Config, nc *nats.EncodedConn, cron *cron.Cron) (*Coordinator, error) {
-
-	ep := make([]string, 0)
+func NewCoordinator(config *Config, collector *CollectorConfig, nc *nats.EncodedConn, cron *cron.Cron) (*Coordinator, error) {
 	co := &Coordinator{
-		NatsConnection: nc,
-		Cron:           cron,
-		Config:         config,
+		NatsConnection:  nc,
+		Cron:            cron,
+		Config:          config,
+		CollectorConfig: collector,
 	}
 	co.metrics = NewPrometheus("syros", "agent")
-
-	if len(config.DockerApiAddresses) > 0 {
-		dh := strings.Split(config.DockerApiAddresses, ",")
-		dc := make([]*DockerCollector, len(dh))
-		for i, host := range dh {
-			c, err := NewDockerCollector(host, config.Environment)
-			if err != nil {
-				return nil, err
-			}
-			dc[i] = c
-		}
-		ep = append(ep, dh...)
-		co.DockerCollectors = dc
-	}
-
-	if len(config.ConsulApiAddresses) > 0 {
-		ch := strings.Split(config.ConsulApiAddresses, ",")
-		cc := make([]*ConsulCollector, len(ch))
-		for i, host := range ch {
-			c, err := NewConsulCollector(host, config.Environment)
-			if err != nil {
-				return nil, err
-			}
-			cc[i] = c
-		}
-		ep = append(ep, ch...)
-		co.ConsulCollectors = cc
-	}
-
-	if len(config.VSphereApiAddress) > 0 {
-		co.VSphereCollector, _ = NewVSphereCollector(config.VSphereApiAddress,
-			config.VSphereInclude,
-			config.VSphereExclude,
-			config.Environment,
-			config.VSphereCollectInterval)
-	}
 
 	return co, nil
 }
 
 func (cor *Coordinator) Register() {
 
-	at := fmt.Sprintf("@every %vs", cor.Config.CollectInterval)
-	for _, c := range cor.DockerCollectors {
-		cor.Cron.AddJob(at, dockerJob{c, cor.NatsConnection, cor.metrics, cor.Config})
-	}
-	for _, c := range cor.ConsulCollectors {
-		cor.Cron.AddJob(at, consulJob{c, cor.NatsConnection, cor.metrics, cor.Config})
+	for _, c := range cor.CollectorConfig.Docker.Endpoints {
+		col, err := NewDockerCollector(c, cor.Config.Environment)
+		if err != nil {
+			log.Errorf("Collector %v init error", c)
+		} else {
+			cor.Cron.AddJob(cor.CollectorConfig.Docker.Cron,
+				dockerJob{col, cor.NatsConnection, cor.metrics, cor.Config})
+		}
 	}
 
-	vsphereAt := fmt.Sprintf("@every %vs", cor.Config.VSphereCollectInterval)
-	cor.Cron.AddJob(vsphereAt, vsphereJob{cor.VSphereCollector, cor.NatsConnection, cor.metrics, cor.Config})
+	for _, c := range cor.CollectorConfig.Consul.Endpoints {
+		col, err := NewConsulCollector(c, cor.Config.Environment)
+		if err != nil {
+			log.Errorf("Collector %v init error", c)
+		} else {
+			cor.Cron.AddJob(cor.CollectorConfig.Consul.Cron,
+				consulJob{col, cor.NatsConnection, cor.metrics, cor.Config})
+		}
+	}
+
+	for _, c := range cor.CollectorConfig.VSphere.Endpoints {
+		col, err := NewVSphereCollector(c, cor.CollectorConfig.VSphere.Include, cor.CollectorConfig.VSphere.Exclude, cor.Config.Environment)
+		if err != nil {
+			log.Errorf("Collector %v init error", c)
+		} else {
+			cor.Cron.AddJob(cor.CollectorConfig.VSphere.Cron,
+				vsphereJob{col, cor.NatsConnection, cor.metrics, cor.Config})
+		}
+	}
 
 	cor.Cron.Start()
 }
