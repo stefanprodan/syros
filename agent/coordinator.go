@@ -1,23 +1,17 @@
 package main
 
 import (
-	"encoding/json"
-	"time"
-
 	log "github.com/Sirupsen/logrus"
 	"github.com/nats-io/go-nats"
 	"github.com/robfig/cron"
 )
 
 type Coordinator struct {
-	DockerCollectors []*DockerCollector
-	ConsulCollectors []*ConsulCollector
-	VSphereCollector *VSphereCollector
-	NatsConnection   *nats.EncodedConn
-	Config           *Config
-	CollectorConfig  *CollectorConfig
-	Cron             *cron.Cron
-	metrics          *Prometheus
+	NatsConnection  *nats.EncodedConn
+	Config          *Config
+	CollectorConfig *CollectorConfig
+	Cron            *cron.Cron
+	metrics         *Prometheus
 }
 
 func NewCoordinator(config *Config, collector *CollectorConfig, nc *nats.EncodedConn, cron *cron.Cron) (*Coordinator, error) {
@@ -69,100 +63,4 @@ func (cor *Coordinator) Register() {
 
 func (cor *Coordinator) Deregister() {
 	cor.Cron.Stop()
-}
-
-func (cor *Coordinator) StartDockerCollectors() {
-	log.Infof("Starting %v Docker collector(s)", len(cor.DockerCollectors))
-	for _, c := range cor.DockerCollectors {
-		time.Sleep(100 * time.Millisecond)
-		ticker := time.NewTicker(time.Duration(cor.Config.CollectInterval) * time.Second)
-		go func(collector *DockerCollector) {
-			for {
-				select {
-				case <-collector.StopChan:
-					log.Infof("Collector exited %v", collector.ApiAddress)
-					return
-				case <-ticker.C:
-					status := "200"
-					t1 := time.Now()
-
-					payload, err := collector.Collect()
-					if err != nil {
-						status = "500"
-						log.Errorf("Docker collector %v error %v", collector.ApiAddress, err)
-					} else {
-						jsonPayload, err := json.Marshal(payload)
-						if err != nil {
-							log.Errorf("Docker collector %v payload marshal error %v", collector.ApiAddress, err)
-						} else {
-							err := cor.NatsConnection.Publish(collector.Topic, jsonPayload)
-							if err != nil {
-								log.Errorf("Docker collector %v NATS natsPublish failed %v", collector.ApiAddress, err)
-							}
-						}
-					}
-
-					t2 := time.Now()
-					cor.metrics.requestsTotal.WithLabelValues("docker", collector.ApiAddress, status).Inc()
-					cor.metrics.requestsLatency.WithLabelValues("docker", collector.ApiAddress, status).Observe(t2.Sub(t1).Seconds())
-				}
-			}
-		}(c)
-	}
-}
-
-func (cor *Coordinator) StartConsulCollectors() {
-	log.Infof("Starting %v Consul collector(s)", len(cor.ConsulCollectors))
-	for _, c := range cor.ConsulCollectors {
-		ticker := time.NewTicker(time.Duration(cor.Config.CollectInterval) * time.Second)
-		go func(collector *ConsulCollector) {
-			for {
-				select {
-				case <-collector.StopChan:
-					log.Infof("Collector exited %v", collector.ApiAddress)
-					return
-				case <-ticker.C:
-					status := "200"
-					t1 := time.Now()
-
-					payload, err := collector.Collect()
-					if err != nil {
-						status = "500"
-						log.Errorf("Consul collector %v error %v", collector.ApiAddress, err)
-					} else {
-						jsonPayload, err := json.Marshal(payload)
-						if err != nil {
-							log.Errorf("Consul collector %v payload marshal error %v", collector.ApiAddress, err)
-						} else {
-							err := cor.NatsConnection.Publish(collector.Topic, jsonPayload)
-							if err != nil {
-								log.Errorf("Consul collector %v NATS natsPublish failed %v", collector.ApiAddress, err)
-							}
-						}
-					}
-
-					t2 := time.Now()
-					cor.metrics.requestsTotal.WithLabelValues("consul", collector.ApiAddress, status).Inc()
-					cor.metrics.requestsLatency.WithLabelValues("consul", collector.ApiAddress, status).Observe(t2.Sub(t1).Seconds())
-				}
-			}
-		}(c)
-	}
-}
-
-func (cor *Coordinator) StartCollectors() {
-	cor.StartDockerCollectors()
-	cor.StartConsulCollectors()
-}
-
-func (cor *Coordinator) StopCollectors() {
-	log.Infof("Stopping %v Docker collector(s)", len(cor.DockerCollectors))
-	for _, c := range cor.DockerCollectors {
-		c.StopChan <- true
-	}
-
-	log.Infof("Stopping %v Consul collector(s)", len(cor.ConsulCollectors))
-	for _, c := range cor.ConsulCollectors {
-		c.StopChan <- true
-	}
 }
