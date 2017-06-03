@@ -12,7 +12,7 @@ script:
 - make build pack
 
 after_success:
-- make publish
+- make push
 - sha1sum dist/syros-pgha > dist/syros-pgha.sha1
 
 deploy:
