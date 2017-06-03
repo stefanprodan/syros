@@ -18,9 +18,10 @@ type Config struct {
 }
 
 type CollectorConfig struct {
-	Docker  ApiCollectorConfig `json:"docker" yaml:"docker"`
-	Consul  ApiCollectorConfig `json:"consul" yaml:"consul"`
-	VSphere ApiCollectorConfig `json:"vsphere" yaml:"vsphere"`
+	Docker  ApiCollectorConfig     `json:"docker" yaml:"docker"`
+	Consul  ApiCollectorConfig     `json:"consul" yaml:"consul"`
+	VSphere ApiCollectorConfig     `json:"vsphere" yaml:"vsphere"`
+	Cluster ClusterCollectorConfig `json:"cluster" yaml:"cluster"`
 }
 
 type ApiCollectorConfig struct {
@@ -28,6 +29,16 @@ type ApiCollectorConfig struct {
 	Include   []string `json:"include" yaml:"include"`
 	Exclude   []string `json:"exclude" yaml:"exclude"`
 	Cron      string   `json:"cron" yaml:"cron"`
+}
+
+type ClusterCollectorConfig struct {
+	Cron     string                   `json:"cron" yaml:"cron"`
+	Services []ClusteredServiceConfig `json:"services" yaml:"services"`
+}
+
+type ClusteredServiceConfig struct {
+	Name      string   `json:"name" yaml:"name"`
+	Endpoints []string `json:"endpoints" yaml:"endpoints"`
 }
 
 func LoadCollectorConfig(path string) (*CollectorConfig, error) {
