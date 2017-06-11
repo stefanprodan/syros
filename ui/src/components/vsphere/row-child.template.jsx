@@ -37,6 +37,10 @@ export default function(h, row) {
                 <dd>{row.ip}</dd>
             </dl>
             <dl>
+                <dt>boot_time</dt>
+                <dd>{(row.boot_time) ? moment(row.boot_time).format('YYYY-MM-DD HH:mm:ss Z') : 'unknown'}</dd>
+            </dl>
+            <dl>
                 <dt>collected</dt>
                 <dd>{moment(row.collected).format('YYYY-MM-DD HH:mm:ss Z')}</dd>
             </dl>
