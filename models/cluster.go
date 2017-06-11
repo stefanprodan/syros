@@ -4,7 +4,7 @@ import "time"
 
 type ClusterPayload struct {
 	HealthCheck ClusterHealthCheck `json:"health_check"`
-	Environment string              `json:"environment"`
+	Environment string             `json:"environment"`
 }
 
 type ClusterHealthCheck struct {

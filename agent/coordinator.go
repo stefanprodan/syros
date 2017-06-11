@@ -48,6 +48,18 @@ func (cor *Coordinator) Register() {
 		}
 	}
 
+	for _, c := range cor.CollectorConfig.Cluster.Services {
+		for _, t := range c.Endpoints {
+			col, err := NewClusterCollector(c.Name, t, cor.Config.Environment)
+			if err != nil {
+				log.Errorf("Collector %v init error", c)
+			} else {
+				cor.Cron.AddJob(cor.CollectorConfig.Cluster.Cron,
+					clusterJob{col, cor.NatsConnection, cor.metrics, cor.Config})
+			}
+		}
+	}
+
 	for _, c := range cor.CollectorConfig.VSphere.Endpoints {
 		col, err := NewVSphereCollector(c, cor.CollectorConfig.VSphere.Include, cor.CollectorConfig.VSphere.Exclude, cor.Config.Environment)
 		if err != nil {

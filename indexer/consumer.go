@@ -15,6 +15,7 @@ type Consumer struct {
 	metrics        *Prometheus
 	dockerChan     chan *models.DockerPayload
 	consulChan     chan *models.ConsulPayload
+	clusterChan    chan *models.ClusterPayload
 	vsphereChan    chan *models.VSpherePayload
 }
 
@@ -25,6 +26,7 @@ func NewConsumer(config *Config, nc *nats.EncodedConn, repo *Repository, buffer 
 		Repository:     repo,
 		dockerChan:     make(chan *models.DockerPayload, buffer),
 		consulChan:     make(chan *models.ConsulPayload, buffer),
+		clusterChan:    make(chan *models.ClusterPayload, buffer),
 		vsphereChan:    make(chan *models.VSpherePayload, buffer),
 	}
 
@@ -36,6 +38,7 @@ func NewConsumer(config *Config, nc *nats.EncodedConn, repo *Repository, buffer 
 func (c *Consumer) Consume() {
 	c.DockerConsume()
 	c.ConsulConsume()
+	c.ClusterConsume()
 	c.VSphereConsume()
 }
 
@@ -91,6 +94,32 @@ func consulSave(payload *models.ConsulPayload, c *Consumer) {
 	t2 := time.Now()
 	c.metrics.requestsTotal.WithLabelValues("consul", c.Config.CollectorQueue, status).Inc()
 	c.metrics.requestsLatency.WithLabelValues("consul", c.Config.CollectorQueue, status).Observe(t2.Sub(t1).Seconds())
+}
+
+func (c *Consumer) ClusterConsume() {
+	c.NatsConnection.BindRecvQueueChan("cluster", c.Config.CollectorQueue, c.clusterChan)
+	go func() {
+		for {
+			select {
+			case payload := <-c.clusterChan:
+				clusterSave(payload, c)
+			}
+		}
+	}()
+}
+
+func clusterSave(payload *models.ClusterPayload, c *Consumer) {
+	status := "200"
+	t1 := time.Now()
+	if payload == nil {
+		log.Error("Cluster payload is nil")
+	} else {
+		log.Debugf("Cluster payload received %v", payload.HealthCheck.ServiceName)
+		c.Repository.ClusterChecksUpsert(payload.HealthCheck)
+	}
+	t2 := time.Now()
+	c.metrics.requestsTotal.WithLabelValues("cluster", c.Config.CollectorQueue, status).Inc()
+	c.metrics.requestsLatency.WithLabelValues("cluster", c.Config.CollectorQueue, status).Observe(t2.Sub(t1).Seconds())
 }
 
 func (c *Consumer) VSphereConsume() {

@@ -58,6 +58,11 @@ func (repo *Repository) Initialize() {
 	repo.CreateIndex("vsphere_hosts", "collected")
 	repo.CreateIndex("vsphere_dstores", "collected")
 	repo.CreateIndex("vsphere_vms", "collected")
+	repo.CreateIndex("cluster_checks", "environment")
+	repo.CreateIndex("cluster_checks", "collected")
+	repo.CreateIndex("cluster_checks_log", "check_id")
+	repo.CreateIndex("cluster_checks_log", "begin")
+	repo.CreateIndex("cluster_checks_log", "end")
 }
 
 func (repo *Repository) CreateIndex(col string, index string) {
@@ -149,6 +154,49 @@ func (repo *Repository) ChecksUpsert(checks []models.ConsulHealthCheck) {
 			log.Errorf("Repository checks upsert failed %v", err)
 		}
 	}
+}
+
+func (repo *Repository) ClusterChecksUpsert(check models.ClusterHealthCheck) {
+	s := repo.Session.Copy()
+	defer s.Close()
+
+	c := s.DB(repo.Config.Database).C("cluster_checks")
+
+	res := models.ClusterHealthCheck{}
+	err := c.FindId(check.Id).One(&res)
+	if err != nil {
+		// insert check
+		if err.Error() == "not found" {
+			check.Since = check.Collected
+			err = c.Insert(&check)
+			if err != nil {
+				log.Errorf("Repository cluster_checks insert failed %v", err)
+			}
+		} else {
+			log.Errorf("Repository cluster_checks find by id failed %v", err)
+		}
+		return
+	}
+
+	// if status changed insert into logs and reset since
+	if res.Status != check.Status {
+		checkLog := models.NewClusterHealthCheckLog(res, res.Since, check.Collected)
+		l := s.DB(repo.Config.Database).C("cluster_checks_log")
+		err = l.Insert(&checkLog)
+		if err != nil {
+			log.Errorf("Repository cluster_checks_log insert failed %v", err)
+		}
+		check.Since = check.Collected
+	} else {
+		check.Since = res.Since
+	}
+
+	// update check
+	_, err = c.UpsertId(check.Id, &check)
+	if err != nil {
+		log.Errorf("Repository cluster_checks upsert failed %v", err)
+	}
+
 }
 
 func (repo *Repository) SyrosServiceUpsert(service models.SyrosService) {
