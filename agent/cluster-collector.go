@@ -42,7 +42,7 @@ func (col *ClusterCollector) Collect() (*models.ClusterPayload, error) {
 			Environment: col.Environment,
 			Id:          models.Hash(col.ApiAddress),
 			Collected:   time.Now().UTC(),
-			Status:      "Offline",
+			Status:      "offline",
 		},
 	}
 
@@ -53,9 +53,9 @@ func (col *ClusterCollector) Collect() (*models.ClusterPayload, error) {
 	}
 
 	if resp.StatusCode == 200 {
-		payload.HealthCheck.Status = "Leader"
+		payload.HealthCheck.Status = "leader"
 	} else {
-		payload.HealthCheck.Status = "Follower"
+		payload.HealthCheck.Status = "follower"
 	}
 
 	defer resp.Body.Close()

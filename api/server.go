@@ -91,6 +91,7 @@ func (s *HttpServer) Start() {
 	r.Mount("/api/deployment", s.deploymentApiRoutes())
 	r.Mount("/api/release", s.releaseRoutes())
 	r.Mount("/api/vsphere", s.vsphereRoutes())
+	r.Mount("/api/cluster", s.clusterRoutes())
 
 	// ui paths
 	indexPath := filepath.Join(s.Config.AppPath, "index.html")
