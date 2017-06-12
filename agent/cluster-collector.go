@@ -7,6 +7,8 @@ import (
 	"runtime"
 	"time"
 
+	"net/url"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/stefanprodan/syros/models"
 )
@@ -14,16 +16,27 @@ import (
 type ClusterCollector struct {
 	Name        string
 	ApiAddress  string
+	HostName    string
 	Environment string
 	Topic       string
 }
 
 func NewClusterCollector(name string, address string, env string) (*ClusterCollector, error) {
+	u, err := url.Parse(address)
+	if err != nil {
+		return nil, err
+	}
+	host, _, err := net.SplitHostPort(u.Host)
+	if err != nil {
+		return nil, err
+	}
+
 	c := &ClusterCollector{
 		Name:        name,
 		ApiAddress:  address,
 		Environment: env,
 		Topic:       "cluster",
+		HostName:    host,
 	}
 
 	return c, nil
@@ -39,6 +52,7 @@ func (col *ClusterCollector) Collect() (*models.ClusterPayload, error) {
 		Environment: col.Environment,
 		HealthCheck: models.ClusterHealthCheck{
 			ServiceName: col.Name,
+			HostName:    col.HostName,
 			Environment: col.Environment,
 			Id:          models.Hash(col.ApiAddress),
 			Collected:   time.Now().UTC(),

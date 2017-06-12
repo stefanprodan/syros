@@ -12,6 +12,7 @@ type ClusterHealthCheck struct {
 	Status      string    `bson:"status" json:"status"`
 	Output      string    `bson:"output" json:"output"`
 	ServiceName string    `bson:"service_name" json:"service_name"`
+	HostName    string    `bson:"host_name" json:"host_name"`
 	Collected   time.Time `bson:"collected" json:"collected"`
 	Since       time.Time `bson:"since" json:"since"`
 	Environment string    `bson:"environment" json:"environment"`
@@ -23,6 +24,7 @@ type ClusterHealthCheckLog struct {
 	Status      string    `bson:"status" json:"status"`
 	Output      string    `bson:"output" json:"output"`
 	ServiceName string    `bson:"service_name" json:"service_name"`
+	HostName    string    `bson:"host_name" json:"host_name"`
 	Begin       time.Time `bson:"begin" json:"begin"`
 	End         time.Time `bson:"end" json:"end"`
 	Timestamp   time.Time `bson:"timestamp" json:"timestamp"`
@@ -38,6 +40,7 @@ func NewClusterHealthCheckLog(check ClusterHealthCheck, begin time.Time, end tim
 		Environment: check.Environment,
 		Output:      check.Output,
 		ServiceName: check.ServiceName,
+		HostName:    check.HostName,
 		Status:      check.Status,
 		Timestamp:   time.Now().UTC(),
 	}
