@@ -38,6 +38,14 @@ export default new Router({
       }
     },
     {
+      path: '/clusters',
+      name: 'clusters',
+      component: require('components/clusters/index.vue'),
+      meta: {
+        auth: true
+      }
+    },
+    {
       path: '/healthcheck/:id',
       name: 'healthcheck',
       component: require('components/healthcheck/index.vue'),

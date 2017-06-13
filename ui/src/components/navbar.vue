@@ -18,6 +18,9 @@
         <router-link :to="{ name: 'healthchecks' }" active-class="active" tag="li">
             <a><i class="fa fa-heartbeat"></i> Health</a>
         </router-link>
+        <router-link :to="{ name: 'clusters' }" active-class="active" tag="li">
+            <a><i class="fa fa-heartbeat"></i> Clusters</a>
+        </router-link>
         <router-link :to="{ name: 'releases' }" active-class="active" tag="li">
             <a><i class="fa fa-play-circle-o"></i> Releases</a>
         </router-link>

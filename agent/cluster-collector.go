@@ -63,7 +63,7 @@ func (col *ClusterCollector) Collect() (*models.ClusterPayload, error) {
 	resp, err := client.Get(col.ApiAddress)
 	if err != nil {
 		payload.HealthCheck.Output = err.Error()
-		return payload, err
+		return payload, nil
 	}
 
 	if resp.StatusCode == 200 {
