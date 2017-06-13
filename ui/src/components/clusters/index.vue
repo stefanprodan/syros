@@ -3,7 +3,7 @@
   <div>
     <ol class="breadcrumb">
       <li><router-link class="text-uppercase" :to="{ name: 'home'}">home</router-link></li>
-      <li>health</li>
+      <li>clusters</li>
     </ol>
   </div>
   <div class="stats">

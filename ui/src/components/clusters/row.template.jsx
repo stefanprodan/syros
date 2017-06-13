@@ -1,10 +1,13 @@
 export default {
     service_name: function (h, row) {
-        return <a class='' href={'#/healthcheck/' + row.id}>{row.service_name}</a>
+        return <a class='' href={'#/cluster/' + row.id}>{row.service_name}</a>
     },
     status: function (h, row) {
         if (moment().diff(row.collected, 'minutes') > 1){
             return <span class="alert alert-danger text-uppercase" title="No signal received for more than one minute ago">removed</span>
+        }
+        if (row.status == 'offline'){
+            return <span class="alert alert-danger text-uppercase">{row.status}</span>
         }
         if (row.status == 'leader'){
             return <span class="alert alert-success text-uppercase">{row.status}</span>

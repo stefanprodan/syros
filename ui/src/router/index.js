@@ -38,6 +38,14 @@ export default new Router({
       }
     },
     {
+      path: '/healthcheck/:id',
+      name: 'healthcheck',
+      component: require('components/healthcheck/index.vue'),
+      meta: {
+        auth: true
+      }
+    },
+    {
       path: '/clusters',
       name: 'clusters',
       component: require('components/clusters/index.vue'),
@@ -46,9 +54,9 @@ export default new Router({
       }
     },
     {
-      path: '/healthcheck/:id',
-      name: 'healthcheck',
-      component: require('components/healthcheck/index.vue'),
+      path: '/cluster/:id',
+      name: 'cluster',
+      component: require('components/cluster/index.vue'),
       meta: {
         auth: true
       }
