@@ -32,7 +32,7 @@ func (s *HttpServer) releaseRoutes() chi.Router {
 			// aggregate chart per day based on release end date
 			for _, cont := range rels {
 				deployments += cont.Deployments
-				date := cont.End.Format("06-01-02")
+				date := cont.End.Format("06-01")
 				found := -1
 				for i, s := range chart.Labels {
 					if s == date {
