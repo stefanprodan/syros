@@ -88,6 +88,7 @@ func (s *HttpServer) Start() {
 	r.Mount("/api/auth", s.authRoutes())
 	r.Mount("/api/home", s.homeRoutes())
 	r.Mount("/api/docker", s.dockerRoutes())
+	r.Mount("/api/consul", s.consulRoutes())
 	r.Mount("/api/deployment", s.deploymentApiRoutes())
 	r.Mount("/api/release", s.releaseRoutes())
 	r.Mount("/api/vsphere", s.vsphereRoutes())

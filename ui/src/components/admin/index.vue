@@ -51,7 +51,7 @@
     methods: {
       loadData () {
         this.$Progress.start()
-        Vue.$http.get('/docker/syrosservices')
+        Vue.$http.get('/home/syrosservices')
           .then((response) => {
             if (response != null) {
               this.tableData = response.data

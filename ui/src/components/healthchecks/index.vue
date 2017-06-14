@@ -69,7 +69,7 @@
     methods: {
       loadData () {
         this.$Progress.start()
-        Vue.$http.get('/docker/healthchecks')
+        Vue.$http.get('/consul/healthchecks')
           .then((response) => {
             if (response != null) {
               this.tableData = response.data

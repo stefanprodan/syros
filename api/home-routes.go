@@ -51,6 +51,16 @@ func (s *HttpServer) homeRoutes() chi.Router {
 			render.JSON(w, r, data)
 		})
 
+		r.Get("/syrosservices", func(w http.ResponseWriter, r *http.Request) {
+			services, err := s.Repository.AllSyrosServices()
+			if err != nil {
+				render.Status(r, http.StatusInternalServerError)
+				render.PlainText(w, r, err.Error())
+				return
+			}
+			render.JSON(w, r, services)
+		})
+
 	})
 
 	r.Get("/environments", func(w http.ResponseWriter, r *http.Request) {
