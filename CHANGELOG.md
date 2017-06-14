@@ -1,9 +1,10 @@
 # Syros Changelog
 
-### v0.9.0 (beta)
+### v0.9.0 (release)
 
 * Agent refactoring
 * Collector YAML config 
+* Cluster dashboard (stats, graph and master-detail view)
 
 ### v0.8.0 (release)
 
