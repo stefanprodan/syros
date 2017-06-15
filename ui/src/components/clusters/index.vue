@@ -125,37 +125,52 @@
         this.timer = setTimeout(this.refreshData, 30000)
       },
       fillChart (data, envs) {
-        var passingData = []
-        var criticalData = []
+        var leaderData = []
+        var followerData = []
+        var offlineData = []
         for (var e = 0, elen = envs.length; e < elen; e++) {
-          var critical = 0
-          var passing = 0
+          var leaders = 0
+          var followers = 0
+          var offline = 0
           for (var i = 0, len = data.length; i < len; i++) {
             if (data[i].environment === envs[e]) {
-              if (data[i].status === 'leader') {
-                passing += 1
-              } else {
-                critical += 1
+              switch (data[i].status) {
+                case 'leader':
+                  leaders++
+                  break
+                case 'follower':
+                  followers++
+                  break
+                case 'offline':
+                  offline++
+                  break
               }
             }
           }
-          passingData.push(passing)
-          criticalData.push(critical)
+          leaderData.push(leaders)
+          followerData.push(followers)
+          offlineData.push(offline)
         }
 
         return {
           labels: envs,
           datasets: [ {
-            label: 'leaders',
-            backgroundColor: '#2ECC71',
+            label: 'offline',
+            backgroundColor: '#f44265',
             borderWidth: 0,
-            data: passingData,
+            data: offlineData,
             stack: '1'
           }, {
             label: 'followers',
             backgroundColor: '#F7DC6F',
             borderWidth: 0,
-            data: criticalData,
+            data: followerData,
+            stack: '1'
+          }, {
+            label: 'leaders',
+            backgroundColor: '#2ECC71',
+            borderWidth: 0,
+            data: leaderData,
             stack: '1'
           }]
         }
