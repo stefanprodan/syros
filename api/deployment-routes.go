@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	"github.com/stefanprodan/chi"
-	"github.com/stefanprodan/chi/render"
+	"github.com/pressly/chi"
+	"github.com/pressly/chi/render"
 	"github.com/stefanprodan/syros/models"
 )
 

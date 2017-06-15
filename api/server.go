@@ -11,9 +11,9 @@ import (
 	"github.com/goware/cors"
 	"github.com/goware/jwtauth"
 	"github.com/pkg/errors"
-	"github.com/stefanprodan/chi"
-	"github.com/stefanprodan/chi/middleware"
-	"github.com/stefanprodan/chi/render"
+	"github.com/pressly/chi"
+	"github.com/pressly/chi/middleware"
+	"github.com/pressly/chi/render"
 )
 
 type HttpServer struct {

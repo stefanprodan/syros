@@ -293,10 +293,22 @@
 			"revisionTime": "2016-10-29T09:36:37Z"
 		},
 		{
-			"checksumSHA1": "ZmdW8B6ENm70gvbKNuMHPf2GQiY=",
+			"checksumSHA1": "0ZV3KyuugZCPSdU24Gi0lE7PN34=",
 			"path": "github.com/pressly/chi",
-			"revision": "a57b1fbe2989382bdef31d3793d4a50a0e4a1d7c",
-			"revisionTime": "2017-04-14T20:35:15Z"
+			"revision": "9435d858d175002354cd731211d97cb6ade7f58f",
+			"revisionTime": "2017-06-11T01:55:12Z"
+		},
+		{
+			"checksumSHA1": "plMnjpkrO/Q71lm/tEZa4QfTH1I=",
+			"path": "github.com/pressly/chi/middleware",
+			"revision": "9435d858d175002354cd731211d97cb6ade7f58f",
+			"revisionTime": "2017-06-11T01:55:12Z"
+		},
+		{
+			"checksumSHA1": "rc7zN/vqmvkoE7TQoS5nhLwYXiU=",
+			"path": "github.com/pressly/chi/render",
+			"revision": "9435d858d175002354cd731211d97cb6ade7f58f",
+			"revisionTime": "2017-06-11T01:55:12Z"
 		},
 		{
 			"checksumSHA1": "d2irkxoHgazkTuLIvJGiYwagl8o=",
@@ -351,30 +363,6 @@
 			"path": "github.com/robfig/cron",
 			"revision": "df38d32658d8788cd446ba74db4bb5375c4b0cb3",
 			"revisionTime": "2017-03-09T13:24:18Z"
-		},
-		{
-			"checksumSHA1": "J4wRmIEAO9PpDTbSpi/3MwwepoU=",
-			"path": "github.com/stefanprodan/chi",
-			"revision": "9a6d1064aa4b75fb726a2eee9789ee9e3e421e8c",
-			"revisionTime": "2017-04-19T21:09:44Z",
-			"version": "=patch-1",
-			"versionExact": "patch-1"
-		},
-		{
-			"checksumSHA1": "W3DVEsBv4hYPz+vJ6I/eZ5p5qXs=",
-			"path": "github.com/stefanprodan/chi/middleware",
-			"revision": "9a6d1064aa4b75fb726a2eee9789ee9e3e421e8c",
-			"revisionTime": "2017-04-19T21:09:44Z",
-			"version": "=patch-1",
-			"versionExact": "patch-1"
-		},
-		{
-			"checksumSHA1": "RoQX2G9HGb6re8edRbEhoqGMGC8=",
-			"path": "github.com/stefanprodan/chi/render",
-			"revision": "9a6d1064aa4b75fb726a2eee9789ee9e3e421e8c",
-			"revisionTime": "2017-04-19T21:09:44Z",
-			"version": "=patch-1",
-			"versionExact": "patch-1"
 		},
 		{
 			"checksumSHA1": "XQ2GsdTmZgUO2xycRg02vxBYi50=",

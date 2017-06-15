@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/goware/jwtauth"
-	"github.com/stefanprodan/chi"
-	"github.com/stefanprodan/chi/render"
+	"github.com/pressly/chi"
+	"github.com/pressly/chi/render"
 )
 
 func (s *HttpServer) authRoutes() chi.Router {

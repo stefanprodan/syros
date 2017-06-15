@@ -8,8 +8,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/stefanprodan/chi"
-	"github.com/stefanprodan/chi/middleware"
+	"github.com/pressly/chi"
+	"github.com/pressly/chi/middleware"
 )
 
 type Prometheus struct {
