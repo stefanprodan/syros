@@ -3,9 +3,9 @@ package main
 import (
 	"net/http"
 
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/render"
 	"github.com/goware/jwtauth"
-	"github.com/pressly/chi"
-	"github.com/pressly/chi/render"
 	"github.com/stefanprodan/syros/models"
 )
 
@@ -27,7 +27,7 @@ func (s *HttpServer) clusterRoutes() chi.Router {
 			render.JSON(w, r, checks)
 		})
 
-		r.Get("/healthchecks/:checkID", func(w http.ResponseWriter, r *http.Request) {
+		r.Get("/healthchecks/{checkID}", func(w http.ResponseWriter, r *http.Request) {
 			checkID := chi.URLParam(r, "checkID")
 			checks, stats, err := s.Repository.ClusterHealthCheckLog(checkID)
 			if err != nil {

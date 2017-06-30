@@ -7,13 +7,14 @@ import (
 	"path/filepath"
 	"runtime"
 	"strconv"
+	"strings"
 
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/render"
 	"github.com/goware/cors"
 	"github.com/goware/jwtauth"
 	"github.com/pkg/errors"
-	"github.com/pressly/chi"
-	"github.com/pressly/chi/middleware"
-	"github.com/pressly/chi/render"
 )
 
 type HttpServer struct {
@@ -104,10 +105,29 @@ func (s *HttpServer) Start() {
 	})
 
 	// static files (js, css, fonts)
-	r.FileServer("/static", http.Dir(staticPath))
+	FileServer(r, "/static", http.Dir(staticPath))
 
 	err := http.ListenAndServe(fmt.Sprintf(":%v", s.Config.Port), r)
 	if err != nil {
 		log.Fatalf("HTTP Server crashed! %v", err.Error())
 	}
+
+}
+
+func FileServer(r chi.Router, path string, root http.FileSystem) {
+	if strings.ContainsAny(path, "{}*") {
+		panic("FileServer does not permit URL parameters.")
+	}
+
+	fs := http.StripPrefix(path, http.FileServer(root))
+
+	if path != "/" && path[len(path)-1] != '/' {
+		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
+		path += "/"
+	}
+	path += "*"
+
+	r.Get(path, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fs.ServeHTTP(w, r)
+	}))
 }

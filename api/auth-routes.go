@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/render"
 	"github.com/goware/jwtauth"
-	"github.com/pressly/chi"
-	"github.com/pressly/chi/render"
 )
 
 func (s *HttpServer) authRoutes() chi.Router {

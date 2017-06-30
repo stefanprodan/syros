@@ -3,9 +3,9 @@ package main
 import (
 	"net/http"
 
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/render"
 	"github.com/goware/jwtauth"
-	"github.com/pressly/chi"
-	"github.com/pressly/chi/render"
 	"github.com/stefanprodan/syros/models"
 )
 
@@ -27,7 +27,7 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 			render.JSON(w, r, hosts)
 		})
 
-		r.Get("/hosts/:hostID", func(w http.ResponseWriter, r *http.Request) {
+		r.Get("/hosts/{hostID}", func(w http.ResponseWriter, r *http.Request) {
 			hostID := chi.URLParam(r, "hostID")
 
 			payload, err := s.Repository.HostContainers(hostID)
@@ -39,7 +39,7 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 			render.JSON(w, r, payload)
 		})
 
-		r.Get("/environments/:env", func(w http.ResponseWriter, r *http.Request) {
+		r.Get("/environments/{env}", func(w http.ResponseWriter, r *http.Request) {
 			env := chi.URLParam(r, "env")
 
 			payload, err := s.Repository.EnvironmentContainers(env)
@@ -93,7 +93,7 @@ func (s *HttpServer) dockerRoutes() chi.Router {
 			render.JSON(w, r, containers)
 		})
 
-		r.Get("/containers/:containerID", func(w http.ResponseWriter, r *http.Request) {
+		r.Get("/containers/{containerID}", func(w http.ResponseWriter, r *http.Request) {
 			containerID := chi.URLParam(r, "containerID")
 
 			payload, err := s.Repository.Container(containerID)

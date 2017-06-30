@@ -197,6 +197,24 @@
 			"revisionTime": "2016-07-08T17:25:13Z"
 		},
 		{
+			"checksumSHA1": "rDUOdbeibU1oRVxkSdv/xL1CqFY=",
+			"path": "github.com/go-chi/chi",
+			"revision": "4cbb5e2f2a0d2898e49f8b2e9eebf3236479c1bf",
+			"revisionTime": "2017-06-28T14:30:38Z"
+		},
+		{
+			"checksumSHA1": "PWhLQ1l6HiWVK0fQNZWdrR96j0o=",
+			"path": "github.com/go-chi/chi/middleware",
+			"revision": "4cbb5e2f2a0d2898e49f8b2e9eebf3236479c1bf",
+			"revisionTime": "2017-06-28T14:30:38Z"
+		},
+		{
+			"checksumSHA1": "HojFiFwOolVU/41Vcbay/lVYZwM=",
+			"path": "github.com/go-chi/chi/render",
+			"revision": "4cbb5e2f2a0d2898e49f8b2e9eebf3236479c1bf",
+			"revisionTime": "2017-06-28T14:30:38Z"
+		},
+		{
 			"checksumSHA1": "kBeNcaKk56FguvPSUCEaH6AxpRc=",
 			"path": "github.com/golang/protobuf/proto",
 			"revision": "8ee79997227bf9b34611aee7946ae64735e6fd93",
@@ -291,24 +309,6 @@
 			"path": "github.com/pkg/errors",
 			"revision": "248dadf4e9068a0b3e79f02ed0a610d935de5302",
 			"revisionTime": "2016-10-29T09:36:37Z"
-		},
-		{
-			"checksumSHA1": "0ZV3KyuugZCPSdU24Gi0lE7PN34=",
-			"path": "github.com/pressly/chi",
-			"revision": "9435d858d175002354cd731211d97cb6ade7f58f",
-			"revisionTime": "2017-06-11T01:55:12Z"
-		},
-		{
-			"checksumSHA1": "plMnjpkrO/Q71lm/tEZa4QfTH1I=",
-			"path": "github.com/pressly/chi/middleware",
-			"revision": "9435d858d175002354cd731211d97cb6ade7f58f",
-			"revisionTime": "2017-06-11T01:55:12Z"
-		},
-		{
-			"checksumSHA1": "rc7zN/vqmvkoE7TQoS5nhLwYXiU=",
-			"path": "github.com/pressly/chi/render",
-			"revision": "9435d858d175002354cd731211d97cb6ade7f58f",
-			"revisionTime": "2017-06-11T01:55:12Z"
 		},
 		{
 			"checksumSHA1": "d2irkxoHgazkTuLIvJGiYwagl8o=",

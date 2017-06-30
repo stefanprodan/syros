@@ -3,9 +3,9 @@ package main
 import (
 	"net/http"
 
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/render"
 	"github.com/goware/jwtauth"
-	"github.com/pressly/chi"
-	"github.com/pressly/chi/render"
 	"github.com/stefanprodan/syros/models"
 )
 
@@ -61,7 +61,7 @@ func (s *HttpServer) releaseRoutes() chi.Router {
 			render.JSON(w, r, data)
 		})
 
-		r.Get("/:releaseID", func(w http.ResponseWriter, r *http.Request) {
+		r.Get("/{releaseID}", func(w http.ResponseWriter, r *http.Request) {
 			releaseID := chi.URLParam(r, "releaseID")
 
 			payload, err := s.Repository.ReleaseDeployments(releaseID)
