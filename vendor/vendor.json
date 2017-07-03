@@ -27,6 +27,18 @@
 			"revisionTime": "2016-10-20T19:44:10Z"
 		},
 		{
+			"checksumSHA1": "fcfxNsCuheCrubAAl6zWgimCnLY=",
+			"path": "github.com/codegangsta/inject",
+			"revision": "33e0aa1cb7c019ccc3fbe049a8262a6403d30504",
+			"revisionTime": "2015-01-14T23:56:00Z"
+		},
+		{
+			"checksumSHA1": "WLrdTMhdNp9WLzdRQ5k5alFE99k=",
+			"path": "github.com/codeskyblue/go-sh",
+			"revision": "b097669b1569203c3ce05a6b8717d43140fdb3d5",
+			"revisionTime": "2017-01-11T12:51:52Z"
+		},
+		{
 			"checksumSHA1": "CMfwCFcZRDJeIVVbIHa6t4Aewl8=",
 			"path": "github.com/dgrijalva/jwt-go",
 			"revision": "268038b363c7a8d7306b8e35bf77a1fde4b0c402",
