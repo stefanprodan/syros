@@ -383,6 +383,12 @@
 			"revisionTime": "2017-01-09T14:32:44Z"
 		},
 		{
+			"checksumSHA1": "E1efVncF6gxXUsd6vw4VgK4D+LI=",
+			"path": "github.com/urfave/cli",
+			"revision": "b892ba3809cd07fcf2b064e166b0c2e16e0147bd",
+			"revisionTime": "2017-06-25T03:28:08Z"
+		},
+		{
 			"checksumSHA1": "VK+9fon/pJt+ZebKV+iCx3ILZFI=",
 			"path": "github.com/vmware/govmomi",
 			"revision": "35caa01bfa4cbff15d06382021e2028bdf0a77ad",
