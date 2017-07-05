@@ -26,7 +26,7 @@ type ComponentConfig struct {
 	} `yaml:"component"`
 }
 
-func loadComponent(dir string, env string, name string) (ComponentConfig, error) {
+func loadComponent(dir string, env string, name string) (ComponentConfig, bool, error) {
 	plan := ComponentConfig{}
 	planPath := ""
 	dir = path.Join(dir, "deploy", "components", env)
@@ -38,23 +38,23 @@ func loadComponent(dir string, env string, name string) (ComponentConfig, error)
 	})
 
 	if err != nil {
-		return plan, errors.Wrapf(err, "Reading from %v failed", dir)
+		return plan, false, errors.Wrapf(err, "Reading from %v failed", dir)
 	}
 
 	if len(planPath) < 1 {
-		return plan, errors.Errorf("Config %v not found", name)
+		return plan, false, nil
 	}
 
 	data, err := ioutil.ReadFile(planPath)
 	if err != nil {
-		return plan, errors.Wrapf(err, "Reading %v failed", planPath)
+		return plan, false, errors.Wrapf(err, "Reading %v failed", planPath)
 	}
 
 	if err := yaml.Unmarshal(data, &plan); err != nil {
-		return plan, errors.Wrapf(err, "Parsing %v failed", planPath)
+		return plan, false, errors.Wrapf(err, "Parsing %v failed", planPath)
 	}
 
-	return plan, nil
+	return plan, true, nil
 }
 
 type PromotionConfig struct {
