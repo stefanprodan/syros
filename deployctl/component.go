@@ -13,11 +13,11 @@ import (
 
 type ComponentConfig struct {
 	Component struct {
-		Image  string `yaml:"image"`
-		Mode   string `yaml:"mode"`
-		Name   string `yaml:"name"`
+		Image  string            `yaml:"image"`
+		Mode   string            `yaml:"mode"`
+		Name   string            `yaml:"name"`
 		Target []ComponentTarget `yaml:"target"`
-		Type string `yaml:"type"`
+		Type   string            `yaml:"type"`
 	} `yaml:"component"`
 }
 
