@@ -68,12 +68,46 @@ func componentPromote(c *cli.Context) error {
 						log.Fatal(err.Error())
 					}
 
+					if len(ticket) > 0 {
+						jira, cfgExists, err := loadJiraConfig(dir, "jira")
+						if err != nil{
+							log.Printf("Jira config load failed %s", err.Error())
+						}else {
+							if !cfgExists {
+								log.Print("Jira config not found")
+							}else {
+								err := jira.Post(ticket, env, component, target.Host)
+								if err != nil{
+									log.Print(err.Error())
+								}
+							}
+						}
+
+					}
+
 					log.Printf("Deployment complete for %s on %s", component, target.Host)
 					log.Print("-----------------")
 				}
 			}
 		}
 	}
+
+	if len(ticket) > 0 {
+		jira, cfgExists, err := loadJiraConfig(dir, "jira")
+		if err != nil{
+			log.Printf("Jira config load failed %s", err.Error())
+		}else {
+			if !cfgExists {
+				log.Print("Jira config not found")
+			}else {
+				err := jira.Upload(ticket, dir, "deployctl.log")
+				if err != nil{
+					log.Print(err.Error())
+				}
+			}
+		}
+	}
+
 	log.Print(">>> Deployment complete")
 
 	return nil
