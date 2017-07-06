@@ -14,7 +14,7 @@ func execPgStop(timeout int) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 	defer cancel()
 
-	if err := exec.CommandContext(ctx, "service", "postgres", "stop").Run(); err != nil {
+	if err := exec.CommandContext(ctx, "service", "postgresql", "stop").Run(); err != nil {
 		log.Fatalf("service postgres stop failed %s", err.Error())
 	}
 }
