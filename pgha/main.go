@@ -24,12 +24,19 @@ func main() {
 	flag.StringVar(&config.ConsulKV, "ConsulKV", "pgha", "Consul KV prefix")
 	flag.StringVar(&config.PostgresURI, "PostgresURI", "postgres://user:password@localhost/db?sslmode=disable", "Postgres URI")
 	flag.StringVar(&config.NatsURI, "NatsURI", "nats://localhost:4222", "Nats URI")
+	flag.StringVar(&config.User, "User", "postgres", "User to run under")
 	flag.Parse()
 	setLogLevel(config.LogLevel)
 	log.Infof("Starting with config: %+v", config)
 
 	if config.Hostname == "" {
 		config.Hostname, _ = os.Hostname()
+	}
+
+	//check if running under postgres
+	id := execId(10)
+	if id != config.User {
+		log.Fatalf("Running under %s expected postgres", id)
 	}
 
 	//check if repmgr is installed

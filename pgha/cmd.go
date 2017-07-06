@@ -10,6 +10,17 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+func execId(timeout int) string {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	defer cancel()
+
+	output, err := exec.CommandContext(ctx, "id", "-u", "-n").Output()
+	if err != nil {
+		log.Fatalf("id -u -n failed %s", err.Error())
+	}
+	return strings.Replace(string(output), "\n", "", -1)
+}
+
 func execPgStop(timeout int) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 	defer cancel()

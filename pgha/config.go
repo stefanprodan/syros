@@ -11,4 +11,5 @@ type Config struct {
 	ConsulKV    string `m:"ConsulKV"`
 	PostgresURI string `m:"PostgresURI"`
 	NatsURI     string `m:"NatsURI"`
+	User        string `m:"User"`
 }
