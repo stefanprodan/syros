@@ -51,8 +51,33 @@ func componentPromote(c *cli.Context) error {
 			}
 
 			if componentCfg.Component.Type == "docker" {
-				for _, target := range componentCfg.Component.Target {
+				targets := componentCfg.Component.Target
 
+				// detect leader node and shift it as last in the targets array
+				if componentCfg.Component.Mode == "ha" {
+					leaderIdx := -1
+					var leaderEntry ComponentTarget
+					for i, target := range componentCfg.Component.Target {
+						isLeader := containerClusterCheck(target.Leadership, 15)
+						if isLeader {
+							leaderIdx = i
+							leaderEntry = target
+							break
+						}
+					}
+					if leaderIdx > -1 {
+						targets = removeTargetByIndex(targets, leaderIdx)
+						targets = append(targets, leaderEntry)
+						log.Printf("Leader found on %s", leaderEntry.Host)
+					} else {
+						log.Printf("No leader found for %s on %s", component, env)
+					}
+				}
+
+				// run promotion on each target host
+				for _, target := range targets {
+
+					// mark deployment as started in SYROS
 					if len(ticket) > 0 {
 						syrosApi, cfgExists, err := loadSyrosConfig(dir, "syros")
 						if err != nil {
@@ -88,6 +113,7 @@ func componentPromote(c *cli.Context) error {
 					}
 
 					if len(ticket) > 0 {
+						// add comment on JIRA ticket
 						jira, cfgExists, err := loadJiraConfig(dir, "jira")
 						if err != nil {
 							log.Printf("Jira config load failed %s", err.Error())
@@ -101,6 +127,7 @@ func componentPromote(c *cli.Context) error {
 								}
 							}
 						}
+						// mark deployment as done in SYROS and upload log
 						syrosApi, cfgExists, err := loadSyrosConfig(dir, "syros")
 						if err != nil {
 							log.Printf("Syros config load failed %s", err.Error())
@@ -123,6 +150,7 @@ func componentPromote(c *cli.Context) error {
 		}
 	}
 
+	// upload log to JIRA
 	if len(ticket) > 0 {
 		jira, cfgExists, err := loadJiraConfig(dir, "jira")
 		if err != nil {

@@ -48,3 +48,36 @@ func containerHealthCheck(url string, timeout int) error {
 
 	return nil
 }
+
+func containerClusterCheck(url string, timeout int) (isLeader bool) {
+	transport := &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout:   time.Duration(timeout) * time.Second,
+			KeepAlive: 10 * time.Second,
+		}).DialContext,
+		DisableKeepAlives:     true,
+		IdleConnTimeout:       60 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+		MaxIdleConnsPerHost:   -1,
+	}
+
+	client := &http.Client{
+		Transport: transport,
+	}
+	resp, err := client.Get(url)
+	if err != nil {
+		log.Print(err.Error())
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == 200 {
+		isLeader = true
+	} else {
+		return
+	}
+
+	return
+}

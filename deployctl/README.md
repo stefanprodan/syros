@@ -13,3 +13,9 @@ Deploy tool for Docker containers
 
 * Docker container promotion from one env to another
 * Rolling update of HA clusters
+
+### Integrations
+
+* JIRA ticket update
+* JIRA deploy log upload
+* SYROS releases update 

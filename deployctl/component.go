@@ -16,14 +16,20 @@ type ComponentConfig struct {
 		Image  string `yaml:"image"`
 		Mode   string `yaml:"mode"`
 		Name   string `yaml:"name"`
-		Target []struct {
-			Dir        string `yaml:"dir"`
-			Health     string `yaml:"health"`
-			Host       string `yaml:"host"`
-			Leadership string `yaml:"leadership"`
-		} `yaml:"target"`
+		Target []ComponentTarget `yaml:"target"`
 		Type string `yaml:"type"`
 	} `yaml:"component"`
+}
+
+type ComponentTarget struct {
+	Dir        string `yaml:"dir"`
+	Health     string `yaml:"health"`
+	Host       string `yaml:"host"`
+	Leadership string `yaml:"leadership"`
+}
+
+func removeTargetByIndex(s []ComponentTarget, index int) []ComponentTarget {
+	return append(s[:index], s[index+1:]...)
 }
 
 func loadComponent(dir string, env string, name string) (ComponentConfig, bool, error) {
