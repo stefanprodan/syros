@@ -4,6 +4,8 @@ import (
 	"log"
 	"strings"
 
+	"path"
+
 	"github.com/urfave/cli"
 )
 
@@ -50,6 +52,23 @@ func componentPromote(c *cli.Context) error {
 
 			if componentCfg.Component.Type == "docker" {
 				for _, target := range componentCfg.Component.Target {
+
+					if len(ticket) > 0 {
+						syrosApi, cfgExists, err := loadSyrosConfig(dir, "syros")
+						if err != nil {
+							log.Printf("Syros config load failed %s", err.Error())
+						} else {
+							if !cfgExists {
+								log.Print("Syros config not found")
+							} else {
+								err := syrosApi.Start(ticket, env, component, target.Host)
+								if err != nil {
+									log.Print(err.Error())
+								}
+							}
+						}
+					}
+
 					fromEnv := promotionCfg.Rules.Source
 					hostFrom := strings.Replace(target.Host, env, fromEnv, 1)
 					cd := ContainerDeploy{
@@ -70,19 +89,31 @@ func componentPromote(c *cli.Context) error {
 
 					if len(ticket) > 0 {
 						jira, cfgExists, err := loadJiraConfig(dir, "jira")
-						if err != nil{
+						if err != nil {
 							log.Printf("Jira config load failed %s", err.Error())
-						}else {
+						} else {
 							if !cfgExists {
 								log.Print("Jira config not found")
-							}else {
+							} else {
 								err := jira.Post(ticket, env, component, target.Host)
-								if err != nil{
+								if err != nil {
 									log.Print(err.Error())
 								}
 							}
 						}
-
+						syrosApi, cfgExists, err := loadSyrosConfig(dir, "syros")
+						if err != nil {
+							log.Printf("Syros config load failed %s", err.Error())
+						} else {
+							if !cfgExists {
+								log.Print("Syros config not found")
+							} else {
+								err := syrosApi.Finish(ticket, env, component, target.Host, path.Join(dir, "deployctl.log"))
+								if err != nil {
+									log.Print(err.Error())
+								}
+							}
+						}
 					}
 
 					log.Printf("Deployment complete for %s on %s", component, target.Host)
@@ -94,14 +125,14 @@ func componentPromote(c *cli.Context) error {
 
 	if len(ticket) > 0 {
 		jira, cfgExists, err := loadJiraConfig(dir, "jira")
-		if err != nil{
+		if err != nil {
 			log.Printf("Jira config load failed %s", err.Error())
-		}else {
+		} else {
 			if !cfgExists {
 				log.Print("Jira config not found")
-			}else {
+			} else {
 				err := jira.Upload(ticket, dir, "deployctl.log")
-				if err != nil{
+				if err != nil {
 					log.Print(err.Error())
 				}
 			}
