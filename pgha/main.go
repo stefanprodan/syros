@@ -34,14 +34,16 @@ func main() {
 		config.Hostname, _ = os.Hostname()
 	}
 
-	//check if running under postgres
-	id := execId(10)
-	if id != config.User {
-		log.Fatalf("Running under %s expected postgres", id)
-	}
+	if config.Environment != "debug" {
+		//check if running under postgres
+		id := execId(10)
+		if id != config.User {
+			log.Fatalf("Running under %s expected postgres", id)
+		}
 
-	//check if repmgr is installed
-	execRepmgrVersion(2)
+		//check if repmgr is installed
+		execRepmgrVersion(2)
+	}
 
 	status := NewStatus()
 
@@ -56,6 +58,17 @@ func main() {
 	}
 	status.SetPostgresStatus(isMaster)
 	go pgmon.Start()
+
+	pgstats, err := NewPGStats(config)
+	if err != nil {
+		log.Fatalf("Postgres connection failed %s", err.Error())
+	}
+
+	stats, err := pgstats.GetReplicationStats()
+	if err != nil {
+		log.Fatalf("Postgres replication stats query failed %s", err.Error())
+	}
+	log.Infof("Postgres replication stats: %+v", stats)
 
 	election, err := NewElection(config, status)
 	if err != nil {
