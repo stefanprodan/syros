@@ -61,12 +61,12 @@ func main() {
 
 	pgstats, err := NewPGStats(config)
 	if err != nil {
-		log.Fatalf("Postgres connection failed %s", err.Error())
+		log.Fatalf("PGStats init failed %s", err.Error())
 	}
 
 	stats, err := pgstats.GetReplicationStats()
 	if err != nil {
-		log.Fatalf("Postgres replication stats query failed %s", err.Error())
+		log.Fatalf("PGStats GetReplicationStats failed %s", err.Error())
 	}
 	log.Infof("Postgres replication stats: %+v", stats)
 

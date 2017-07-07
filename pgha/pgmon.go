@@ -7,6 +7,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	_ "github.com/lib/pq"
+	"github.com/pkg/errors"
 )
 
 type PGMonitor struct {
@@ -18,13 +19,13 @@ type PGMonitor struct {
 func NewPGMonitor(uri string, status *Status) (*PGMonitor, error) {
 	db, err := sql.Open("postgres", uri)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Postgres init failed")
 	}
 	db.SetMaxOpenConns(1)
 
 	err = db.Ping()
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Postgres ping failed")
 	}
 
 	pg := &PGMonitor{
@@ -39,7 +40,7 @@ func (pg *PGMonitor) IsMaster() (bool, error) {
 	var isInRecovery bool
 	err := pg.db.QueryRow("SELECT pg_is_in_recovery()").Scan(&isInRecovery)
 	if err != nil {
-		return false, err
+		return false, errors.Wrap(err, "Query pg_is_in_recovery failed")
 	}
 
 	return !isInRecovery, nil

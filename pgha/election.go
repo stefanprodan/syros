@@ -6,6 +6,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	consul "github.com/hashicorp/consul/api"
+	"github.com/pkg/errors"
 )
 
 type Election struct {
@@ -26,7 +27,7 @@ func NewElection(config *Config, status *Status) (*Election, error) {
 	cfg.Address = config.ConsulURI
 	client, err := consul.NewClient(cfg)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Consul client init failed")
 	}
 
 	lockOpt := &consul.LockOptions{
