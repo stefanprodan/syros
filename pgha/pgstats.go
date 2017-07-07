@@ -8,6 +8,7 @@ import (
 
 	consul "github.com/hashicorp/consul/api"
 	"github.com/pkg/errors"
+	"encoding/json"
 )
 
 type PGStats struct {
@@ -95,4 +96,23 @@ func (pg *PGStats) GetReplicationStats() (ReplicationStats, error) {
 	stats.Offset = offset
 
 	return stats, nil
+}
+
+func (pg *PGStats) SaveReplicationStats(stats ReplicationStats) error {
+
+	data, err := json.Marshal(stats)
+	if err != nil {
+		return errors.Wrap(err, "Replication stats json marshal failed")
+	}
+
+	kv := new(consul.KVPair)
+	kv.Key = pg.consulKey + "/" + pg.config.Hostname
+	kv.Value = data
+
+	_, err = pg.consulClient.KV().Put(kv, nil)
+	if err != nil {
+		return errors.Wrap(err, "Replication stats KV Put failed")
+	}
+
+	return nil
 }

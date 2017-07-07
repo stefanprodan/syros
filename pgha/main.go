@@ -70,6 +70,11 @@ func main() {
 	}
 	log.Infof("Postgres replication stats: %+v", stats)
 
+	err = pgstats.SaveReplicationStats(stats)
+	if err != nil {
+		log.Fatalf("PGStats SaveReplicationStats failed %s", err.Error())
+	}
+
 	election, err := NewElection(config, status)
 	if err != nil {
 		log.Fatal(err.Error())
