@@ -74,11 +74,6 @@ func main() {
 		log.Fatalf("PGStats GetReplicationStats failed %s", err.Error())
 	}
 	log.Infof("Postgres replication stats: %+v", stats)
-
-	err = pgstats.SaveReplicationStats(stats)
-	if err != nil {
-		log.Fatalf("PGStats SaveReplicationStats failed %s", err.Error())
-	}
 	pgstats.Start()
 
 	election, err := NewElection(config, status)
