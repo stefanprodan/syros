@@ -12,6 +12,7 @@ type Election struct {
 	key          string
 	session      string
 	ttl          string
+	retries      int
 	status       *Status
 	consulClient *consul.Client
 	consulLock   *consul.Lock
@@ -19,10 +20,10 @@ type Election struct {
 	lockChan     chan struct{}
 }
 
-func NewElection(consulAddress string, ttl string, prefix string, session string, status *Status) (*Election, error) {
-	key := prefix + "/leader/election"
+func NewElection(config *Config, status *Status) (*Election, error) {
+	key := config.ConsulKV + "/leader/election"
 	cfg := consul.DefaultConfig()
-	cfg.Address = consulAddress
+	cfg.Address = config.ConsulURI
 	client, err := consul.NewClient(cfg)
 	if err != nil {
 		return nil, err
@@ -31,19 +32,20 @@ func NewElection(consulAddress string, ttl string, prefix string, session string
 	lockOpt := &consul.LockOptions{
 		Key: key,
 		SessionOpts: &consul.SessionEntry{
-			Name:      session,
+			Name:      config.Hostname,
 			LockDelay: time.Duration(5 * time.Second),
-			TTL:       ttl,
+			TTL:       config.ConsulTTL,
 		},
 	}
 	lock, _ := client.LockOpts(lockOpt)
 
 	e := &Election{
 		key:          key,
-		session:      session,
+		session:      config.Hostname,
 		status:       status,
 		consulClient: client,
 		consulLock:   lock,
+		retries:      config.ConsulRetry,
 		stopChan:     make(chan struct{}, 1),
 		lockChan:     make(chan struct{}, 1),
 	}
@@ -58,7 +60,7 @@ func (e *Election) Start() {
 		case <-e.stopChan:
 			runElection = false
 		default:
-			leader, err := e.GetLeaderWithRetry(10, 1)
+			leader, err := e.GetLeaderWithRetry(e.retries, 1)
 			if err != nil {
 				//stop pg service if is master
 				if e.status.IsMaster() {

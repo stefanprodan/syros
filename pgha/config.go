@@ -9,6 +9,7 @@ type Config struct {
 	ConsulURI   string `m:"ConsulURI"`
 	ConsulTTL   string `m:"ConsulTTL"`
 	ConsulKV    string `m:"ConsulKV"`
+	ConsulRetry int    `m:"ConsulRetry"`
 	PostgresURI string `m:"PostgresURI"`
 	NatsURI     string `m:"NatsURI"`
 	User        string `m:"User"`

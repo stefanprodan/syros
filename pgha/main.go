@@ -22,6 +22,7 @@ func main() {
 	flag.StringVar(&config.ConsulURI, "ConsulURI", "localhost:8500", "Consul address")
 	flag.StringVar(&config.ConsulTTL, "ConsulTTL", "10s", "Consul session TTL")
 	flag.StringVar(&config.ConsulKV, "ConsulKV", "pgha", "Consul KV prefix")
+	flag.IntVar(&config.ConsulRetry, "ConsulRetry", 10, "Number of Consul connection reties")
 	flag.StringVar(&config.PostgresURI, "PostgresURI", "postgres://user:password@localhost/db?sslmode=disable", "Postgres URI")
 	flag.StringVar(&config.NatsURI, "NatsURI", "nats://localhost:4222", "Nats URI")
 	flag.StringVar(&config.User, "User", "postgres", "User to run under")
@@ -56,7 +57,7 @@ func main() {
 	status.SetPostgresStatus(isMaster)
 	go pgmon.Start()
 
-	election, err := NewElection(config.ConsulURI, config.ConsulTTL, config.ConsulKV, config.Hostname, status)
+	election, err := NewElection(config, status)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
