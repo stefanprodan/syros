@@ -53,6 +53,7 @@ services:
                 "agent",
                 "-server",
                 "-bootstrap-expect=1",
+                "-rejoin",
                 "-client=0.0.0.0",
                 "-ui"
               ]
