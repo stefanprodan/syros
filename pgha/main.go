@@ -9,6 +9,7 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/robfig/cron"
 )
 
 var version = "undefined"
@@ -24,6 +25,7 @@ func main() {
 	flag.StringVar(&config.ConsulKV, "ConsulKV", "pgha", "Consul KV prefix")
 	flag.IntVar(&config.ConsulRetry, "ConsulRetry", 10, "Number of Consul connection reties")
 	flag.StringVar(&config.PostgresURI, "PostgresURI", "postgres://user:password@localhost/db?sslmode=disable", "Postgres URI")
+	flag.IntVar(&config.PostgresCheck, "PostgresCheck", 5, "Postgres checks interval in seconds")
 	flag.StringVar(&config.NatsURI, "NatsURI", "nats://localhost:4222", "Nats URI")
 	flag.StringVar(&config.User, "User", "postgres", "User to run under")
 	flag.Parse()
@@ -45,6 +47,9 @@ func main() {
 		execRepmgrVersion(2)
 	}
 
+	scheduler := cron.New()
+	scheduler.Start()
+
 	status := NewStatus()
 
 	pgmon, err := NewPGMonitor(config.PostgresURI, status)
@@ -59,7 +64,7 @@ func main() {
 	status.SetPostgresStatus(isMaster)
 	go pgmon.Start()
 
-	pgstats, err := NewPGStats(config)
+	pgstats, err := NewPGStats(config, scheduler)
 	if err != nil {
 		log.Fatalf("PGStats init failed %s", err.Error())
 	}
@@ -74,6 +79,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("PGStats SaveReplicationStats failed %s", err.Error())
 	}
+	pgstats.Start()
 
 	election, err := NewElection(config, status)
 	if err != nil {
@@ -127,6 +133,7 @@ INIT:
 	log.Infof("Shutting down %v signal received", sig)
 	election.Stop()
 	pgmon.Stop()
+	scheduler.Start()
 }
 
 func setLogLevel(levelName string) {

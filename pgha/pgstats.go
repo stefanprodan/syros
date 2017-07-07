@@ -6,15 +6,20 @@ import (
 	"strings"
 	"time"
 
+	"encoding/json"
+
+	"fmt"
+	log "github.com/Sirupsen/logrus"
 	consul "github.com/hashicorp/consul/api"
 	"github.com/pkg/errors"
-	"encoding/json"
+	"github.com/robfig/cron"
 )
 
 type PGStats struct {
 	db           *sql.DB
 	consulKey    string
 	consulClient *consul.Client
+	cron         *cron.Cron
 	config       *Config
 	stopChan     chan struct{}
 }
@@ -27,7 +32,7 @@ type ReplicationStats struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-func NewPGStats(config *Config) (*PGStats, error) {
+func NewPGStats(config *Config, c *cron.Cron) (*PGStats, error) {
 	db, err := sql.Open("postgres", config.PostgresURI)
 	if err != nil {
 		return nil, errors.Wrap(err, "Postgres init failed")
@@ -51,6 +56,7 @@ func NewPGStats(config *Config) (*PGStats, error) {
 		db:           db,
 		consulKey:    key,
 		consulClient: client,
+		cron:         c,
 		config:       config,
 		stopChan:     make(chan struct{}, 1),
 	}
@@ -115,4 +121,18 @@ func (pg *PGStats) SaveReplicationStats(stats ReplicationStats) error {
 	}
 
 	return nil
+}
+
+func (pg *PGStats) Start() {
+	pg.cron.AddFunc(fmt.Sprintf("*/%d * * * * *", pg.config.PostgresCheck), func() {
+		stats, err := pg.GetReplicationStats()
+		if err != nil {
+			log.Warnf("PGStats GetReplicationStats failed %s", err.Error())
+		} else {
+			err = pg.SaveReplicationStats(stats)
+			if err != nil {
+				log.Warnf("PGStats SaveReplicationStats failed %s", err.Error())
+			}
+		}
+	})
 }
