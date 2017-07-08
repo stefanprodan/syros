@@ -33,7 +33,7 @@ bin:
 	@mkdir dist
 	@go build -ldflags "-X main.version=$(APP_VERSION)" -o dist/syros-pgha github.com/stefanprodan/syros/pgha
 	@go build -ldflags "-X main.version=$(APP_VERSION)" -o dist/syros-deployctl github.com/stefanprodan/syros/deployctl
-	@ls -la
+	@ls -la dist
 
 build:
 	@echo ">>> Building syros-ui-build image"
@@ -58,10 +58,6 @@ build:
 	@echo ">>> Building syros-api"
 	@docker run --rm  -v "$(DIST):/go/dist" syros-services-build:$(BUILD_DATE) \
 		go build -ldflags "-X main.version=$(APP_VERSION)" -o /go/dist/syros-api github.com/stefanprodan/syros/api
-
-	@echo ">>> Building syros-pgha"
-	@docker run --rm  -v "$(DIST):/go/dist" syros-services-build:$(BUILD_DATE) \
-		go build -ldflags "-X main.version=$(APP_VERSION)" -o /go/dist/syros-pgha github.com/stefanprodan/syros/pgha
 
 	@docker rmi syros-services-build:$(BUILD_DATE)
 

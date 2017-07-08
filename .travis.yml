@@ -14,6 +14,7 @@ script:
 after_success:
 - make push
 - sha1sum dist/syros-pgha > dist/syros-pgha.sha1
+- sha1sum dist/syros-deployctl > dist/syros-deployctl.sha1
 
 deploy:
   provider: releases
@@ -24,6 +25,8 @@ deploy:
   file:
     - dist/syros-pgha
     - dist/syros-pgha.sha1
+    - dist/syros-deployctl
+    - dist/syros-deployctl.sha1
 
   on:
     repo: stefanprodan/syros
