@@ -9,6 +9,8 @@ Components:
 * Syros Agent (collects various system information)
 * Syros Indexer (aggregates, transforms and persists collected data)
 * Syros App (management UI and API)
+* Syros PGHA (automatic failover and split brain mitigation for PostgreSQL repmgr clusters)
+* Syros deployctl (CD tool for Docker containers)
 
 Backend:
 

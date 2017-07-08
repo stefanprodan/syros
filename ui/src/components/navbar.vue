@@ -44,7 +44,7 @@
             <li><a href="#" @click="logout()"><i class="fa fa-sign-out"></i> Logout</a></li>
         </ul>
         <p class="navbar-text">
-            <a href="https://github.com/stefanprodan/syros">Syros v0.9</a> open-source software by <a href="http://www.stefanprodan.com">Stefan</a>
+            <a href="https://github.com/stefanprodan/syros">Syros v1.0</a> open-source software by <a href="http://www.stefanprodan.com">Stefan</a>
         </p>
         </div>
     </nav>

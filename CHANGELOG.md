@@ -1,5 +1,11 @@
 # Syros Changelog
 
+### v1.0.0 (beta)
+
+* Deployctl Docker containers promotion
+* Deployctl rolling updates for clustered services
+* PGHA collect replication stats (xlog/offset Consul KV persistence)
+
 ### v0.9.0 (release)
 
 * Agent refactoring
