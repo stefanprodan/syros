@@ -40,7 +40,7 @@ func main() {
 		//check if running under postgres
 		id := execId(10)
 		if id != config.User {
-			log.Fatalf("Running under %s expected postgres", id)
+			log.Fatalf("Running under %s expected %s", id, config.User)
 		}
 
 		//check if repmgr is installed
