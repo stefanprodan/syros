@@ -10,12 +10,13 @@ Components:
 * Syros Indexer (aggregates, transforms and persists collected data)
 * Syros App (management UI and API)
 * Syros PGHA (automatic failover and split brain mitigation for PostgreSQL repmgr clusters)
-* Syros deployctl (CD tool for Docker containers)
+* Syros Deployctl (CD tool for Docker containers)
 
 Backend:
 
 * NATS (communication backbone)
 * MongoDB (persistence layer)
+* Consul (service registry, monitoring, leader election)
 
 HA Setup:
 
@@ -24,6 +25,15 @@ HA Setup:
 * App: one per environment, HAProxy or NGNIX can be used but not required
 * NATS: 3 instances minimum 
 * MongoDB: 3 instances minimum 
+
+### Integrations
+
+Collectors:
+
+* Docker (engine info, containers specs and stats)
+* Consul (service registry, health checks)
+* vSphere (clusters, datastores, networks, physical hosts specs, virtual machines specs and stats)
+
 
 ### Development 
 
