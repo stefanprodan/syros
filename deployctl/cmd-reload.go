@@ -21,7 +21,7 @@ func componentReload(c *cli.Context) error {
 
 	setLogFile(dir)
 
-	log.Print(">>> Deployment started")
+	log.Print(">>> Reload started")
 	err = downloadArtifacts(config, dir)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -110,7 +110,7 @@ func componentReload(c *cli.Context) error {
 							if !cfgExists {
 								log.Print("Jira config not found")
 							} else {
-								err := jira.Post(ticket, env, component, target.Host)
+								err := jira.Post(ticket, "Reload", env, component, target.Host)
 								if err != nil {
 									log.Print(err.Error())
 								}
@@ -132,7 +132,7 @@ func componentReload(c *cli.Context) error {
 						}
 					}
 
-					log.Printf("Deployment complete for %s on %s", component, target.Host)
+					log.Printf("Reload complete for %s on %s", component, target.Host)
 					log.Print("-----------------")
 				}
 			}
@@ -156,7 +156,7 @@ func componentReload(c *cli.Context) error {
 		}
 	}
 
-	log.Print(">>> Deployment complete")
+	log.Print(">>> Reload complete")
 
 	return nil
 }

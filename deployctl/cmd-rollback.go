@@ -2,20 +2,17 @@ package main
 
 import (
 	"log"
-	"strings"
-
 	"path"
 
 	"github.com/urfave/cli"
 )
 
-func componentPromote(c *cli.Context) error {
+func componentRollback(c *cli.Context) error {
 
 	config := c.GlobalString("config")
 	ticket := c.String("ticket")
 	environments := c.StringSlice("environment")
 	components := c.StringSlice("component")
-	tag := c.String("tag")
 
 	dir, err := createArtifactsDir("/tmp")
 	if err != nil {
@@ -24,7 +21,7 @@ func componentPromote(c *cli.Context) error {
 
 	setLogFile(dir)
 
-	log.Print(">>> Deployment started")
+	log.Print(">>> Rollback started")
 	err = downloadArtifacts(config, dir)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -43,11 +40,6 @@ func componentPromote(c *cli.Context) error {
 				log.Printf("No config found for %s on %s", component, env)
 				log.Print("-----------------")
 				continue
-			}
-
-			promotionCfg, err := loadPromotion(dir, env)
-			if err != nil {
-				log.Fatal(err.Error())
 			}
 
 			if componentCfg.Component.Type == "docker" {
@@ -74,7 +66,7 @@ func componentPromote(c *cli.Context) error {
 					}
 				}
 
-				// run promotion on each target host
+				// run reload on each target host
 				for _, target := range targets {
 
 					// mark deployment as started in SYROS
@@ -94,20 +86,17 @@ func componentPromote(c *cli.Context) error {
 						}
 					}
 
-					fromEnv := promotionCfg.Rules.Source
-					hostFrom := strings.Replace(target.Host, env, fromEnv, 1)
 					cd := ContainerDeploy{
 						Dir:      dir,
 						Env:      env,
-						HostFrom: hostFrom,
+						HostFrom: target.Host,
 						HostTo:   target.Host,
 						Service:  component,
-						Tag:      tag,
 						Ticket:   ticket,
 						Check:    target.Health,
 					}
 
-					err = cd.Promote()
+					err = cd.Rollback()
 					if err != nil {
 						log.Fatal(err.Error())
 					}
@@ -121,7 +110,7 @@ func componentPromote(c *cli.Context) error {
 							if !cfgExists {
 								log.Print("Jira config not found")
 							} else {
-								err := jira.Post(ticket, "Promotion", env, component, target.Host)
+								err := jira.Post(ticket, "Rollback", env, component, target.Host)
 								if err != nil {
 									log.Print(err.Error())
 								}
@@ -143,7 +132,7 @@ func componentPromote(c *cli.Context) error {
 						}
 					}
 
-					log.Printf("Deployment complete for %s on %s", component, target.Host)
+					log.Printf("Rollback complete for %s on %s", component, target.Host)
 					log.Print("-----------------")
 				}
 			}
@@ -167,7 +156,7 @@ func componentPromote(c *cli.Context) error {
 		}
 	}
 
-	log.Print(">>> Deployment complete")
+	log.Print(">>> Rollback complete")
 
 	return nil
 }

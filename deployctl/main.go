@@ -67,6 +67,25 @@ func main() {
 				},
 			},
 		},
+		{
+			Name:   "rollback",
+			Usage:  "Rollback containers to previous version",
+			Action: componentRollback,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "ticket, t",
+					Usage: "JIRA ticket ID, if specified the rollback log will be posted on the ticket",
+				},
+				cli.StringSliceFlag{
+					Name:  "environment, e",
+					Usage: "Target environment, multiple values accepted",
+				},
+				cli.StringSliceFlag{
+					Name:  "component, c",
+					Usage: "Docker service, multiple values accepted",
+				},
+			},
+		},
 	}
 
 	app.Run(os.Args)

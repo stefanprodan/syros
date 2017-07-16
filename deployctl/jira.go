@@ -59,7 +59,7 @@ func loadJiraConfig(dir string, name string) (JiraConfig, bool, error) {
 	return plan, true, nil
 }
 
-func (j JiraConfig) Post(ticket string, env string, component string, msg string) error {
+func (j JiraConfig) Post(ticket string, action string, env string, component string, host string) error {
 	url := fmt.Sprintf("%s/issue/%s/comment", j.API.URL, ticket)
 	log.Printf("Updating Jira ticket %s", url)
 	transport := &http.Transport{
@@ -80,7 +80,7 @@ func (j JiraConfig) Post(ticket string, env string, component string, msg string
 	}
 
 	data := map[string]string{
-		"body": fmt.Sprintf("Deployment of '%s' on environment '%s' host '%s' finished.", component, env, msg),
+		"body": fmt.Sprintf("%s of '%s' on environment '%s' host '%s' finished.", action, component, env, host),
 	}
 	jsonData, _ := json.Marshal(data)
 
