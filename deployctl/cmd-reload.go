@@ -13,7 +13,6 @@ func componentReload(c *cli.Context) error {
 	ticket := c.String("ticket")
 	environments := c.StringSlice("environment")
 	components := c.StringSlice("component")
-	tag := ""
 
 	dir, err := createArtifactsDir("/tmp")
 	if err != nil {
@@ -93,7 +92,6 @@ func componentReload(c *cli.Context) error {
 						HostFrom: target.Host,
 						HostTo:   target.Host,
 						Service:  component,
-						Tag:      tag,
 						Ticket:   ticket,
 						Check:    target.Health,
 					}

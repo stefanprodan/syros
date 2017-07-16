@@ -61,7 +61,7 @@ func loadJiraConfig(dir string, name string) (JiraConfig, bool, error) {
 
 func (j JiraConfig) Post(ticket string, env string, component string, msg string) error {
 	url := fmt.Sprintf("%s/issue/%s/comment", j.API.URL, ticket)
-	log.Printf("Updateing Jira ticket %s", url)
+	log.Printf("Updating Jira ticket %s", url)
 	transport := &http.Transport{
 		Proxy: http.ProxyFromEnvironment,
 		DialContext: (&net.Dialer{

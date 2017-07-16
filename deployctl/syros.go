@@ -59,7 +59,7 @@ func loadSyrosConfig(dir string, name string) (SyrosConfig, bool, error) {
 
 func (j SyrosConfig) Start(ticket string, env string, component string, host string) error {
 	url := fmt.Sprintf("%s/deployment/start", j.API.URL)
-	log.Printf("Updateing Syros %s", url)
+	log.Printf("Updating Syros %s", url)
 	transport := &http.Transport{
 		Proxy: http.ProxyFromEnvironment,
 		DialContext: (&net.Dialer{
@@ -122,7 +122,7 @@ func (j SyrosConfig) Finish(ticket string, env string, component string, host st
 	}
 
 	url := fmt.Sprintf("%s/deployment/finish", j.API.URL)
-	log.Printf("Updateing Syros %s", url)
+	log.Printf("Updating Syros %s", url)
 	transport := &http.Transport{
 		Proxy: http.ProxyFromEnvironment,
 		DialContext: (&net.Dialer{
