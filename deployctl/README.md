@@ -91,3 +91,19 @@ OPTIONS:
    --environment value, -e value  Target environment, multiple values accepted
    --component value, -c value    Docker service, multiple values accepted
 ```
+
+***rollback***
+
+```bash
+$ syros-deployctl rollback -h
+NAME:
+   syros-deployctl rollback - Rollback containers to previous version
+
+USAGE:
+   syros-deployctl rollback [command options] [arguments...]
+
+OPTIONS:
+   --ticket value, -t value       JIRA ticket ID, if specified the rollback log will be posted on the ticket
+   --environment value, -e value  Target environment, multiple values accepted
+   --component value, -c value    Docker service, multiple values accepted
+```
