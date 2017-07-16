@@ -1,9 +1,15 @@
 # Syros Changelog
 
-### v1.0.0 (beta)
+### v1.1.0 (alpha)
+
+* Deployctl OpenTSDB metrics migrations
+
+### v1.0.0 (release)
 
 * Deployctl Docker containers promotion
 * Deployctl rolling updates for clustered services
+* Deployctl reload containers config
+* Deployctl rollback containers deployments
 * PGHA collect replication stats (xlog/offset Consul KV persistence)
 
 ### v0.9.0 (release)
