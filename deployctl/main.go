@@ -86,6 +86,25 @@ func main() {
 				},
 			},
 		},
+		{
+			Name:   "migrate",
+			Usage:  "Migrate PostgreSQL, Kafka or OpenTSDB",
+			Action: componentMigrate,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "ticket, t",
+					Usage: "JIRA ticket ID, if specified the rollback log will be posted on the ticket",
+				},
+				cli.StringSliceFlag{
+					Name:  "environment, e",
+					Usage: "Target environment, multiple values accepted",
+				},
+				cli.StringSliceFlag{
+					Name:  "component, c",
+					Usage: "Component name",
+				},
+			},
+		},
 	}
 
 	app.Run(os.Args)
