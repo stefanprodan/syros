@@ -8,6 +8,8 @@ import (
 	"sort"
 	"strings"
 
+	"fmt"
+
 	"github.com/pkg/errors"
 )
 
@@ -39,20 +41,20 @@ func (m TsdbDeploy) Migrate() error {
 		return errors.Wrapf(err, "loading metrics from %s failed", m.Dir)
 	}
 	migration = stringsDistinct(migration)
-
 	log.Printf("Metrics found %d in migration", len(migration))
+	sort.Strings(migration)
+	//log.Print(migration)
 
 	log.Printf("Loading metrics via SSH from %s", m.HostTo)
 	output, err := m.Ssh.RunCommand("/usr/share/opentsdb/bin/tsdb uid grep metrics .|sort")
 	if err != nil {
 		return errors.Wrapf(err, "loading metrics via ssh from %s failed", m.HostTo)
 	}
-	sort.Strings(migration)
-	//log.Print(migration)
 
 	existingMetrics := make([]string, 0)
 	for _, line := range strings.Split(output, "\n") {
 		if strings.Contains(line, "metrics ") {
+			// extract metric name
 			metric := strings.TrimSpace(strings.Replace(strings.Split(line, ":")[0], "metrics ", "", -1))
 			if len(metric) > 2 {
 				existingMetrics = append(existingMetrics, metric)
@@ -68,7 +70,7 @@ func (m TsdbDeploy) Migrate() error {
 		for _, mr := range existingMetrics {
 			if strings.TrimSpace(mr) == strings.TrimSpace(mi) {
 				found = true
-				//log.Printf("Metrics found %v", mi)
+				//log.Printf("Metric found %v", mi)
 				break
 			}
 		}
@@ -81,7 +83,8 @@ func (m TsdbDeploy) Migrate() error {
 		log.Printf("New metrics found %v", newMetrics)
 		for _, metric := range newMetrics {
 			log.Printf("Inserting new metric %s", metric)
-			_, err := m.Ssh.RunCommand("/usr/share/opentsdb/bin/tsdb mkmetric " + metric)
+			cmd := fmt.Sprintf("/usr/share/opentsdb/bin/tsdb mkmetric %s", metric)
+			_, err := m.Ssh.RunCommand(cmd)
 			if err != nil {
 				return errors.Wrapf(err, "mkmetric %s failed", metric)
 			}

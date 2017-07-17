@@ -43,7 +43,7 @@ func componentMigrate(c *cli.Context) error {
 				continue
 			}
 
-			if componentCfg.Component.Type == "tsdbmetrics" {
+			if componentCfg.Component.Type == "tsdbmetrics" || componentCfg.Component.Type == "kafkatopics" {
 				targets := componentCfg.Component.Target
 
 				// run migration on each target host
@@ -97,17 +97,34 @@ func componentMigrate(c *cli.Context) error {
 						log.Fatal(err.Error())
 					}
 
-					cd := TsdbDeploy{
-						Dir:     path.Join(dir, component, "metrics"),
-						Env:     env,
-						HostTo:  target.Host,
-						Service: component,
-						Ssh:     ssh,
+					if componentCfg.Component.Type == "tsdbmetrics" {
+						cd := TsdbDeploy{
+							Dir:     path.Join(dir, component, "metrics"),
+							Env:     env,
+							HostTo:  target.Host,
+							Service: component,
+							Ssh:     ssh,
+						}
+
+						err = cd.Migrate()
+						if err != nil {
+							log.Fatal(err.Error())
+						}
 					}
 
-					err = cd.Migrate()
-					if err != nil {
-						log.Fatal(err.Error())
+					if componentCfg.Component.Type == "kafkatopics" {
+						cd := KafkaDeploy{
+							Dir:     path.Join(dir, component, "topics"),
+							Env:     env,
+							HostTo:  target.Host,
+							Service: component,
+							Ssh:     ssh,
+						}
+
+						err = cd.Migrate()
+						if err != nil {
+							log.Fatal(err.Error())
+						}
 					}
 
 					if len(ticket) > 0 {
