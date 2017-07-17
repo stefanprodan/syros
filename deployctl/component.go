@@ -26,6 +26,10 @@ type ComponentTarget struct {
 	Health     string `yaml:"health"`
 	Host       string `yaml:"host"`
 	Leadership string `yaml:"leadership"`
+	DBName     string `yaml:"dbname"`
+	DBUser     string `yaml:"user"`
+	DBPassword string `yaml:"password"`
+	URL        string `yaml:"url"`
 }
 
 func removeTargetByIndex(s []ComponentTarget, index int) []ComponentTarget {

@@ -8,6 +8,7 @@ Deploy tool for Docker containers
 * Docker Compose >= 1.14
 * curl
 * tar
+* Java8 for flyway
 
 ### Pipelines
 
