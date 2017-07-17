@@ -50,8 +50,11 @@ AUTHOR:
    Stefan Prodan
 
 COMMANDS:
-     promote  Promote containers from one environment to another
-     help, h  Shows a list of commands or help for one command
+     promote   Promote containers from one environment to another
+     reload    Reload containers configuration
+     rollback  Rollback containers to previous version
+     migrate   Migrate PostgreSQL, Kafka or OpenTSDB
+     help, h   Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
    --config value, -c value  Download URL for the config.tar.gz file [$DCTL_CONFIG_URL]
@@ -106,4 +109,20 @@ OPTIONS:
    --ticket value, -t value       JIRA ticket ID, if specified the rollback log will be posted on the ticket
    --environment value, -e value  Target environment, multiple values accepted
    --component value, -c value    Docker service, multiple values accepted
+```
+
+***migrate***
+
+```bash
+$ syros-deployctl migrate -h
+NAME:
+   syros-deployctl migrate - Migrate PostgreSQL, Kafka or OpenTSDB
+
+USAGE:
+   syros-deployctl migrate [command options] [arguments...]
+
+OPTIONS:
+   --ticket value, -t value       JIRA ticket ID, if specified the rollback log will be posted on the ticket
+   --environment value, -e value  Target environment, multiple values accepted
+   --component value, -c value    Component name
 ```
