@@ -1,8 +1,9 @@
 # Syros Changelog
 
-### v1.1.0 (alpha)
+### v1.1.0 (beta)
 
 * Deployctl OpenTSDB metrics migrations
+* dependency management with github.com/golang/dep
 
 ### v1.0.0 (release)
 

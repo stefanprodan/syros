@@ -55,8 +55,8 @@ Local setup:
 $ git clone https://github.com/stefanprodan/syros.git
 $ cd syros
 # install go dependencies
-$ go get -u github.com/kardianos/govendor
-$ govendor sync
+$ go get -u github.com/golang/dep/cmd/dep
+$ dep ensure
 # install node dependencies
 $ cd ui
 $ npm install
