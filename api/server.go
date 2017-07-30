@@ -11,9 +11,9 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/go-chi/render"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/jwtauth"
+	"github.com/go-chi/render"
 	"github.com/pkg/errors"
 )
 
