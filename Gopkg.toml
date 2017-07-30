@@ -1,0 +1,79 @@
+[[constraint]]
+  name = "github.com/Sirupsen/logrus"
+  version = "1.0.2"
+
+[[constraint]]
+  name = "github.com/codeskyblue/go-sh"
+  revision = "b097669b1569203c3ce05a6b8717d43140fdb3d5"
+
+[[constraint]]
+  name = "github.com/docker/docker"
+  version = "1.13.1"
+
+[[constraint]]
+  name = "github.com/go-chi/chi"
+  version = "3.1.4"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/go-chi/cors"
+
+[[constraint]]
+  name = "github.com/dgrijalva/jwt-go"
+  revision = "a539ee1a749a2b895533f979515ac7e6e0f5b650"
+
+[[constraint]]
+  name = "github.com/go-chi/jwtauth"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/go-chi/render"
+  version = "1.0.0"
+
+[[constraint]]
+  name = "github.com/hashicorp/consul"
+  version = "0.9.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/lib/pq"
+
+[[constraint]]
+  name = "github.com/nats-io/go-nats"
+  version = "1.2.2"
+
+[[constraint]]
+  name = "github.com/pkg/errors"
+  version = "0.8.0"
+
+[[constraint]]
+  name = "github.com/prometheus/client_golang"
+  version = "0.8.0"
+
+[[constraint]]
+  name = "github.com/robfig/cron"
+  branch = "master"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/unrolled/render"
+
+[[constraint]]
+  name = "github.com/urfave/cli"
+  version = "1.19.1"
+
+[[constraint]]
+  name = "github.com/vmware/govmomi"
+  version = "0.15.0"
+
+[[constraint]]
+  branch = "master"
+  name = "golang.org/x/crypto"
+
+[[constraint]]
+  branch = "v2"
+  name = "gopkg.in/mgo.v2"
+
+[[constraint]]
+  branch = "v2"
+  name = "gopkg.in/yaml.v2"
