@@ -6,18 +6,18 @@ ADD /models /go/src/github.com/stefanprodan/syros/models
 ADD /agent /go/src/github.com/stefanprodan/syros/agent
 ADD /indexer /go/src/github.com/stefanprodan/syros/indexer
 ADD /api /go/src/github.com/stefanprodan/syros/api
-ADD /pgha /go/src/github.com/stefanprodan/syros/pgha
 
 # deps
-ADD /vendor/vendor.json /go/src/github.com/stefanprodan/syros/vendor/vendor.json
+ADD Gopkg.toml /go/src/github.com/stefanprodan/syros/Gopkg.toml
+ADD Gopkg.lock /go/src/github.com/stefanprodan/syros/Gopkg.lock
 
 # solution root
 WORKDIR /go/src/github.com/stefanprodan/syros
 
 # pull deps
 RUN apk add --no-cache --virtual git
-RUN go get -u github.com/kardianos/govendor
-RUN govendor sync
+RUN go get -u github.com/golang/dep/cmd/dep
+RUN dep ensure
 
 # output
 RUN mkdir /go/dist

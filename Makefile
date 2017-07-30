@@ -28,8 +28,8 @@ define DURATION
 endef
 
 bin:
-	@go get github.com/kardianos/govendor
-	@govendor sync
+	@go get github.com/golang/dep/cmd/dep
+	@dep ensure
 	@mkdir dist
 	@go build -ldflags "-X main.version=$(APP_VERSION)" -o dist/syros-pgha github.com/stefanprodan/syros/pgha
 	@go build -ldflags "-X main.version=$(APP_VERSION)" -o dist/syros-deployctl github.com/stefanprodan/syros/deployctl
