@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/render"
-	"github.com/goware/jwtauth"
+	"github.com/go-chi/render"
+	"github.com/go-chi/jwtauth"
 	"github.com/stefanprodan/syros/models"
 )
 
@@ -14,7 +14,7 @@ func (s *HttpServer) consulRoutes() chi.Router {
 
 	// JWT protected
 	r.Group(func(r chi.Router) {
-		r.Use(s.TokenAuth.Verifier)
+		r.Use(jwtauth.Verifier(s.TokenAuth))
 		r.Use(jwtauth.Authenticator)
 
 		r.Get("/healthchecks", func(w http.ResponseWriter, r *http.Request) {
