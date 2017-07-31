@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/goware/jwtauth"
+	"github.com/go-chi/jwtauth"
 	"github.com/robfig/cron"
 )
 

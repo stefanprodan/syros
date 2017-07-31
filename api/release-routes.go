@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/render"
-	"github.com/goware/jwtauth"
+	"github.com/go-chi/jwtauth"
+	"github.com/go-chi/render"
 	"github.com/stefanprodan/syros/models"
 )
 
@@ -13,7 +13,7 @@ func (s *HttpServer) releaseRoutes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Group(func(r chi.Router) {
-		r.Use(s.TokenAuth.Verifier)
+		r.Use(jwtauth.Verifier(s.TokenAuth))
 		r.Use(jwtauth.Authenticator)
 
 		r.Get("/all", func(w http.ResponseWriter, r *http.Request) {
