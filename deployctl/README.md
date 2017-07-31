@@ -1,6 +1,6 @@
 # Syros deployctl
 
-Deploy tool for Docker containers
+Deploy tool for Docker containers and data stores
 
 ### Prerequisite
 
@@ -12,11 +12,18 @@ Deploy tool for Docker containers
 
 ### Pipelines
 
-* Docker container promotion from one env to another
+* Container deploy and promotion from one env to another
 * Rolling update of HA clusters
+* Container configuration reload 
+* Container rollback
+* PostgreSQL migrations
+* Kafka topics deploy 
+* OpenTSDB metrics deploy
 
 ### Integrations
 
+* Jenkins artifacts download
+* Flyway migrations
 * JIRA ticket update
 * JIRA deploy log upload
 * SYROS releases update 
@@ -31,7 +38,6 @@ curl -o /usr/local/bin/syros-deployctl -L https://github.com/stefanprodan/syros/
 chmod +x /usr/local/bin/syros-deployctl
 
 syros-deployctl -h
-
 ```
 
 ### Usage
