@@ -10,7 +10,7 @@ Components:
 * Syros Indexer (aggregates, transforms and persists collected data)
 * Syros App (management UI and API)
 * Syros PGHA (automatic failover and split brain mitigation for PostgreSQL repmgr clusters)
-* Syros Deployctl (CD tool for Docker containers)
+* Syros Deployctl (CD tool for Docker containers, PostgreSQL/Kafka/OpenTSDB migrations)
 
 Backend:
 

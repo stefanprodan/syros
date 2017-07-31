@@ -1,8 +1,10 @@
 # Syros Changelog
 
-### v1.1.0 (beta)
+### v1.1.0 (release)
 
 * Deployctl OpenTSDB metrics migrations
+* Deployctl Kafka topics migrations
+* Deployctl PostgreSQL migration via flyway
 * dependency management with github.com/golang/dep
 
 ### v1.0.0 (release)
