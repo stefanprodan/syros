@@ -43,16 +43,14 @@ func execRepmgrPromote(timeout int) {
 	if err := exec.CommandContext(ctx, "repmgr", "standby", "promote").Run(); err != nil {
 		log.Warningf("repmgr standby promote failed %s", err.Error())
 		log.Info("trying repmgr standby switchover")
-		execRepmgrSwitchover(timeout)
+		go execRepmgrSwitchover()
 	}
 }
 
-func execRepmgrSwitchover(timeout int) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
-	defer cancel()
+func execRepmgrSwitchover() {
 
-	if err := exec.CommandContext(ctx, "repmgr", "standby", "switchover").Run(); err != nil {
-		log.Fatalf("repmgr standby switchover failed %s", err.Error())
+	if err := exec.Command("repmgr", "standby", "switchover").Run(); err != nil {
+		log.Warningf("repmgr standby switchover failed %s", err.Error())
 	}
 }
 
