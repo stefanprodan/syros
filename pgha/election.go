@@ -92,6 +92,10 @@ func (e *Election) Start() {
 				if !e.status.IsMaster() {
 					log.Info("Promoting slave to master")
 					execRepmgrPromote(60)
+					isMaster := e.WaitForMasterSwitch(60, 1)
+					if !isMaster {
+						log.Fatal("Master promotion timeout")
+					}
 				}
 				e.status.SetConsulStatus(true, LeaderCode, "leader")
 				<-electionChan
@@ -136,6 +140,21 @@ func (e *Election) GetLeaderWithRetry(retry int, wait int) (string, error) {
 	}
 
 	return leader, err
+}
+
+func (e *Election) WaitForMasterSwitch(retry int, wait int) bool {
+	var leader bool
+	for retry > 0 {
+		leader = e.status.IsMaster()
+		if !leader {
+			retry--
+			time.Sleep(time.Duration(wait) * time.Second)
+		} else {
+			return leader
+		}
+	}
+
+	return leader
 }
 
 func (e *Election) Fallback() error {
