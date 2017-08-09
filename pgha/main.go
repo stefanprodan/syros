@@ -57,7 +57,7 @@ func main() {
 		log.Fatalf("Postgres connection failed %s", err.Error())
 	}
 
-	isMaster, err := pgmon.IsMaster()
+	isMaster, err := pgmon.GetMasterWithRetry(10, 5)
 	if err != nil {
 		log.Fatalf("Can't determine Postgres cluster state %s", err.Error())
 	}

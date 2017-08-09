@@ -53,9 +53,9 @@ func (pg *PGMonitor) Start() {
 		case <-pg.stopChan:
 			running = false
 		default:
-			isMaster, err := pg.IsMaster()
+			isMaster, err := pg.GetMasterWithRetry(5, 1)
 			if err != nil {
-				log.Warnf("Failed to acquire PG state %s", err.Error())
+				log.Fatalf("Failed to acquire PG state %s", err.Error())
 				pg.status.SetPostgresStatus(false)
 			} else {
 				pg.status.SetPostgresStatus(isMaster)
@@ -68,4 +68,21 @@ func (pg *PGMonitor) Start() {
 
 func (pg *PGMonitor) Stop() {
 	pg.stopChan <- struct{}{}
+}
+
+func (pg *PGMonitor) GetMasterWithRetry(retry int, wait int) (bool, error) {
+	var leader bool
+	var err error
+	for retry > 0 {
+		leader, err = pg.IsMaster()
+		if err != nil {
+			retry--
+			log.Warnf("Failed to acquire PG state retrying %v after %v seconds", retry, wait)
+			time.Sleep(time.Duration(wait) * time.Second)
+		} else {
+			return leader, nil
+		}
+	}
+
+	return leader, err
 }
