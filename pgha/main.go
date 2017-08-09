@@ -52,7 +52,12 @@ func main() {
 
 	status := NewStatus()
 
-	pgmon, err := NewPGMonitor(config.PostgresURI, status)
+	election, err := NewElection(config, status)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	pgmon, err := NewPGMonitor(config.PostgresURI, status, election)
 	if err != nil {
 		log.Fatalf("Postgres connection failed %s", err.Error())
 	}
@@ -75,11 +80,6 @@ func main() {
 	}
 	log.Infof("Postgres replication stats: %+v", stats)
 	pgstats.Start()
-
-	election, err := NewElection(config, status)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
 
 INIT:
 	leader, err := election.GetLeaderWithRetry(10, 5)

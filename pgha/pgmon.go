@@ -13,10 +13,11 @@ import (
 type PGMonitor struct {
 	db       *sql.DB
 	status   *Status
+	election *Election
 	stopChan chan struct{}
 }
 
-func NewPGMonitor(uri string, status *Status) (*PGMonitor, error) {
+func NewPGMonitor(uri string, status *Status, election *Election) (*PGMonitor, error) {
 	db, err := sql.Open("postgres", uri)
 	if err != nil {
 		return nil, errors.Wrap(err, "Postgres init failed")
@@ -31,6 +32,7 @@ func NewPGMonitor(uri string, status *Status) (*PGMonitor, error) {
 	pg := &PGMonitor{
 		db:       db,
 		status:   status,
+		election: election,
 		stopChan: make(chan struct{}, 1),
 	}
 	return pg, nil
@@ -55,8 +57,9 @@ func (pg *PGMonitor) Start() {
 		default:
 			isMaster, err := pg.GetMasterWithRetry(5, 1)
 			if err != nil {
-				log.Fatalf("Failed to acquire PG state %s", err.Error())
+				//log.Fatalf("Failed to acquire PG state %s", err.Error())
 				pg.status.SetPostgresStatus(false)
+				pg.election.Fallback()
 			} else {
 				pg.status.SetPostgresStatus(isMaster)
 			}
