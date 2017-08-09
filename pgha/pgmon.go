@@ -1,8 +1,8 @@
 package main
 
 import (
+	"context"
 	"database/sql"
-
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -40,7 +40,9 @@ func NewPGMonitor(uri string, status *Status, election *Election) (*PGMonitor, e
 
 func (pg *PGMonitor) IsMaster() (bool, error) {
 	var isInRecovery bool
-	err := pg.db.QueryRow("SELECT pg_is_in_recovery()").Scan(&isInRecovery)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	err := pg.db.QueryRowContext(ctx, "SELECT pg_is_in_recovery()").Scan(&isInRecovery)
 	if err != nil {
 		return false, errors.Wrap(err, "Query pg_is_in_recovery failed")
 	}
