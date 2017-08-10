@@ -1,5 +1,11 @@
 # Syros Changelog
 
+### v1.2.0 (release)
+
+* PGHA detect master failures and fallback
+* PGHA wait for master failover
+* PGHA HAProxy integration
+
 ### v1.1.0 (release)
 
 * Deployctl OpenTSDB metrics migrations
