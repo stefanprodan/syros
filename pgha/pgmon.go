@@ -24,10 +24,10 @@ func NewPGMonitor(uri string, status *Status, election *Election) (*PGMonitor, e
 	}
 	db.SetMaxOpenConns(1)
 
-	err = db.Ping()
-	if err != nil {
-		return nil, errors.Wrap(err, "Postgres ping failed")
-	}
+	//err = db.Ping()
+	//if err != nil {
+	//	return nil, errors.Wrap(err, "Postgres ping failed")
+	//}
 
 	pg := &PGMonitor{
 		db:       db,
