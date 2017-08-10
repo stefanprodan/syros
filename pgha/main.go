@@ -8,6 +8,7 @@ import (
 
 	"time"
 
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/robfig/cron"
 )
@@ -28,9 +29,17 @@ func main() {
 	flag.IntVar(&config.PostgresCheck, "PostgresCheck", 5, "Postgres checks interval in seconds")
 	flag.StringVar(&config.NatsURI, "NatsURI", "nats://localhost:4222", "Nats URI")
 	flag.StringVar(&config.User, "User", "postgres", "User to run under")
+	flag.StringVar(&config.User, "User", "postgres", "User to run under")
+	pghaVersion := flag.Bool("Version", false, "prints pgha version")
 	flag.Parse()
+
+	if *pghaVersion {
+		fmt.Println(version)
+		os.Exit(0)
+	}
+
 	setLogLevel(config.LogLevel)
-	log.Infof("Starting with config: %+v", config)
+	log.Debugf("Starting with config: %+v", config)
 
 	if config.Hostname == "" {
 		config.Hostname, _ = os.Hostname()
