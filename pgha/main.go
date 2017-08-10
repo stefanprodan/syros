@@ -115,6 +115,7 @@ INIT:
 			//retry till there is a master running (do not enter election mode)
 			log.Warnf("Conflict detected: no leader found but this pg node %v is slave, will wait 5sec and retry", config.Hostname)
 			time.Sleep(5 * time.Second)
+			isMaster, _ = pgmon.GetMasterWithRetry(10, 5)
 			//TODO: better use recursion
 			goto INIT
 		}
