@@ -34,6 +34,7 @@ bin:
 	@go build -ldflags "-X main.version=$(APP_VERSION)" -o dist/syros-pgha github.com/stefanprodan/syros/pgha
 	@go build -ldflags "-X main.version=$(APP_VERSION)" -o dist/syros-deployctl github.com/stefanprodan/syros/deployctl
 	@ls -la dist
+	@dist/syros-pgha -Version
 
 build:
 	@echo ">>> Building syros-ui-build image"

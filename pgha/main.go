@@ -29,7 +29,6 @@ func main() {
 	flag.IntVar(&config.PostgresCheck, "PostgresCheck", 5, "Postgres checks interval in seconds")
 	flag.StringVar(&config.NatsURI, "NatsURI", "nats://localhost:4222", "Nats URI")
 	flag.StringVar(&config.User, "User", "postgres", "User to run under")
-	flag.StringVar(&config.User, "User", "postgres", "User to run under")
 	pghaVersion := flag.Bool("Version", false, "prints pgha version")
 	flag.Parse()
 
