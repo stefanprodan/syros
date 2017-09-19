@@ -24,7 +24,7 @@ func createArtifactsDir(root string) (string, error) {
 func downloadArtifacts(url string, dir string) error {
 	session := sh.NewSession()
 	session.SetDir(dir)
-	cmd := fmt.Sprintf("set -o pipefail; curl -sS %s | tar xvz", url)
+	cmd := fmt.Sprintf("set -e; curl -sS %s | tar xvz", url)
 	output, err := session.Command("/bin/sh", "-c", cmd).CombinedOutput()
 	if err != nil {
 		return errors.Wrapf(err, "download %s failed %s", url, output)

@@ -12,7 +12,7 @@ import (
 func containerExists(dockerHost string, image string) (bool, error) {
 	session := sh.NewSession()
 	session.SetEnv("DOCKER_HOST", dockerHost)
-	cmd := fmt.Sprintf("set -o pipefail; docker ps --format '{{.Names}}' -a| awk '$1 ~ /%s$/ {print $1}'", image)
+	cmd := fmt.Sprintf("set -e; docker ps --format '{{.Names}}' -a| awk '$1 ~ /%s$/ {print $1}'", image)
 	output, err := session.Command("/bin/sh", "-c", cmd).CombinedOutput()
 	if err != nil {
 		return false, errors.Wrapf(err, "container lookup on %s for %s failed %s", dockerHost, image, output)
@@ -27,7 +27,7 @@ func containerExists(dockerHost string, image string) (bool, error) {
 func containerIsRunning(dockerHost string, image string) (bool, error) {
 	session := sh.NewSession()
 	session.SetEnv("DOCKER_HOST", dockerHost)
-	cmd := fmt.Sprintf("set -o pipefail; docker ps --format '{{.Names}}'| awk '$1 ~ /%s$/ {print $1}'", image)
+	cmd := fmt.Sprintf("set -e; docker ps --format '{{.Names}}'| awk '$1 ~ /%s$/ {print $1}'", image)
 	output, err := session.Command("/bin/sh", "-c", cmd).CombinedOutput()
 	if err != nil {
 		return false, errors.Wrapf(err, "container lookup on %s for %s failed %s", dockerHost, image, output)
@@ -86,7 +86,7 @@ func containerRemove(dockerHost string, name string) error {
 func imageGetTag(dockerHost string, image string) (string, error) {
 	session := sh.NewSession()
 	session.SetEnv("DOCKER_HOST", dockerHost)
-	cmd := fmt.Sprintf("set -o pipefail; docker ps --format '{{.Image}}' -a| awk '$1 ~ /%s/ {print $1}'| awk -F: '{print $NF}'| head -n1", image)
+	cmd := fmt.Sprintf("set -e; docker ps --format '{{.Image}}' -a| awk '$1 ~ /%s/ {print $1}'| awk -F: '{print $NF}'| head -n1", image)
 	output, err := session.Command("/bin/sh", "-c", cmd).CombinedOutput()
 	if err != nil {
 		return "", errors.Wrapf(err, "acquiring image tag from %s for %s failed %s", dockerHost, image, output)

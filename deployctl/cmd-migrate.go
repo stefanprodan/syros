@@ -22,7 +22,7 @@ func componentMigrate(c *cli.Context) error {
 
 	setLogFile(dir)
 
-	log.Print(">>> Rollback started")
+	log.Print(">>> Migration started")
 	err = downloadArtifacts(config, dir)
 	if err != nil {
 		log.Fatal(err.Error())
