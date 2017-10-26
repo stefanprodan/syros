@@ -141,6 +141,20 @@ func componentPromote(c *cli.Context) error {
 								}
 							}
 						}
+						// add comment on Slack
+						slack, cfgExists, err := loadSlackConfig(dir, "slack")
+						if err != nil {
+							log.Printf("Slack config load failed %s", err.Error())
+						} else {
+							if !cfgExists {
+								log.Print("Slack config not found")
+							} else {
+								err := slack.Post(ticket, "Promotion", env, component, target.Host)
+								if err != nil {
+									log.Print(err.Error())
+								}
+							}
+						}
 					}
 
 					log.Printf("Deployment complete for %s on %s", component, target.Host)
