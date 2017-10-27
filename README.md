@@ -18,6 +18,8 @@ Backend:
 * MongoDB (persistence layer)
 * Consul (service registry, monitoring, leader election)
 
+![Dash](https://raw.githubusercontent.com/stefanprodan/syros/master/ui/screen.png)
+
 HA Setup:
 
 * Agent: 2 instances per environment or one per host, indexer will do deduplication
