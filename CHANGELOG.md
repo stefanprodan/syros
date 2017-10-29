@@ -1,5 +1,10 @@
 # Syros Changelog
 
+### v1.2.5 (release)
+
+* Deployctl Slack notifications
+& PGHA Linux compatibility 
+
 ### v1.2.0 (release)
 
 * PGHA detect master failures and fallback

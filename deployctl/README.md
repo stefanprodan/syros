@@ -27,6 +27,7 @@ Deploy tool for Docker containers and data stores
 * JIRA ticket update
 * JIRA deploy log upload
 * SYROS releases update 
+* Slack deployment logs
 
 ### Install
 

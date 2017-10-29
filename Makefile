@@ -1,6 +1,6 @@
 SHELL:=/bin/bash
 
-APP_VERSION?=1.2.4
+APP_VERSION?=1.2.5
 
 # build vars
 DIST:=$$(pwd)/dist
