@@ -12,9 +12,7 @@ import (
 func containerExists(dockerHost string, image string) (bool, error) {
 	session := sh.NewSession()
 	session.SetEnv("DOCKER_HOST", dockerHost)
-	session.SetEnv("HTTP_PROXY", "")
-	session.SetEnv("HTTPS_PROXY", "")
-	cmd := fmt.Sprintf("set -e; docker ps --format '{{.Names}}' -a| awk '$1 ~ /%s$/ {print $1}'", image)
+	cmd := fmt.Sprintf("set -e; http_proxy='' https_proxy='' docker ps --format '{{.Names}}' -a| awk '$1 ~ /%s$/ {print $1}'", image)
 	output, err := session.Command("/bin/sh", "-c", cmd).CombinedOutput()
 	if err != nil {
 		return false, errors.Wrapf(err, "container lookup on %s for %s failed %s", dockerHost, image, output)
@@ -29,9 +27,7 @@ func containerExists(dockerHost string, image string) (bool, error) {
 func containerIsRunning(dockerHost string, image string) (bool, error) {
 	session := sh.NewSession()
 	session.SetEnv("DOCKER_HOST", dockerHost)
-	session.SetEnv("HTTP_PROXY", "")
-	session.SetEnv("HTTPS_PROXY", "")
-	cmd := fmt.Sprintf("set -e; docker ps --format '{{.Names}}'| awk '$1 ~ /%s$/ {print $1}'", image)
+	cmd := fmt.Sprintf("set -e; http_proxy='' https_proxy='' docker ps --format '{{.Names}}'| awk '$1 ~ /%s$/ {print $1}'", image)
 	output, err := session.Command("/bin/sh", "-c", cmd).CombinedOutput()
 	if err != nil {
 		return false, errors.Wrapf(err, "container lookup on %s for %s failed %s", dockerHost, image, output)
@@ -46,9 +42,7 @@ func containerIsRunning(dockerHost string, image string) (bool, error) {
 func containerRename(dockerHost string, name string, newName string) error {
 	session := sh.NewSession()
 	session.SetEnv("DOCKER_HOST", dockerHost)
-	session.SetEnv("HTTP_PROXY", "")
-	session.SetEnv("HTTPS_PROXY", "")
-	cmd := fmt.Sprintf("docker rename %s %s", name, newName)
+	cmd := fmt.Sprintf("http_proxy='' https_proxy='' docker rename %s %s", name, newName)
 	output, err := session.Command("/bin/sh", "-c", cmd).CombinedOutput()
 	if err != nil {
 		return errors.Wrapf(err, "docker rename %s %s failed %s", name, newName, output)
@@ -59,9 +53,7 @@ func containerRename(dockerHost string, name string, newName string) error {
 func containerStop(dockerHost string, name string) error {
 	session := sh.NewSession()
 	session.SetEnv("DOCKER_HOST", dockerHost)
-	session.SetEnv("HTTP_PROXY", "")
-	session.SetEnv("HTTPS_PROXY", "")
-	cmd := fmt.Sprintf("docker stop %s", name)
+	cmd := fmt.Sprintf("http_proxy='' https_proxy='' docker stop %s", name)
 	output, err := session.Command("/bin/sh", "-c", cmd).CombinedOutput()
 	if err != nil {
 		return errors.Wrapf(err, "docker stop %s failed %s", name, output)
@@ -72,9 +64,7 @@ func containerStop(dockerHost string, name string) error {
 func containerStart(dockerHost string, name string) error {
 	session := sh.NewSession()
 	session.SetEnv("DOCKER_HOST", dockerHost)
-	session.SetEnv("HTTP_PROXY", "")
-	session.SetEnv("HTTPS_PROXY", "")
-	cmd := fmt.Sprintf("docker start %s", name)
+	cmd := fmt.Sprintf("http_proxy='' https_proxy='' docker start %s", name)
 	output, err := session.Command("/bin/sh", "-c", cmd).CombinedOutput()
 	if err != nil {
 		return errors.Wrapf(err, "docker start %s failed %s", name, output)
@@ -85,9 +75,7 @@ func containerStart(dockerHost string, name string) error {
 func containerRemove(dockerHost string, name string) error {
 	session := sh.NewSession()
 	session.SetEnv("DOCKER_HOST", dockerHost)
-	session.SetEnv("HTTP_PROXY", "")
-	session.SetEnv("HTTPS_PROXY", "")
-	cmd := fmt.Sprintf("docker rm -f %s", name)
+	cmd := fmt.Sprintf("http_proxy='' https_proxy='' docker rm -f %s", name)
 	output, err := session.Command("/bin/sh", "-c", cmd).CombinedOutput()
 	if err != nil {
 		return errors.Wrapf(err, "docker rm -f %s failed %s", name, output)
@@ -98,9 +86,7 @@ func containerRemove(dockerHost string, name string) error {
 func imageGetTag(dockerHost string, image string) (string, error) {
 	session := sh.NewSession()
 	session.SetEnv("DOCKER_HOST", dockerHost)
-	session.SetEnv("HTTP_PROXY", "")
-	session.SetEnv("HTTPS_PROXY", "")
-	cmd := fmt.Sprintf("set -e; docker ps --format '{{.Image}}' -a| awk '$1 ~ /%s/ {print $1}'| awk -F: '{print $NF}'| head -n1", image)
+	cmd := fmt.Sprintf("set -e; http_proxy='' https_proxy='' docker ps --format '{{.Image}}' -a| awk '$1 ~ /%s/ {print $1}'| awk -F: '{print $NF}'| head -n1", image)
 	output, err := session.Command("/bin/sh", "-c", cmd).CombinedOutput()
 	if err != nil {
 		return "", errors.Wrapf(err, "acquiring image tag from %s for %s failed %s", dockerHost, image, output)
@@ -115,11 +101,9 @@ func imageGetTag(dockerHost string, image string) (string, error) {
 func imagePurge(dockerHost string) error {
 	session := sh.NewSession()
 	session.SetEnv("DOCKER_HOST", dockerHost)
-	session.SetEnv("HTTP_PROXY", "")
-	session.SetEnv("HTTPS_PROXY", "")
 	output, err := session.Command("/bin/sh", "-c", "docker image prune -af").CombinedOutput()
 	if err != nil {
-		return errors.Wrapf(err, "docker image prune -af %s", output)
+		return errors.Wrapf(err, "http_proxy='' https_proxy='' docker image prune -af %s", output)
 	}
 	return nil
 }
@@ -127,12 +111,10 @@ func imagePurge(dockerHost string) error {
 func imagePull(dockerHost string, dir string, image string, tag string) error {
 	session := sh.NewSession()
 	session.SetEnv("DOCKER_HOST", dockerHost)
-	session.SetEnv("HTTP_PROXY", "")
-	session.SetEnv("HTTPS_PROXY", "")
 	session.SetDir(dir)
 	ver := "VER_" + strings.ToUpper(strings.Replace(image, "-", "_", -1))
 	session.SetEnv(ver, tag)
-	cmd := fmt.Sprintf("docker-compose pull %s", image)
+	cmd := fmt.Sprintf("http_proxy='' https_proxy='' docker-compose pull %s", image)
 	output, err := session.Command("/bin/sh", "-c", cmd).CombinedOutput()
 	if err != nil {
 		return errors.Wrapf(err, "docker-compose pull %s failed %s", image, output)
@@ -143,14 +125,12 @@ func imagePull(dockerHost string, dir string, image string, tag string) error {
 func containerCreate(dockerHost string, dir string, image string, tag string, ticket string) error {
 	session := sh.NewSession()
 	session.SetEnv("DOCKER_HOST", dockerHost)
-	session.SetEnv("HTTP_PROXY", "")
-	session.SetEnv("HTTPS_PROXY", "")
 	session.SetEnv("TICKET", ticket)
 	ver := "VER_" + strings.ToUpper(strings.Replace(image, "-", "_", -1))
 	session.SetEnv(ver, tag)
 	session.SetDir(dir)
 	id := fmt.Sprintf("%d", time.Now().UnixNano())
-	cmd := fmt.Sprintf("docker-compose -p %s create --force-recreate %s", id, image)
+	cmd := fmt.Sprintf("http_proxy='' https_proxy='' docker-compose -p %s create --force-recreate %s", id, image)
 	output, err := session.Command("/bin/sh", "-c", cmd).CombinedOutput()
 	if err != nil {
 		return errors.Wrapf(err, "docker-compose -p %s create --force-recreate %s failed %s", id, image, output)
