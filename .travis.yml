@@ -9,10 +9,10 @@ services:
 
 script:
 - make bin
-- make build pack
+#- make build pack
 
 after_success:
-- make push
+#- make push
 - sha1sum dist/syros-pgha > dist/syros-pgha.sha1
 - sha1sum dist/syros-deployctl > dist/syros-deployctl.sha1
 
