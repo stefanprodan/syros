@@ -101,9 +101,9 @@ func imageGetTag(dockerHost string, image string) (string, error) {
 func imagePurge(dockerHost string) error {
 	session := sh.NewSession()
 	session.SetEnv("DOCKER_HOST", dockerHost)
-	output, err := session.Command("/bin/sh", "-c", "docker image prune -af").CombinedOutput()
+	output, err := session.Command("/bin/sh", "-c", "http_proxy='' https_proxy='' docker image prune -af").CombinedOutput()
 	if err != nil {
-		return errors.Wrapf(err, "http_proxy='' https_proxy='' docker image prune -af %s", output)
+		return errors.Wrapf(err, "docker image prune -af %s", output)
 	}
 	return nil
 }
