@@ -159,7 +159,7 @@ test:
 	$(DURATION)
 
 push:
-	@docker login -u "$(DOCKER_USER)" -p "$(DOCKER_PASS)"
+	@echo $(DOCKER_PASS) | docker login -u "$(DOCKER_USER)" --password-stdin
 	@echo ">>> Pushing syros-app to $(REGISTRY)/$(REPOSITORY)"
 	@docker tag syros-app:$(APP_VERSION) $(REPOSITORY)/syros-app:$(APP_VERSION)
 	@docker tag syros-app:$(APP_VERSION) $(REPOSITORY)/syros-app:latest
