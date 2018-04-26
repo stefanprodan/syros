@@ -1,9 +1,13 @@
 # Syros Changelog
 
+### v1.2.6 (release)
+
+* Deployctl ignore the http proxy for docker commands
+
 ### v1.2.5 (release)
 
 * Deployctl Slack notifications
-& PGHA Linux compatibility 
+* PGHA Linux compatibility 
 
 ### v1.2.0 (release)
 
