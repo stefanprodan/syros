@@ -150,29 +150,55 @@ type SshConfig struct {
 func loadSshConfig(dir string, name string) (SshConfig, bool, error) {
 	cfg := SshConfig{}
 	planPath := ""
-	dir = path.Join(dir, "deploy", "integrations")
-	err := filepath.Walk(dir, func(path string, f os.FileInfo, err error) error {
-		if strings.Contains(path, name+".yml") || strings.Contains(path, name+".yaml") {
-			planPath = path
+
+	userIn := os.Getenv("SYROS_SSH_USER")
+	pathIn := os.Getenv("SYROS_SSH_PATH")
+	privateKeyLocation := ""
+	if userIn != "" {
+		if pathIn == "" {
+			privateKeyLocation = fmt.Sprintf("%s/.ssh/id_rsa", os.Getenv("HOME"))
+		} else {
+			privateKeyLocation = pathIn
 		}
-		return nil
-	})
 
-	if err != nil {
-		return cfg, false, errors.Wrapf(err, "Reading from %v failed", dir)
-	}
+		privateKey, err := ioutil.ReadFile(privateKeyLocation)
+		if err != nil {
+			return cfg, false, err
+		}
 
-	if len(planPath) < 1 {
+		cfg := SshConfig{
+			Key:  string(privateKey),
+			User: userIn,
+		}
+
 		return cfg, false, nil
-	}
 
-	data, err := ioutil.ReadFile(planPath)
-	if err != nil {
-		return cfg, false, errors.Wrapf(err, "Reading %v failed", planPath)
-	}
+	} else {
+		dir = path.Join(dir, "deploy", "integrations")
+		err := filepath.Walk(dir, func(path string, f os.FileInfo, err error) error {
+			if strings.Contains(path, name+".yml") || strings.Contains(path, name+".yaml") {
+				planPath = path
+			}
+			return nil
+		})
 
-	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		return cfg, false, errors.Wrapf(err, "Parsing %v failed", planPath)
+		if err != nil {
+			return cfg, false, errors.Wrapf(err, "Reading from %v failed", dir)
+		}
+
+		if len(planPath) < 1 {
+			return cfg, false, nil
+		}
+
+		data, err := ioutil.ReadFile(planPath)
+
+		if err != nil {
+			return cfg, false, errors.Wrapf(err, "Reading %v failed", planPath)
+		}
+
+		if err := yaml.Unmarshal(data, &cfg); err != nil {
+			return cfg, false, errors.Wrapf(err, "Parsing %v failed", planPath)
+		}
 	}
 
 	return cfg, true, nil
