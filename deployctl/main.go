@@ -6,7 +6,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-var version = "undefined"
+var version = "1.3.0"
 
 func main() {
 
